@@ -1,0 +1,217 @@
+.table-p {
+  min-height: 700px;
+  padding: 12px;
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  .el-button--mini {
+    padding: 7px 8px;
+  }
+  .icon-wrap {
+    padding-right: 5px;
+    .el-col {
+      padding: 0 !important;
+    }
+    .icon-box {
+      border: 1px solid #c2c2c2;
+      padding: 5px 8px;
+      cursor: pointer;
+      .el-button {
+        padding: 0;
+        background-color: #fff;
+        color: black;
+        border: none;
+        .el-icon-menu {
+          font-size: 16px;
+        }
+        .el-icon-arrow-down {
+          font-size: 13px;
+          margin-left: -2px;
+        }
+      }
+      &:hover {
+        background-color: #eff3f8;
+        .el-button {
+          background-color: #eff3f8;
+        }
+      }
+    }
+    .icon-box-s {
+      border-left: none;
+      border-right: none;
+    }
+    .icon-box-f {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+    .icon-box-t {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+  th,
+  td {
+    text-align: center;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+  .el-table__header {
+    th {
+      background-color: #eff3f8;
+      border-bottom: 1px solid #ccc;
+      border-top: none;
+      font-size: 13px;
+      font-weight: normal;
+    }
+  }
+  .el-table__fixed-body-wrapper {
+    border-left: 1px solid rgb(230, 230, 230);
+    border-right: 1px solid rgb(230, 230, 230);
+  }
+  .el-pagination {
+    text-align: right;
+    margin-top: 20px;
+  }
+}
+
+.form-p {
+  padding: 12px;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  .el-form-item {
+    margin-bottom: 5px;
+  }
+  .el-button--mini {
+    padding: 7px 8px;
+  }
+  .el-form-item__label {
+    font-weight: normal;
+  }
+  .el-select {
+    .el-input--small {
+      .el-input__icon {
+        line-height: 37px;
+      }
+    }
+  }
+}
+
+.left-side {
+  padding: 10px;
+  background-color: #fff;
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  padding-bottom: 20px;
+  min-height: 770px;
+  .tree-icon-class {
+    font-size: 30px;
+  }
+}
+
+.el-dialog {
+  .el-dialog__header {
+    background: #f8f8f8;
+    color: #333;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 42px;
+    line-height: 42px;
+    border-bottom: 1px solid #e7eaec;
+    .el-dialog__title {
+      font-size: 14px;
+    }
+    .el-dialog__headerbtn {
+      position: inherit;
+    }
+  }
+  .el-dialog__body {
+    background-color: #fff;
+    color: inherit;
+    padding: 30px 30px 30px 20px;
+    border-color: #e7eaec;
+  }
+  .el-dialog__footer {
+    padding: 10px 15px 12px;
+    background: #f0f4f7;
+    border-top: 1px #c7c7c7 solid;
+    .el-button--medium {
+      font-size: 12px;
+      font-weight: normal;
+      margin: 0 3px;
+      margin-right: 7px;
+      margin-left: 7px;
+      padding: 0 15px;
+      border-radius: 3px;
+      height: 32px;
+      line-height: 28px;
+    }
+  }
+  .el-form {
+    .el-form-item__label {
+      font-weight: normal;
+    }
+    .el-select {
+      width: 225px;
+    }
+    .el-textarea__inner {
+      min-height: 100px !important;
+    }
+    .editor{
+      margin-bottom: 50px;
+    } 
+  }
+}
+
+.uploadImg {
+  overflow: hidden;
+  height: 150px;
+  .el-form-item__content {
+    width: 480px;
+    text-align: left;
+    height: 150px;
+  }
+  .el-upload--picture-card {
+    width: 150px;
+    height: 150px;
+    line-height: 150px;
+    border-radius: 0;
+    background-color: #f8f8f8;
+    border: 1px solid #cccccc;
+    margin-right: 0px;
+  }
+  .el-upload-list__item-actions,
+  .is-success {
+    border-radius: 0;
+    width: 150px;
+    height: 150px;
+    margin-right: 10px;
+  }
+  .tip {
+    font-size: 14px;
+    line-height: 24px;
+    width: 480px;
+    text-align: left;
+    margin-left: 100px;
+    color: #333333;
+    margin-top: -8px;
+  }
+  .can-add{
+    .el-upload{
+      display: none;
+    }
+  }
+}
