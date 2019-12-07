@@ -7,6 +7,7 @@
       :value="item.values"
       v-on:input="handleInput($event,item.name,item.type)"
       :rules="initRules(item.type,item.name)"
+      :disabled="disabled"
     />
   </el-form>
 </template>
@@ -25,6 +26,10 @@ export default {
       required: true
     },
     isHaveTable: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
@@ -56,7 +61,7 @@ export default {
       }
       this.$emit("input", value);
     },
-    
+
     initRules(type, name) {
       if (type === "3") {
         return [{ required: true, message: `请输入${name}`, trigger: "blur" }];

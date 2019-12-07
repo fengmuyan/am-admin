@@ -118,6 +118,19 @@ export const constantRoutes = [
         meta: { title: '字典数据', icon: '' }
       }
     ]
+  },
+  {
+    path: '/publish',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'detail/:code',
+        component: () => import('@/views/product/detail/index'),
+        name: '商品详情',
+        meta: { title: '商品详情', icon: '' }
+      }
+    ]
   }
 ]
 

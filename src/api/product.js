@@ -34,3 +34,18 @@ export function getProList(data = {}) {
     data
   })
 }
+
+//获取商品详情
+export function getProDetail(data = {}) {
+  return request({
+    url: '/mounttai/publish/modifyProductInit',
+    method: 'post',
+    data
+  })
+}
+
+
+
+
+
+

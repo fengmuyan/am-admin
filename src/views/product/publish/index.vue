@@ -57,6 +57,15 @@
           <el-form-item label="商品标题：" prop="title">
             <el-input v-model="titleForm.title" style="width:300px"></el-input>
           </el-form-item>
+          <el-form-item label="展示分类：" prop="homepageclass">
+            <el-radio-group v-model="titleForm.homepageclass">
+              <el-radio
+                v-for="(item,index) in homePageClasses"
+                :label="item.hcode"
+                :key="index"
+              >{{item.hname}}</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-form>
         <dynamic-form v-model="naturalDataInit"></dynamic-form>
       </div>
@@ -107,6 +116,7 @@
             :model="uploadForm"
             ref="uploadForm"
             :rules="uploadFormRules"
+            style="width:100%"
           >
             <el-form-item label="宝贝主图：" prop="img_one">
               <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
@@ -114,7 +124,11 @@
             <el-form-item label="宝贝图：" prop="img_two">
               <upload-img :limit="3" @add-item="addItemCenter" v-model="uploadForm.img_two"></upload-img>
             </el-form-item>
-            <el-form-item label="宝贝底图：" prop="img_five">
+            <el-form-item
+              label="宝贝底图："
+              prop="img_five"
+              style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
+            >
               <upload-img :limit="1" @add-item="addItemLast" v-model="uploadForm.img_five"></upload-img>
             </el-form-item>
             <el-form-item label="主图视频比例：" prop="proportion">
@@ -127,7 +141,11 @@
             <el-form-item label="主图视频：" prop="master_video">
               <upload-video @add-item="addVideoFir" v-model="uploadForm.master_video"></upload-video>
             </el-form-item>
-            <el-form-item label="宝贝视频：" prop="baby_video">
+            <el-form-item
+              label="宝贝视频："
+              prop="baby_video"
+              style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
+            >
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
             <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
@@ -135,15 +153,6 @@
             </el-form-item>
             <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item">
               <editor v-model="uploadForm.phoneDesc"></editor>
-            </el-form-item>
-            <el-form-item label="展示分类：" prop="homepageclass">
-              <el-radio-group v-model="uploadForm.homepageclass">
-                <el-radio
-                  v-for="(item,index) in homePageClasses"
-                  :label="item.hcode"
-                  :key="index"
-                >{{item.hname}}</el-radio>
-              </el-radio-group>
             </el-form-item>
           </el-form>
         </div>
@@ -213,7 +222,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <el-button @click="subTableData">发布提交</el-button>
+      <el-button type="primary" @click="subTableData" :loading="loading">发布提交</el-button>
     </div>
     <div v-loading="loading" class="block empty-block" v-else>请先选择一个分类。</div>
   </div>
@@ -228,6 +237,7 @@ import { getProCate, getProData, getHomePageClass } from "@/api/product";
 import md5 from "js-md5";
 import axios from "axios";
 import { getToken } from "@/utils/auth";
+import { MessageBox } from "element-ui";
 import {
   initFormData,
   deInitFormData,
@@ -292,12 +302,12 @@ export default {
         proportion: "",
         webDesc: "",
         phoneDesc: "",
-        homepageclass: "",
         imgCenter: []
       },
       titleForm: {
         produname: "",
-        title: ""
+        title: "",
+        homepageclass: ""
       },
       payForm: {
         paymethod: "1",
@@ -355,16 +365,16 @@ export default {
         ],
         phoneDesc: [
           { required: true, message: "请输入手机端描述", trigger: "blur" }
-        ],
-        homepageclass: [
-          { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ]
       },
       titleFormRules: {
         produname: [
           { required: true, message: "请输入商品名称", trigger: "blur" }
         ],
-        title: [{ required: true, message: "请输入商品标题", trigger: "blur" }]
+        title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
+        homepageclass: [
+          { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
+        ]
       },
 
       payFormRules: {
@@ -400,7 +410,7 @@ export default {
       if (code1 === 200) {
         this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
       }
-      if (code1 === 200) {
+      if (code2 === 200) {
         this.homePageClasses = homePageClasses;
       }
     } catch (err) {
@@ -498,6 +508,7 @@ export default {
 
     /* 拼装提交数据 */
     async subTableData() {
+      this.loading = true;
       try {
         const {
           data: { code, msg }
@@ -511,9 +522,21 @@ export default {
             }
           }
         );
+        this.loading = false;
         if (code === 200) {
+          this.msgSuccess("发布成功");
+          setTimeout(() => {
+            this.$router.go(-1);
+          }, 1000);
+        } else {
+          MessageBox({
+            message: msg,
+            type: "error",
+            duration: 5 * 1000
+          });
         }
       } catch (err) {
+        this.loading = false;
         console.log(err);
       }
     },
@@ -550,7 +573,7 @@ export default {
       formData.append("grossweight", this.valuationForm.grossweight);
       formData.append("netweight", this.valuationForm.netweight);
       formData.append("weightunit", this.valuationForm.weightunit);
-      formData.append("homepageclass", this.uploadForm.homepageclass);
+      formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);
       formData.append("img_one", this.uploadForm.img_one);

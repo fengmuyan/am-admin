@@ -12,19 +12,6 @@
               style="width: 240px"
             />
           </el-form-item>
-          <el-form-item label="上架状态" prop="state">
-            <el-select
-              v-model="queryForm.state"
-              placeholder="请输入上架状态"
-              clearable
-              size="small"
-              style="width: 240px"
-            >
-              <el-option label="上架" value="1"></el-option>
-              <el-option label="下架" value="2"></el-option>
-              <el-option label="放入仓库" value="3"></el-option>
-            </el-select>
-          </el-form-item>
           <el-form-item label="发布时间" prop="dateRange">
             <el-date-picker
               v-model="queryForm.dateRange"
@@ -47,6 +34,9 @@
 
     <div class="table-p">
       <el-row :gutter="10" class="mb10 f-l">
+        <el-col :span="1.5">
+          <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">发布商品</el-button>
+        </el-col>
         <el-col :span="1.5">
           <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
         </el-col>
@@ -91,6 +81,18 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-sold-out"
+              @click="handleOffshelf(scope.row)"
+            >下架</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-box"
+              @click="handleWarehouse(scope.row)"
+            >放入库存</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -115,7 +117,7 @@ export default {
       formShow: true,
       queryForm: {
         dateRange: [],
-        state: undefined,
+        state: 1,
         conditionParameter: undefined
       },
       pageNum: 1,
@@ -165,6 +167,25 @@ export default {
       this.$router.push({
         path: `/publish/detail/${item.producode}`
       });
+    },
+    handleAdd() {
+      this.$router.push({
+        path: `/publish/publish`
+      });
+    },
+    handleOffshelf() {
+      this.$confirm("确定要下架吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {});
+    },
+    handleWarehouse() {
+      this.$confirm("确定要放入库存吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {});
     }
   }
 };

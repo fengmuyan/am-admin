@@ -8,7 +8,7 @@
       :before-upload="beforeUploadVideo"
       :show-file-list="false"
     >
-      <video v-if="video !==''" src controls="controls" class="video">您的浏览器不支持视频播放</video>
+      <video v-if="video !==''" :src="video" controls="controls" class="video">您的浏览器不支持视频播放</video>
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
   </div>
@@ -18,9 +18,17 @@
 export default {
   data() {
     return {
-      video: "",
-      isShow: true
+      isShow: true,
+      video: ""
     };
+  },
+  props: {
+    file: {
+      type: Object
+    }
+  },
+  created() {
+    this.video = this.file.video;
   },
   methods: {
     beforeUploadVideo(file) {
@@ -43,10 +51,8 @@ export default {
         return false;
       }
     },
-
     upload(file) {
       this.video = file.file;
-      this.$emit("add-item", this.video);
     }
   }
 };

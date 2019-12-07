@@ -1,6 +1,6 @@
 <template>
   <div class="box-wrap">
-    <el-button @click="inputAll=!inputAll">{{!inputAll?'批量填充':'取消批量填充'}}</el-button>
+    <el-button @click="inputAllAc">{{!inputAll?'批量填充':'取消批量填充'}}</el-button>
     <el-form class="form-table">
       <table border="1" cellpadding="0" cellspacing="0">
         <thead>
@@ -42,7 +42,8 @@ export default {
   data() {
     return {
       inputAll: false,
-      thInputData: []
+      thInputData: [],
+      lock: true
     };
   },
   props: {
@@ -59,16 +60,21 @@ export default {
     thInputData: {
       deep: true,
       handler(val) {
-        this.itemIdArr.map((item, index) => {
-          item.input.map((v, i) => {
-            v.values = this.thInputData[i].values;
+        if (!this.lock) {
+          this.itemIdArr.map((item, index) => {
+            item.input.map((v, i) => {
+              v.values = this.thInputData[i].values;
+            });
           });
-        });
+        }
       }
     }
   },
   created() {
-    this.thInputData = deepClone(this.itemIdArr[0].input);
+    this.thInputData = [
+      { name: "价格", values: "", unit: "元" },
+      { name: "库存", values: "", unit: "件" }
+    ];
   },
   methods: {
     getItemName(index, rangeArr) {
@@ -76,6 +82,10 @@ export default {
         j => j.itemId === rangeArr[index]
       );
       return itemName.value;
+    },
+    inputAllAc() {
+      this.lock = false;
+      this.inputAll = !this.inputAll;
     }
   }
 };

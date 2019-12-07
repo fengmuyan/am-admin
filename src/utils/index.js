@@ -365,16 +365,18 @@ export function removeClass(ele, cls) {
 export function initFormData(obj) {
   return obj.map(item => {
     if (item.type === "1") {
+      const haveChecked = item.values.filter(v => v.checked && v.checked === true);
       return Object.assign(item, {
         initVal: [...item.values],
         valList: item.values.map(val => val.value),
-        values: []
+        values: haveChecked ? haveChecked.map(m => { return m.value }) : []
       });
     } else if (item.type === "2") {
+      const haveChecked = item.values.filter(v => v.checked && v.checked === true)[0];
       return Object.assign(item, {
         initVal: [...item.values],
         valList: item.values.map(val => val.value),
-        values: ""
+        values: haveChecked ? haveChecked.value : ""
       });
     } else {
       return item;
@@ -452,8 +454,8 @@ export function toCombination(sourceList) {
         rangeList.push({
           rangeArr: [itemId],
           input: [
-            { name: "价格", code: "10000005", type: "3", values: "", unit: "元" },
-            { name: "库存", code: "10000006", type: "3", values: "", unit: "件" }]
+            { name: "价格", values: "", unit: "元" },
+            { name: "库存", values: "", unit: "件" }]
         });
       } else {
         for (let m = 0; m < cloneRangeList.length; m++) {
@@ -461,8 +463,8 @@ export function toCombination(sourceList) {
           rangeList.push({
             rangeArr: [...rangeArr, itemId],
             input: [
-              { name: "价格", code: "10000005", type: "3", values: "", unit: "元" },
-              { name: "库存", code: "10000006", type: "3", values: "", unit: "件" }]
+              { name: "价格", values: "", unit: "元" },
+              { name: "库存", values: "", unit: "件" }]
           });
         }
       }
@@ -586,6 +588,42 @@ export function setTableSubData(original, present, timeIdData) {
   }, []);
   return subData
 }
+
+/**
+ * @desc 动态表格数据匹配回填input值
+ * @param {Array} serverData 服务端返回数据
+ * @param {Array} timeIdArr 动态表格绑定数据
+ * 
+ */
+export function initTableInputData(serverData, timeIdArr) {
+  return timeIdArr.map((item, index) => {
+    const data = serverData[index];
+    return Object.assign(item, {
+      input: [
+        { name: "价格", values: data.totalprice, unit: "元" },
+        { name: "库存", values: data.stocknums, unit: "件" }],
+      cmdtcode: data.cmdtcode,
+      uid: data.uid
+    })
+  })
+}
+
+/**
+ * @desc 返回动态表单修改提交数据
+ * @param {Array} timeIdArr 动态表格绑定数据
+ * 
+ */
+export function subTableInputData(timeIdArr) {
+  return timeIdArr.map(item => {
+    return {
+      cmdtcode: item.cmdtcode,
+      uid: item.uid,
+      prices: item.input[0].values,
+      stockNums: item.input[1].values
+    }
+  })
+}
+
 
 
 
