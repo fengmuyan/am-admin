@@ -71,14 +71,15 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="productList">
+        <el-table-column label="商品编码" prop="ccode" />
         <el-table-column label="商品类目" prop="cmdtclassname" />
-        <el-table-column label="商品名称" prop="title" />
+        <el-table-column label="商品名称" prop="produname" />
+        <el-table-column label="商品标题" prop="title" />
         <el-table-column label="付款方式" prop="voPaymethod" />
         <el-table-column label="库存计数" prop="voStockmethod" />
         <el-table-column label="上架状态" prop="vostate" />
-        <el-table-column label="上架状态" prop="vostate" />
         <el-table-column label="上架时间" prop="publishtime" />
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="250px">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
             <el-button
@@ -107,7 +108,10 @@
   </div>
 </template>
 <script>
+import axios from "axios";
 import { getProList } from "@/api/product";
+import { getToken } from "@/utils/auth";
+import { MessageBox } from "element-ui";
 export default {
   data() {
     return {
@@ -170,22 +174,69 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        path: `/publish/publish`
+        path: `/product/publish`
       });
     },
-    handleOffshelf() {
+    handleOffshelf(item) {
       this.$confirm("确定要下架吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(() => {});
+      }).then(() => {
+        let formData = new FormData();
+        formData.append("moduleNum", "3");
+        formData.append("producode", item.producode);
+        formData.append("invoice", item.invoice);
+        formData.append("state", "2");
+        this.subTableData(formData);
+      });
     },
-    handleWarehouse() {
+    handleWarehouse(item) {
       this.$confirm("确定要放入库存吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(() => {});
+      }).then(() => {
+        let formData = new FormData();
+        formData.append("moduleNum", "3");
+        formData.append("producode", item.producode);
+        formData.append("invoice", item.invoice);
+        formData.append("state", "3");
+        this.subTableData(formData);
+      });
+    },
+
+    /* 拼装提交数据 */
+    async subTableData(formData) {
+      try {
+        this.loading = true;
+        const {
+          data: { code, msg }
+        } = await axios.post(
+          `${process.env.VUE_APP_BASE_API}/mounttai/publish/modifyProductInfo`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: "Bearer " + getToken()
+            }
+          }
+        );
+        this.loading = false;
+        if (code === 200) {
+          this.msgSuccess("修改成功");
+          this.getList();
+        } else {
+          MessageBox({
+            message: msg,
+            type: "error",
+            duration: 5 * 1000
+          });
+        }
+      } catch (err) {
+        this.loading = true;
+        console.log(err);
+      }
     }
   }
 };

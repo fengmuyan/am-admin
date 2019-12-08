@@ -444,6 +444,12 @@ export function InitTableData(arr) {
 export function toCombination(sourceList) {
   var rangeList = [];
   var isFirstItem = true;
+  const input = [
+    { key: "prices", name: "现价", values: "", unit: "元" },
+    { key: "originalprice", name: "原价", values: "", unit: "元" },
+    { key: "stockNums", name: "库存", values: "", unit: "" },
+    { key: "title", name: "标题", values: "", unit: "" },
+    { key: "feature", name: "特色描述", values: "" }]
   sourceList.forEach(function (n) {
     var items = n.values || [];
     var cloneRangeList = deepClone(rangeList);
@@ -453,18 +459,14 @@ export function toCombination(sourceList) {
       if (isFirstItem) {
         rangeList.push({
           rangeArr: [itemId],
-          input: [
-            { name: "价格", values: "", unit: "元" },
-            { name: "库存", values: "", unit: "件" }]
+          input
         });
       } else {
         for (let m = 0; m < cloneRangeList.length; m++) {
           var rangeArr = cloneRangeList[m].rangeArr || [];
           rangeList.push({
             rangeArr: [...rangeArr, itemId],
-            input: [
-              { name: "价格", values: "", unit: "元" },
-              { name: "库存", values: "", unit: "件" }]
+            input: deepClone(input)
           });
         }
       }
@@ -577,12 +579,15 @@ export function setTableSubData(original, present, timeIdData) {
         dataArr.push(cloneData[i]);
       }
     }
+    const inputItemVal = item.input.reduce((pre, item) => {
+      Object.assign(pre, { [item.key]: item.values })
+      return pre;
+    }, {})
     preArr.push({
       saleHashData: md5(JSON.stringify({ salepro: [...dataArr] })),
       ...inputArrVal,
       ...dateArrVal,
-      prices: item.input[0].values,
-      stockNums: item.input[1].values
+      ...inputItemVal
     });
     return preArr;
   }, []);
@@ -600,8 +605,12 @@ export function initTableInputData(serverData, timeIdArr) {
     const data = serverData[index];
     return Object.assign(item, {
       input: [
-        { name: "价格", values: data.totalprice, unit: "元" },
-        { name: "库存", values: data.stocknums, unit: "件" }],
+        { key: "prices", name: "现价", values: data.totalprice, unit: "元" },
+        { key: "originalprice", name: "原价", values: data.originalprice, unit: "元" },
+        { key: "stockNums", name: "库存", values: data.stocknums, unit: "" },
+        { key: "title", name: "标题", values: data.title, unit: "" },
+        { key: "feature", name: "特色描述", values: data.feature }
+      ],
       cmdtcode: data.cmdtcode,
       uid: data.uid
     })
@@ -615,15 +624,18 @@ export function initTableInputData(serverData, timeIdArr) {
  */
 export function subTableInputData(timeIdArr) {
   return timeIdArr.map(item => {
+    console.log(item)
     return {
       cmdtcode: item.cmdtcode,
       uid: item.uid,
       prices: item.input[0].values,
-      stockNums: item.input[1].values
+      originalprice: item.input[1].values,
+      stockNums: item.input[2].values,
+      title: item.input[3].values,
+      feature: item.input[4].values
     }
   })
 }
-
 
 
 

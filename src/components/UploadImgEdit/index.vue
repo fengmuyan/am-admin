@@ -57,11 +57,11 @@ export default {
 
     upload(file) {
       this.fileList[0] = file.file;
-      this._hiddenPlus()
+      this._hiddenPlus();
     },
 
     _hiddenPlus() {
-      if (this.fileList.length === 1) {
+      if (this.fileList.filter(item => Boolean(item)).length === 1) {
         this.isShow = false;
       } else {
         this.isShow = true;

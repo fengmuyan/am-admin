@@ -28,7 +28,7 @@ export default {
     }
   },
   created() {
-    this.video = this.file.video;
+    this.video = this.file ? this.file.video : "";
   },
   methods: {
     beforeUploadVideo(file) {
@@ -53,6 +53,7 @@ export default {
     },
     upload(file) {
       this.video = file.file;
+      this.$emit("add-item");
     }
   }
 };

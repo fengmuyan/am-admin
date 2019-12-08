@@ -6,13 +6,9 @@
         <thead>
           <tr>
             <th v-for="(item,index) in tableArr" :key="index">{{item.name}}</th>
-            <th v-for="(item,index) in thInputData" width="170">
-              <el-input
-                v-if="inputAll"
-                v-model="item.values"
-                :placeholder="`${item.name}(${item.unit})`"
-              ></el-input>
-              <span v-else>{{`${item.name}(${item.unit})`}}</span>
+            <th v-for="(item,index) in thInputData" :width="`${item.width}`">
+              <el-input v-if="inputAll" v-model="item.values" :placeholder="`${item.name}`"></el-input>
+              <span v-else>{{`${item.name}`}}</span>
             </th>
           </tr>
         </thead>
@@ -72,8 +68,11 @@ export default {
   },
   created() {
     this.thInputData = [
-      { name: "价格", values: "", unit: "元" },
-      { name: "库存", values: "", unit: "件" }
+      { name: "现价", values: "", unit: "元", width: 120 },
+      { name: "原价", values: "", unit: "元", width: 120 },
+      { name: "库存", values: "", unit: "", width: 120 },
+      { name: "标题", values: "", unit: "", width: 180 },
+      { name: "特色描述", values: "", unit: "", width: 280 }
     ];
   },
   methods: {
@@ -93,8 +92,6 @@ export default {
 
 <style lang="scss">
 .box-wrap {
-  overflow-x: scroll;
-  width: 1100px;
   .block {
     width: 100px;
     height: 400px;
@@ -103,26 +100,30 @@ export default {
     flex-direction: column;
     justify-content: space-around;
   }
-  table {
-    margin-top: 10px;
-    border-color: rgb(250, 250, 250);
-    min-width: 1100px;
-    td,
-    th {
-      text-align: center;
-    }
-    th {
-      font-size: 15px;
-      color: #666;
-      padding: 6px;
-      background-color: rgb(250, 250, 250);
-    }
-    td {
-      font-size: 14px;
-      background-color: #fff;
-      padding: 5px 6px;
+  .el-form {
+    overflow-x: scroll;
+    table {
+      margin-top: 10px;
+      border-color: rgb(250, 250, 250);
+      min-width: 1500px;
+      td,
+      th {
+        text-align: center;
+      }
+      th {
+        font-size: 15px;
+        color: #666;
+        padding: 6px;
+        background-color: rgb(250, 250, 250);
+      }
+      td {
+        font-size: 14px;
+        background-color: #fff;
+        padding: 5px 6px;
+      }
     }
   }
+
   .form-table {
     .el-form-item__error {
       display: none !important;

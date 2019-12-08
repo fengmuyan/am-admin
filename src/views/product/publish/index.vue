@@ -208,7 +208,6 @@
             <el-radio-group v-model="postSaleForm.state">
               <el-radio label="1">立即上架</el-radio>
               <el-radio label="4">定时上架</el-radio>
-              <el-radio label="2">下架</el-radio>
               <el-radio label="3">放入库存</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -274,7 +273,6 @@ export default {
       homePageClasses: [],
       cateDataText: "",
       cversion: "",
-
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
@@ -284,7 +282,7 @@ export default {
       },
       postSaleForm: {
         invoice: "Y",
-        state: "",
+        state: "3",
         publishtime: ""
       },
       cateForm: {
@@ -316,7 +314,6 @@ export default {
       logisticsForm: {
         issupsubstitute: "Y"
       },
-
       valuationRules: {
         isdiscount: [
           { required: true, message: "请输入折扣方式", trigger: "blur" }
@@ -376,7 +373,6 @@ export default {
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ]
       },
-
       payFormRules: {
         paymethod: [
           { required: true, message: "请输入付款方式", trigger: "blur" }
@@ -548,11 +544,22 @@ export default {
       }, {});
       const naturalDataInit = JSON.parse(JSON.stringify(this.naturalDataInit));
       const saleDataInit = JSON.parse(JSON.stringify(this.saleDataInit));
+      const salInputData = deepClone(saleDataInit)
+        .filter(item => item.type === "3" || item.type === "4")
+        .map(item => {
+          return {
+            key: item.code,
+            value:
+              item.type === "4"
+                ? parseTime(item.values, "{y}-{m}-{d}")
+                : item.values
+          };
+        });
       let formData = new FormData();
       formData.append("ccode", this.cateForm.cateData);
       formData.append("cversion", this.cversion);
       formData.append("produname", this.titleForm.produname);
-      formData.append("title", this.titleForm.produname);
+      formData.append("title", this.titleForm.title);
       formData.append(
         "naturepro",
         JSON.stringify({ naturepro: deInitFormData(naturalDataInit) })
@@ -595,6 +602,9 @@ export default {
           parseTime(this.postSaleForm.publishtime, "{y}-{m}-{d} {h}:{i}:{s}")
         );
       }
+      salInputData.forEach(item => {
+        formData.append(item.key, item.value);
+      });
       return formData;
     },
 

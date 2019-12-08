@@ -14,7 +14,6 @@
 
 <script>
 import DynamicFormItem from "@/components/DynamicFormItem";
-
 export default {
   inheritAttrs: false,
   components: {

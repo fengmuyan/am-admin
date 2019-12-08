@@ -7,20 +7,20 @@
       <div class="block" v-loading="loadingNature">
         <h4>
           自然属性
-          <el-button size="mini" style="float:right" @click="editNaturepro">修改自然属性</el-button>
+          <el-button size="mini" class="f-r" @click="editNaturepro">修改自然属性</el-button>
         </h4>
         <el-form
           :model="titleForm"
           ref="titleForm"
           :rules="titleFormRules"
           label-width="110px"
-          style="border-bottom: 1px solid #f3f4f5;margin-bottom:20px"
+          class="b-t-g m-b-20"
         >
           <el-form-item label="商品名称：" prop="produname">
-            <el-input v-model="titleForm.produname" style="width:300px"></el-input>
+            <el-input v-model="titleForm.produname" class="w-300"></el-input>
           </el-form-item>
           <el-form-item label="商品标题：" prop="title">
-            <el-input v-model="titleForm.title" style="width:300px"></el-input>
+            <el-input v-model="titleForm.title" class="w-300"></el-input>
           </el-form-item>
           <el-form-item label="展示分类：" prop="homepageclass">
             <el-radio-group v-model="titleForm.homepageclass">
@@ -37,14 +37,14 @@
       <div class="block" v-loading="loadingSale">
         <h4>
           销售属性
-          <el-button size="mini" style="float:right" @click="editSalepro">修改销售属性</el-button>
+          <el-button size="mini" class="f-r" @click="editSalepro">修改销售属性</el-button>
         </h4>
         <el-form
           :model="valuationForm"
           ref="valuationForm"
           :rules="valuationRules"
           label-width="110px"
-          style="border-bottom: 1px solid #f3f4f5;margin-bottom:20px"
+          class="b-t-g m-b-20"
         >
           <el-form-item label="计价方式：" prop="pricetype">
             <el-radio-group v-model="valuationForm.pricetype">
@@ -60,10 +60,10 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="净重" prop="netweight">
-              <el-input v-model="valuationForm.netweight" style="width:300px" disabled></el-input>
+              <el-input v-model="valuationForm.netweight" class="w-300" disabled></el-input>
             </el-form-item>
             <el-form-item label="毛重" prop="grossweight">
-              <el-input v-model="valuationForm.grossweight" style="width:300px" disabled></el-input>
+              <el-input v-model="valuationForm.grossweight" class="w-300" disabled></el-input>
             </el-form-item>
           </div>
           <el-form-item label="折扣方式：" prop="isdiscount">
@@ -91,70 +91,68 @@
             :rules="uploadFormRules"
             style="width:100%"
           >
-            <div
-              v-loading="loadingUploadImg"
-              style="border-bottom: 1px solid #f3f4f5;padding-bottom:20px"
-            >
-              <el-form-item label="宝贝主图：" prop="img_one">
-                <upload-img @del-item="delImgItem" :file="[uploadForm.img_one]" ref="imgItemFir"></upload-img>
-              </el-form-item>
-              <el-form-item label="宝贝图：" prop="img_two" class="imgs-item">
-                <upload-img @del-item="delImgItem" :file="[uploadForm.img_two]" ref="imgItemSec"></upload-img>
-                <upload-img
-                  @del-item="delImgItem"
-                  :file="[uploadForm.img_three]"
-                  ref="imgItemThree"
-                ></upload-img>
-                <upload-img @del-item="delImgItem" :file="[uploadForm.img_four]" ref="imgItemFour"></upload-img>
-              </el-form-item>
-              <el-form-item label="宝贝底图：" prop="img_five">
-                <upload-img
-                  :limit="1"
-                  @del-item="delImgItem"
-                  :file="[uploadForm.img_five]"
-                  ref="imgItemFive"
-                ></upload-img>
-                <el-button size="mini" style="float:right" @click="editProImg">修改宝贝图片</el-button>
-              </el-form-item>
+            <div v-loading="loadingUploadImg" class="b-t-g img-loading-box">
+              <div v-if="imgBoxShow">
+                <el-form-item label="宝贝主图：" prop="img_one">
+                  <upload-img @del-item="delImgItem" :file="[uploadForm.img_one]" ref="imgItemFir"></upload-img>
+                </el-form-item>
+                <el-form-item label="宝贝图：" prop="img_two" class="imgs-item">
+                  <upload-img @del-item="delImgItem" :file="[uploadForm.img_two]" ref="imgItemSec"></upload-img>
+                  <upload-img
+                    @del-item="delImgItem"
+                    :file="[uploadForm.img_three]"
+                    ref="imgItemThree"
+                  ></upload-img>
+                  <upload-img
+                    @del-item="delImgItem"
+                    :file="[uploadForm.img_four]"
+                    ref="imgItemFour"
+                  ></upload-img>
+                </el-form-item>
+                <el-form-item label="宝贝底图：" prop="img_five">
+                  <upload-img
+                    :limit="1"
+                    @del-item="delImgItem"
+                    :file="[uploadForm.img_five]"
+                    ref="imgItemFive"
+                  ></upload-img>
+                  <el-button size="mini" class="f-r" @click="editProImg">修改宝贝图片</el-button>
+                </el-form-item>
+              </div>
             </div>
-            <div
-              v-loading="loadingUploadVideo"
-              style="border-bottom: 1px solid #f3f4f5;padding-bottom:20px"
-            >
-              <el-form-item label="主图视频比例：" prop="proportion">
-                <el-radio-group v-model="uploadForm.proportion">
-                  <el-radio label="1">1:1</el-radio>
-                  <el-radio label="2">16:9</el-radio>
-                  <el-radio label="3">3:4</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item label="主图视频：" prop="master_video">
-                <upload-video
-                  @del-item="delVideoItem"
-                  :file="uploadForm.master_video"
-                  ref="master_video"
-                ></upload-video>
-              </el-form-item>
-              <el-form-item label="宝贝视频：" prop="baby_video">
-                <upload-video
-                  @del-item="delVideoItem"
-                  :file="uploadForm.baby_video"
-                  ref="baby_video"
-                ></upload-video>
-                <el-button size="mini" style="float:right" @click="editProVideo">修改宝贝视频</el-button>
-              </el-form-item>
+            <div v-loading="loadingUploadVideo" class="b-t-g video-loading-box">
+              <div v-if="videoBoxShow">
+                <el-form-item label="主图视频比例：" prop="proportion">
+                  <el-radio-group v-model="uploadForm.proportion">
+                    <el-radio label="1">1:1</el-radio>
+                    <el-radio label="2">16:9</el-radio>
+                    <el-radio label="3">3:4</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="主图视频：" prop="master_video">
+                  <upload-video
+                    @add-item="addVideoItemFir"
+                    :file="uploadForm.master_video"
+                    ref="master_video"
+                  ></upload-video>
+                </el-form-item>
+                <el-form-item label="宝贝视频：" prop="baby_video">
+                  <upload-video
+                    @add-item="addVideoItemSec"
+                    :file="uploadForm.baby_video"
+                    ref="baby_video"
+                  ></upload-video>
+                  <el-button size="mini" class="f-r" @click="editProVideo">修改宝贝视频</el-button>
+                </el-form-item>
+              </div>
             </div>
-            <div v-loading="loadingUploadDec" style="padding-bottom:30px">
+            <div v-loading="loadingUploadDec" class="dec-loading-box">
               <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
                 <editor v-model="uploadForm.webDesc"></editor>
               </el-form-item>
               <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item">
                 <editor v-model="uploadForm.phoneDesc"></editor>
-                <el-button
-                  size="mini"
-                  style="float:right;position: relative;bottom:-60px"
-                  @click="editProDec"
-                >修改宝贝文本描述</el-button>
+                <el-button size="mini" class="f-r edit-dec-btn" @click="editProDec">修改宝贝文本描述</el-button>
               </el-form-item>
             </div>
           </el-form>
@@ -199,7 +197,7 @@
       <div class="block" v-loading="loadingServer">
         <h4>
           售后服务
-          <el-button size="mini" style="float:right" @click="editPostSale">修改售后服务</el-button>
+          <el-button size="mini" class="f-r" @click="editPostSale">修改售后服务</el-button>
         </h4>
         <el-form
           :model="postSaleForm"
@@ -226,7 +224,7 @@
               v-model="postSaleForm.publishtime"
               placeholder="请输入上架时间"
               disabled
-              style="width:300px"
+              class="w-300"
             ></el-date-picker>
           </el-form-item>
         </el-form>
@@ -281,6 +279,8 @@ export default {
       loadingUploadDec: false,
       loadingPay: false,
       loadingServer: false,
+      imgBoxShow: true,
+      videoBoxShow: true,
       cmdtclassname: "",
       producode: "",
       naturalData: [],
@@ -318,8 +318,8 @@ export default {
         img_three: "",
         img_four: "",
         img_five: "",
-        master_video: "",
-        baby_video: "",
+        master_video: null,
+        baby_video: null,
         proportion: "",
         webDesc: "",
         phoneDesc: ""
@@ -421,15 +421,29 @@ export default {
       const idx = this.productImgs.findIndex(item => {
         return item.uid === uid;
       });
-      this.productImgs.splice(idx, 1);
+      if (idx !== -1) {
+        this.productImgs.splice(idx, 1);
+      }
     },
 
-    /* 删除图片匹配去掉productVideos中uid */
-    delVideoItem(uid) {
+    /* 删除视频匹配去掉productVideos中uid */
+    addVideoItemFir() {
       const idx = this.productVideos.findIndex(item => {
-        return item.uid === uid;
+        return Number(item.serial) === 1;
       });
-      this.productVideos.splice(idx, 1);
+      if (idx !== -1) {
+        this.productVideos.splice(idx, 1);
+      }
+    },
+
+    /* 删除视频匹配去掉productVideos中uid */
+    addVideoItemSec() {
+      const idx = this.productVideos.findIndex(item => {
+        return Number(item.serial) === 2;
+      });
+      if (idx !== -1) {
+        this.productVideos.splice(idx, 1);
+      }
     },
 
     /* 获取详情信息 */
@@ -510,15 +524,15 @@ export default {
           const imgThree = imgData.find(item => item.serial === 3);
           const imgFour = imgData.find(item => item.serial === 4);
           const imgFive = imgData.find(item => item.serial === 5);
-          this.uploadForm.img_one = imgOne ? imgOne : "";
-          this.uploadForm.img_two = imgTwo ? imgTwo : "";
-          this.uploadForm.img_three = imgThree ? imgThree : "";
-          this.uploadForm.img_four = imgFour ? imgFour : "";
-          this.uploadForm.img_five = imgFive ? imgFive : "";
+          this.uploadForm.img_one = imgOne ? imgOne : null;
+          this.uploadForm.img_two = imgTwo ? imgTwo : null;
+          this.uploadForm.img_three = imgThree ? imgThree : null;
+          this.uploadForm.img_four = imgFour ? imgFour : null;
+          this.uploadForm.img_five = imgFive ? imgFive : null;
           const masterVideo = productVideos.find(item => item.serial === 1);
           const babyVideo = productVideos.find(item => item.serial === 2);
-          this.uploadForm.master_video = masterVideo ? masterVideo : "";
-          this.uploadForm.baby_video = babyVideo ? babyVideo : "";
+          this.uploadForm.master_video = masterVideo ? masterVideo : null;
+          this.uploadForm.baby_video = babyVideo ? babyVideo : null;
           this.uploadForm.proportion = masterVideo
             ? String(masterVideo.proportion)
             : "";
@@ -593,6 +607,7 @@ export default {
     /* 商品图片formData */
     editProImg() {
       this.loadingUploadImg = true;
+      this.imgBoxShow = false;
       let formData = new FormData();
       const cloneData = deepClone(this.productImgs);
       formData.append("moduleNum", "4");
@@ -629,27 +644,27 @@ export default {
     /* 商品视频formData */
     editProVideo() {
       this.loadingUploadVideo = true;
+      this.videoBoxShow = false;
       let formData = new FormData();
       formData.append("moduleNum", "5");
       formData.append("producode", this.producode);
       formData.append(
         "productVideos",
-        JSON.stringify([])
-        /* JSON.stringify(
+        JSON.stringify(
           this.productVideos.map(item => {
             return item.uid;
           })
-        ) */
+        )
       );
       formData.append("master_video", this.$refs.master_video.video);
       formData.append("baby_video", this.$refs.baby_video.video);
-      /* this.productImgs.forEach(item => {
+      this.productVideos.forEach(item => {
         if (Number(item.serial) === 1) {
           formData.delete("master_video");
         } else if (Number(item.serial) === 2) {
           formData.delete("baby_video");
         }
-      }); */
+      });
       formData.append("proportion", this.uploadForm.proportion);
       this.subTableData(formData);
     },
@@ -703,14 +718,16 @@ export default {
           }
         );
         if (code === 200) {
+          await this.getDetailData();
           this.msgSuccess("修改成功");
-          this.getDetailData();
+          this._loadingCancel();
         } else {
           MessageBox({
             message: msg,
             type: "error",
             duration: 5 * 1000
           });
+          this._loadingCancel();
         }
       } catch (err) {
         this._loadingCancel();
@@ -727,6 +744,8 @@ export default {
       this.loadingUploadDec = false;
       this.loadingPay = false;
       this.loadingServer = false;
+      this.imgBoxShow = true;
+      this.videoBoxShow = true;
     }
   }
 };
@@ -752,7 +771,7 @@ export default {
       flex-direction: row;
     }
     .editor-item {
-      margin-bottom: 50px;
+      margin-bottom: 70px;
       .avatar-uploader {
         display: none;
       }
@@ -766,6 +785,21 @@ export default {
         }
       }
     }
+    .img-loading-box {
+      margin-bottom: 20px;
+      height: 540px;
+    }
+    .video-loading-box {
+      margin-bottom: 20px;
+      height: 440px;
+    }
+    .dec-loading-box {
+      padding-bottom: 30px;
+    }
+    .edit-dec-btn {
+      position: relative;
+      bottom: -60px;
+    }
   }
   .empty-block {
     height: 600px;
@@ -775,6 +809,18 @@ export default {
     .el-loading-spinner {
       top: 0;
     }
+  }
+  .b-t-g {
+    border-bottom: 1px solid #f3f4f5;
+  }
+  .f-r {
+    float: right;
+  }
+  .w-300 {
+    width: 300px;
+  }
+  .m-b-20 {
+    margin-bottom: 20px;
   }
 }
 </style>
