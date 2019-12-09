@@ -152,7 +152,7 @@
             :rules="uploadFormRules"
             style="width:100%"
           >
-            <el-form-item label="商品主图：" prop="img_one">
+            <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
               <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
             </el-form-item>
             <el-form-item label="商品图：" prop="img_two">
@@ -182,11 +182,11 @@
             >
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
-            <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
-              <editor v-model="uploadForm.webDesc"></editor>
+            <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
+              <editor @input="webEditor" v-model="uploadForm.webDesc"></editor>
             </el-form-item>
-            <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item">
-              <editor v-model="uploadForm.phoneDesc"></editor>
+            <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
+              <editor @input="phoneEditor" v-model="uploadForm.phoneDesc"></editor>
             </el-form-item>
           </el-form>
         </div>
@@ -459,6 +459,7 @@ export default {
     /* 拼装提交数据 */
     addItemFir(val) {
       this.uploadForm.img_one = val[0];
+      this.$refs["uploadElement"].clearValidate();
     },
 
     /* 拼装提交数据 */
@@ -479,6 +480,14 @@ export default {
     /* 拼装提交数据 */
     addVideoSec(val) {
       this.uploadForm.baby_video = val;
+    },
+
+    webEditor() {
+      this.$refs["webDesc"].clearValidate();
+    },
+
+    phoneEditor() {
+      this.$refs["phoneDesc"].clearValidate();
     },
 
     /* 处理成动态表格数据 */
@@ -585,20 +594,19 @@ export default {
           if (valid) resolve();
         });
       });
-      let validateArr = [p1, p2, p3, p4, p5];
-      if ( this.$refs.dynamicTable) {
+      let validateArr = [p1, p2, p4, p5];
+      if (this.$refs.dynamicTable) {
         const p6 = new Promise((resolve, reject) => {
-          this.$refs.dynamicTable.validatInit(valid => {});
+          this.$refs.dynamicTable.validatInit(valid => {
+            if (valid) resolve();
+          });
         });
         validateArr.push(p6);
       }
       Promise.all(validateArr).then(() => {
-
+        alert("验证通过");
       });
     },
-
-    /* 拼装提交数据 */
-    _errVerify() {},
 
     /* 拼装提交数据 */
     async _subTableData() {
@@ -781,6 +789,9 @@ export default {
       margin-bottom: 70px;
       .avatar-uploader {
         display: none;
+      }
+      .el-form-item__error{
+        padding-top: 50px;
       }
     }
     .el-input .el-input__count {

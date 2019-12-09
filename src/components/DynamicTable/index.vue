@@ -34,7 +34,6 @@
         </tbody>
       </table>
     </el-form>
-    <button @click="validatInit">验证</button>
   </div>
 </template>
 
@@ -46,7 +45,8 @@ export default {
       inputAll: false,
       thInputData: [],
       lock: true,
-      tableForm: {}
+      tableForm: {},
+      allRight: false
     };
   },
   props: {
@@ -95,19 +95,17 @@ export default {
       this.inputAll = !this.inputAll;
     },
 
-    validate() {
-      this.$emit("valid", "wf");
-    },
-
-    validatInit() {
+    validatInit(fn) {
       this.itemIdArr.forEach(item => {
         item.input.forEach(v => {
           this._validat(v.validateType, v, v.values);
         });
       });
+      fn.call(this, this.allRight);
     },
 
     handleInput(val, itemId, key, validateType) {
+      this.allRight = true;
       const select = this.itemIdArr.find(item => {
         return itemId.join(",") === item.rangeArr.join(",");
       });
@@ -122,12 +120,14 @@ export default {
         const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
         if (!patter.test(val)) {
           item.validate = true;
+          this.allRight = false;
         } else {
           item.validate = false;
         }
       } else if (validateType === "text") {
         if (val === "") {
           item.validate = true;
+          this.allRight = false;
         } else {
           item.validate = false;
         }
