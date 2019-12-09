@@ -3,15 +3,18 @@
     <!-- 图片上传组件辅助 -->
     <el-upload
       class="avatar-uploader quill-img"
-      :action="uploadImgUrl"
+      action="#"
       name="file"
-      :headers="headers"
       :show-file-list="false"
-      :on-success="quillImgSuccess"
-      :on-error="uploadError"
       :before-upload="quillImgBefore"
-      accept=".jpg, .jpeg, .png, .gif"
-    ></el-upload>
+      list-type="picture-card"
+      :auto-upload="false"
+      :on-change="upload"
+    >
+      <div slot="file" slot-scope="{file}">
+        <img id="img-test" :src="file.url" alt />
+      </div>
+    </el-upload>
 
     <!-- 富文本组件 -->
     <quill-editor
@@ -23,6 +26,15 @@
       @focus="onEditorFocus($event)"
       @change="onEditorChange($event)"
     ></quill-editor>
+
+    <!-- 添加或修改参数配置对话框 -->
+    <el-dialog title="上传图片列表" :visible.sync="open" width="700px">
+      <el-form ref="form" :model="imgForm" label-width="100px"></el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary">确 定</el-button>
+        <el-button>取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -89,10 +101,8 @@ export default {
           }
         }
       },
-      uploadImgUrl: process.env.VUE_APP_BASE_API + "/common/upload", // 上传的图片服务器地址
-      headers: {
-        Authorization: "Bearer " + getToken()
-      }
+      open: false,
+      imgForm: {}
     };
   },
   watch: {
@@ -123,26 +133,11 @@ export default {
       }
     },
 
-    quillImgSuccess(res, file) {
-      // res为图片服务器返回的数据
-      // 获取富文本组件实例
+    upload(file) {
       let quill = this.$refs.quillEditor.quill;
-      // 如果上传成功
-      if (res.code == 200) {
-        // 获取光标所在位置
-        let length = quill.getSelection().index;
-        // 插入图片  res.url为服务器返回的图片地址
-        quill.insertEmbed(length, "image", res.url);
-        // 调整光标到最后
-        quill.setSelection(length + 1);
-      } else {
-        this.$message.error("图片插入失败");
-      }
-    },
-    // 富文本图片上传失败
-    uploadError() {
-      // loading动画消失
-      this.$message.error("图片插入失败");
+      let length = quill.getSelection().index;
+      quill.insertEmbed(length, "image", 'sddad');
+      quill.setSelection(length + 1);
     }
   }
 };
@@ -152,6 +147,7 @@ export default {
 .editor {
   line-height: normal !important;
   height: 260px;
+  width: 1130px;
 }
 .el-upload {
   display: none;

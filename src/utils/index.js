@@ -445,11 +445,11 @@ export function toCombination(sourceList) {
   var rangeList = [];
   var isFirstItem = true;
   const input = [
-    { key: "prices", name: "现价", values: "", unit: "元" },
-    { key: "originalprice", name: "原价", values: "", unit: "元" },
-    { key: "stockNums", name: "库存", values: "", unit: "" },
-    { key: "title", name: "标题", values: "", unit: "" },
-    { key: "feature", name: "特色描述", values: "" }]
+    { key: "prices", name: "现价", values: "", unit: "元", validate: false, validateType: "num" },
+    { key: "originalprice", name: "原价", values: "", unit: "元", validate: false, validateType: "num" },
+    { key: "stockNums", name: "库存", values: "", unit: "", validate: false, validateType: "num" },
+    { key: "title", name: "标题", values: "", unit: "", validate: false, validateType: "text" },
+    { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" }]
   sourceList.forEach(function (n) {
     var items = n.values || [];
     var cloneRangeList = deepClone(rangeList);

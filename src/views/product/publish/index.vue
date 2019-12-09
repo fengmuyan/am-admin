@@ -10,7 +10,7 @@
           }"
         >
           <el-cascader
-            placeholder="试试搜索：苹果"
+            placeholder="试试搜索：苹果 / pg"
             :options="proOptionsInit"
             v-model="cateForm.cateData"
             filterable
@@ -52,10 +52,22 @@
           style="border-bottom: 1px solid #f3f4f5;margin-bottom:20px"
         >
           <el-form-item label="商品名称：" prop="produname">
-            <el-input v-model="titleForm.produname" style="width:300px"></el-input>
+            <el-input
+              v-model="titleForm.produname"
+              style="width:400px"
+              maxlength="30"
+              clearable
+              placeholder="请输入商品名称"
+            ></el-input>
           </el-form-item>
           <el-form-item label="商品标题：" prop="title">
-            <el-input v-model="titleForm.title" style="width:300px"></el-input>
+            <el-input
+              v-model="titleForm.title"
+              style="width:400px"
+              maxlength="30"
+              clearable
+              placeholder="请输入商品标题"
+            ></el-input>
           </el-form-item>
           <el-form-item label="展示分类：" prop="homepageclass">
             <el-radio-group v-model="titleForm.homepageclass">
@@ -67,7 +79,7 @@
             </el-radio-group>
           </el-form-item>
         </el-form>
-        <dynamic-form v-model="naturalDataInit"></dynamic-form>
+        <dynamic-form v-model="naturalDataInit" ref="dynamicFormNatural"></dynamic-form>
       </div>
       <div class="block">
         <h4>销售属性</h4>
@@ -92,10 +104,22 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="净重" prop="netweight">
-              <el-input v-model="valuationForm.netweight" style="width:300px"></el-input>
+              <el-input
+                v-model="valuationForm.netweight"
+                maxlength="8"
+                style="width:400px"
+                placeholder="请输入净重"
+                clearable
+              ></el-input>
             </el-form-item>
             <el-form-item label="毛重" prop="grossweight">
-              <el-input v-model="valuationForm.grossweight" style="width:300px"></el-input>
+              <el-input
+                v-model="valuationForm.grossweight"
+                maxlength="8"
+                style="width:400px"
+                placeholder="请输入毛重"
+                clearable
+              ></el-input>
             </el-form-item>
           </div>
           <el-form-item label="折扣方式：" prop="isdiscount">
@@ -105,8 +129,18 @@
             </el-radio-group>
           </el-form-item>
         </el-form>
-        <dynamic-form v-model="saleDataInit" :isHaveTable="true" @table-show="tableShow"></dynamic-form>
-        <dynamic-table v-if="tableIsShow" :itemIdArr="itemIdArr" :tableArr="tableArr"></dynamic-table>
+        <dynamic-form
+          v-model="saleDataInit"
+          :isHaveTable="true"
+          @table-show="tableShow"
+          ref="dynamicFormSale"
+        ></dynamic-form>
+        <dynamic-table
+          v-if="tableIsShow"
+          :itemIdArr="itemIdArr"
+          :tableArr="tableArr"
+          ref="dynamicTable"
+        ></dynamic-table>
       </div>
       <div class="block">
         <h4>图文描述</h4>
@@ -118,14 +152,14 @@
             :rules="uploadFormRules"
             style="width:100%"
           >
-            <el-form-item label="宝贝主图：" prop="img_one">
+            <el-form-item label="商品主图：" prop="img_one">
               <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
             </el-form-item>
-            <el-form-item label="宝贝图：" prop="img_two">
+            <el-form-item label="商品图：" prop="img_two">
               <upload-img :limit="3" @add-item="addItemCenter" v-model="uploadForm.img_two"></upload-img>
             </el-form-item>
             <el-form-item
-              label="宝贝底图："
+              label="商品底图："
               prop="img_five"
               style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
             >
@@ -142,7 +176,7 @@
               <upload-video @add-item="addVideoFir" v-model="uploadForm.master_video"></upload-video>
             </el-form-item>
             <el-form-item
-              label="宝贝视频："
+              label="商品视频："
               prop="baby_video"
               style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
             >
@@ -216,12 +250,12 @@
               type="datetime"
               v-model="postSaleForm.publishtime"
               placeholder="请输入上架时间"
-              style="width:300px"
+              style="width:400px"
             ></el-date-picker>
           </el-form-item>
         </el-form>
       </div>
-      <el-button type="primary" @click="subTableData" :loading="loading">发布提交</el-button>
+      <el-button type="primary" @click="formdataSubVerify" :loading="loading">发布提交</el-button>
     </div>
     <div v-loading="loading" class="block empty-block" v-else>请先选择一个分类。</div>
   </div>
@@ -232,11 +266,11 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
 import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
-import { getProCate, getProData, getHomePageClass } from "@/api/product";
 import md5 from "js-md5";
 import axios from "axios";
 import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
+import { getProCate, getProData, getHomePageClass } from "@/api/product";
 import {
   initFormData,
   deInitFormData,
@@ -258,11 +292,31 @@ export default {
     Editor
   },
   data() {
+    let patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    var validateNetWeight = (rule, value, callback) => {
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else {
+        if (!patter.test(this.valuationForm.grossweight)) {
+          this.$refs.valuationForm.validateField("grossweight");
+        }
+        callback();
+      }
+    };
+    var validateGrossWeight = (rule, value, callback) => {
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else if (value < this.valuationForm.netweight) {
+        callback(new Error("毛重不能小于净重"));
+      } else {
+        callback();
+      }
+    };
     return {
-      loading: false,
+      loading: false, //
+      haveCateData: false, //
       proOptions: [],
       proOptionsInit: [],
-      haveCateData: false,
       naturalData: [],
       naturalDataInit: [],
       saleData: [],
@@ -305,7 +359,7 @@ export default {
       titleForm: {
         produname: "",
         title: "",
-        homepageclass: ""
+        homepageclass: "10000004"
       },
       payForm: {
         paymethod: "1",
@@ -321,10 +375,14 @@ export default {
         pricetype: [
           { required: true, message: "请输入计价方式", trigger: "blur" }
         ],
-        grossweight: [
-          { required: true, message: "请输入毛重", trigger: "blur" }
+        netweight: [
+          { required: true, message: "请输入净重", trigger: "blur" },
+          { validator: validateNetWeight, trigger: ["change", "blur"] }
         ],
-        netweight: [{ required: true, message: "请输入净重", trigger: "blur" }],
+        grossweight: [
+          { required: true, message: "请输入毛重", trigger: "blur" },
+          { validator: validateGrossWeight, trigger: ["change", "blur"] }
+        ],
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
         ]
@@ -341,21 +399,6 @@ export default {
       uploadFormRules: {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
-        ],
-        img_two: [
-          { required: true, message: "请输入商品图片", trigger: "blur" }
-        ],
-        img_five: [
-          { required: true, message: "请输入商品底图", trigger: "blur" }
-        ],
-        master_video: [
-          { required: true, message: "请输入商品主视频", trigger: "blur" }
-        ],
-        baby_video: [
-          { required: true, message: "请输入宝贝视频", trigger: "blur" }
-        ],
-        proportion: [
-          { required: true, message: "请输入视频比例", trigger: "blur" }
         ],
         webDesc: [
           { required: true, message: "请输入电脑端描述", trigger: "blur" }
@@ -388,7 +431,6 @@ export default {
       }
     };
   },
-
   async created() {
     try {
       const [
@@ -413,20 +455,28 @@ export default {
       console.log(err);
     }
   },
-
   methods: {
+    /* 拼装提交数据 */
     addItemFir(val) {
       this.uploadForm.img_one = val[0];
     },
+
+    /* 拼装提交数据 */
     addItemLast(val) {
       this.uploadForm.img_five = val[0];
     },
+
+    /* 拼装提交数据 */
     addItemCenter(val) {
       this.uploadForm.imgCenter = val;
     },
+
+    /* 拼装提交数据 */
     addVideoFir(val) {
       this.uploadForm.master_video = val;
     },
+
+    /* 拼装提交数据 */
     addVideoSec(val) {
       this.uploadForm.baby_video = val;
     },
@@ -449,6 +499,7 @@ export default {
       }
     },
 
+    /* 拼装提交数据 */
     dataFilter(node, keyword) {
       if (
         node.data.enlabel.includes(keyword) ||
@@ -461,11 +512,13 @@ export default {
       }
     },
 
+    /* 拼装提交数据 */
     cateChange(val) {
       this.cateForm.cateInputArr = [];
       this._selectCode(this.proOptionsInit, val);
     },
 
+    /* 拼装提交数据 */
     proPublish(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -498,12 +551,57 @@ export default {
       });
     },
 
+    /* 拼装提交数据 */
     switchCate() {
       this.haveCateData = false;
     },
 
     /* 拼装提交数据 */
-    async subTableData() {
+    formdataSubVerify() {
+      const p1 = new Promise((resolve, reject) => {
+        this.$refs["titleForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      });
+      const p2 = new Promise((resolve, reject) => {
+        this.$refs["valuationForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      });
+      const p3 = new Promise((resolve, reject) => {
+        this.$refs["uploadForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      });
+      const p4 = new Promise((resolve, reject) => {
+        this.$refs.dynamicFormNatural.$refs["[object Object]"].validate(
+          valid => {
+            if (valid) resolve();
+          }
+        );
+      });
+      const p5 = new Promise((resolve, reject) => {
+        this.$refs.dynamicFormSale.$refs["[object Object]"].validate(valid => {
+          if (valid) resolve();
+        });
+      });
+      let validateArr = [p1, p2, p3, p4, p5];
+      if ( this.$refs.dynamicTable) {
+        const p6 = new Promise((resolve, reject) => {
+          this.$refs.dynamicTable.validatInit(valid => {});
+        });
+        validateArr.push(p6);
+      }
+      Promise.all(validateArr).then(() => {
+
+      });
+    },
+
+    /* 拼装提交数据 */
+    _errVerify() {},
+
+    /* 拼装提交数据 */
+    async _subTableData() {
       this.loading = true;
       try {
         const {
@@ -537,6 +635,7 @@ export default {
       }
     },
 
+    /* 拼装提交数据 */
     _initFormdataSub() {
       const tags = this.cateForm.cateInputArr.reduce((pre, item) => {
         Object.assign(pre, { [item.label]: item.inputVal });
@@ -608,6 +707,7 @@ export default {
       return formData;
     },
 
+    /* 拼装提交数据 */
     _selectCode(arr, val) {
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].value === val && arr[i].tagArr) {
@@ -620,6 +720,7 @@ export default {
       }
     },
 
+    /* 拼装提交数据 */
     _delEmptyVal(arr) {
       return arr.map(item => {
         if (item.children && item.children.length === 0) {
@@ -631,6 +732,7 @@ export default {
       });
     },
 
+    /* 拼装提交数据 */
     _initDataArr(arr) {
       return arr.map(item => {
         const idx =
@@ -680,6 +782,9 @@ export default {
       .avatar-uploader {
         display: none;
       }
+    }
+    .el-input .el-input__count {
+      color: rgb(230, 230, 230) !important;
     }
   }
   .empty-block {

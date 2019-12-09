@@ -6,7 +6,7 @@
       :item="item"
       :value="item.values"
       v-on:input="handleInput($event,item.name,item.type)"
-      :rules="initRules(item.type,item.name)"
+      :rules="item.required === 'Y'?initRules(item.type,item.name,item.validexp):[]"
       :disabled="disabled"
     />
   </el-form>
@@ -61,9 +61,22 @@ export default {
       this.$emit("input", value);
     },
 
-    initRules(type, name) {
+    initRules(type, name, validexp) {
       if (type === "3") {
-        return [{ required: true, message: `请输入${name}`, trigger: "blur" }];
+        return [
+          { required: true, message: `请输入${name}`, trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              let patter = new RegExp(validexp);
+              if (!patter.test(value)) {
+                callback(new Error("请输入正确格式！"));
+              } else {
+                callback();
+              }
+            },
+            trigger: ["change", "blur"]
+          }
+        ];
       } else if (type === "2") {
         return [
           { required: true, message: `请选择${name}`, trigger: "change" }

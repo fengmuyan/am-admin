@@ -1,6 +1,6 @@
 <template>
   <div class="box-wrap">
-    <el-button @click="inputAllAc">{{!inputAll?'批量填充':'取消批量填充'}}</el-button>
+    <!-- <el-button @click="inputAllAc">{{!inputAll?'批量填充':'取消批量填充'}}</el-button> -->
     <el-form class="form-table">
       <table border="1" cellpadding="0" cellspacing="0">
         <thead>
@@ -21,14 +21,20 @@
               :rowspan="item.rowSpanArr[i]"
             >{{getItemName(i,item.rangeArr)}}</td>
             <td v-for="(j,k) in item.input">
-              <el-form-item>
-                <el-input v-model="j.values" :keyId="item.rangeArr" :placeholder="j.name"></el-input>
-              </el-form-item>
+              <el-input
+                v-model="j.values"
+                :keyId="item.rangeArr"
+                :placeholder="j.name"
+                :class="{'err-validate':j.validate}"
+                v-on:input="handleInput($event,item.rangeArr,j.key,j.validateType)"
+                :maxlength="j.validateType === 'num'?8:20"
+              ></el-input>
             </td>
           </tr>
         </tbody>
       </table>
     </el-form>
+    <button @click="validatInit">验证</button>
   </div>
 </template>
 
@@ -39,7 +45,8 @@ export default {
     return {
       inputAll: false,
       thInputData: [],
-      lock: true
+      lock: true,
+      tableForm: {}
     };
   },
   props: {
@@ -68,10 +75,10 @@ export default {
   },
   created() {
     this.thInputData = [
-      { name: "现价", values: "", unit: "元", width: 120 },
-      { name: "原价", values: "", unit: "元", width: 120 },
-      { name: "库存", values: "", unit: "", width: 120 },
-      { name: "标题", values: "", unit: "", width: 180 },
+      { name: "现价", values: "", unit: "元", width: 110 },
+      { name: "原价", values: "", unit: "元", width: 110 },
+      { name: "库存", values: "", unit: "", width: 110 },
+      { name: "标题", values: "", unit: "", width: 320 },
       { name: "特色描述", values: "", unit: "", width: 280 }
     ];
   },
@@ -82,9 +89,49 @@ export default {
       );
       return itemName.value;
     },
+
     inputAllAc() {
       this.lock = false;
       this.inputAll = !this.inputAll;
+    },
+
+    validate() {
+      this.$emit("valid", "wf");
+    },
+
+    validatInit() {
+      this.itemIdArr.forEach(item => {
+        item.input.forEach(v => {
+          this._validat(v.validateType, v, v.values);
+        });
+      });
+    },
+
+    handleInput(val, itemId, key, validateType) {
+      const select = this.itemIdArr.find(item => {
+        return itemId.join(",") === item.rangeArr.join(",");
+      });
+      const selectItem = select.input.find(item => {
+        return key === item.key;
+      });
+      this._validat(validateType, selectItem, val);
+    },
+
+    _validat(validateType, item, val) {
+      if (validateType === "num") {
+        const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+        if (!patter.test(val)) {
+          item.validate = true;
+        } else {
+          item.validate = false;
+        }
+      } else if (validateType === "text") {
+        if (val === "") {
+          item.validate = true;
+        } else {
+          item.validate = false;
+        }
+      }
     }
   }
 };
@@ -121,15 +168,12 @@ export default {
         background-color: #fff;
         padding: 5px 6px;
       }
-    }
-  }
-
-  .form-table {
-    .el-form-item__error {
-      display: none !important;
-    }
-    .el-form-item {
-      margin-bottom: 0;
+      .err-validate {
+        input {
+          color: #ef6776;
+          border-color: #ef6776;
+        }
+      }
     }
   }
 }
