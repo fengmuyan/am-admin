@@ -1,5 +1,5 @@
 <template>
-  <div class="pro-publish app-container">
+  <div class="pro-publish-edit app-container">
     <div v-if="producode" v-loading="loading">
       <div class="block">
         <h4>当前类目：{{cmdtclassname}}</h4>
@@ -750,78 +750,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.pro-publish {
-  .block {
-    border: 1px solid #ccc;
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    h4 {
-      width: 100%;
-      border-bottom: 1px solid #ddd;
-      height: 40px;
-      line-height: 40px;
-      margin: 0;
-      margin-bottom: 20px;
-    }
-    .upload {
-      display: flex;
-      flex-direction: row;
-    }
-    .editor-item {
-      margin-bottom: 70px;
-      .avatar-uploader {
-        display: none;
-      }
-    }
-    .imgs-item {
-      .el-form-item__content {
-        display: flex;
-        flex-direction: row;
-        .uploadImg {
-          margin-right: 10px;
-        }
-      }
-    }
-    .img-loading-box {
-      margin-bottom: 20px;
-      height: 540px;
-    }
-    .video-loading-box {
-      margin-bottom: 20px;
-      height: 440px;
-    }
-    .dec-loading-box {
-      padding-bottom: 30px;
-    }
-    .edit-dec-btn {
-      position: relative;
-      bottom: -60px;
-    }
-  }
-  .empty-block {
-    height: 600px;
-    line-height: 600px;
-    text-align: center;
-    color: #999;
-    .el-loading-spinner {
-      top: 0;
-    }
-  }
-  .b-t-g {
-    border-bottom: 1px solid #f3f4f5;
-  }
-  .f-r {
-    float: right;
-  }
-  .w-300 {
-    width: 300px;
-  }
-  .m-b-20 {
-    margin-bottom: 20px;
-  }
-}
-</style>
-

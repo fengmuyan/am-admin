@@ -482,10 +482,12 @@ export default {
       this.uploadForm.baby_video = val;
     },
 
+    /* 拼装提交数据 */
     webEditor() {
       this.$refs["webDesc"].clearValidate();
     },
 
+    /* 拼装提交数据 */
     phoneEditor() {
       this.$refs["phoneDesc"].clearValidate();
     },
@@ -765,48 +767,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.pro-publish {
-  .block {
-    border: 1px solid #ccc;
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    h4 {
-      width: 100%;
-      border-bottom: 1px solid #ddd;
-      height: 40px;
-      line-height: 40px;
-      margin: 0;
-      margin-bottom: 20px;
-    }
-    .upload {
-      display: flex;
-      flex-direction: row;
-    }
-    .editor-item {
-      margin-bottom: 70px;
-      .avatar-uploader {
-        display: none;
-      }
-      .el-form-item__error{
-        padding-top: 50px;
-      }
-    }
-    .el-input .el-input__count {
-      color: rgb(230, 230, 230) !important;
-    }
-  }
-  .empty-block {
-    height: 600px;
-    line-height: 600px;
-    text-align: center;
-    color: #999;
-    .el-loading-spinner {
-      top: 0;
-    }
-  }
-}
-</style>
-
