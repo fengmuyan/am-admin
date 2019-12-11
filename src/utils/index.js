@@ -390,7 +390,8 @@ export function initFormData(obj) {
  * @returns {Object}
  */
 export function deInitFormData(obj) {
-  return obj.map(item => {
+  const cloneData = deepClone(obj);
+  return cloneData.map(item => {
     if (item.type === "2") {
       Object.assign(item, {
         values: item.initVal.map(v =>
@@ -411,7 +412,7 @@ export function deInitFormData(obj) {
       return item;
     } else if (item.type === "4") {
       Object.assign(item, {
-        values: parseTime(item.values, "{y}-{m}-{d}")
+        values: item.values
       });
       return item;
     } else {
@@ -442,8 +443,8 @@ export function InitTableData(arr) {
  * @returns {Object}
  */
 export function toCombination(sourceList) {
-  var rangeList = [];
-  var isFirstItem = true;
+  let rangeList = [];
+  let isFirstItem = true;
   const input = [
     { key: "prices", name: "现价", values: "", unit: "元", validate: false, validateType: "num" },
     { key: "originalprice", name: "原价", values: "", unit: "元", validate: false, validateType: "num" },
@@ -451,22 +452,24 @@ export function toCombination(sourceList) {
     { key: "title", name: "标题", values: "", unit: "", validate: false, validateType: "text" },
     { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" }]
   sourceList.forEach(function (n) {
-    var items = n.values || [];
-    var cloneRangeList = deepClone(rangeList);
+    let items = n.values || [];
+    let cloneRangeList = deepClone(rangeList);
     rangeList = [];
     items.forEach(function (item) {
-      var itemId = item.itemId;
+      let itemId = item.itemId;
+      let cloneInput = deepClone(input)
       if (isFirstItem) {
         rangeList.push({
           rangeArr: [itemId],
-          input
+          input: cloneInput
         });
       } else {
         for (let m = 0; m < cloneRangeList.length; m++) {
           var rangeArr = cloneRangeList[m].rangeArr || [];
+          let cloneInputSec = deepClone(input)
           rangeList.push({
             rangeArr: [...rangeArr, itemId],
-            input: deepClone(input)
+            input: cloneInputSec
           });
         }
       }
@@ -605,11 +608,11 @@ export function initTableInputData(serverData, timeIdArr) {
     const data = serverData[index];
     return Object.assign(item, {
       input: [
-        { key: "prices", name: "现价", values: data.totalprice, unit: "元" },
-        { key: "originalprice", name: "原价", values: data.originalprice, unit: "元" },
-        { key: "stockNums", name: "库存", values: data.stocknums, unit: "" },
-        { key: "title", name: "标题", values: data.title, unit: "" },
-        { key: "feature", name: "特色描述", values: data.feature }
+        { key: "prices", name: "现价", values: data.totalprice, unit: "元", validate: false, validateType: "num" },
+        { key: "originalprice", name: "原价", values: data.originalprice, unit: "元", validate: false, validateType: "num" },
+        { key: "stockNums", name: "库存", values: data.stocknums, unit: "", validate: false, validateType: "num" },
+        { key: "title", name: "标题", values: data.title, unit: "", validate: false, validateType: "text" },
+        { key: "feature", name: "特色描述", values: data.feature, validate: false, validateType: "text" }
       ],
       cmdtcode: data.cmdtcode,
       uid: data.uid
@@ -624,7 +627,6 @@ export function initTableInputData(serverData, timeIdArr) {
  */
 export function subTableInputData(timeIdArr) {
   return timeIdArr.map(item => {
-    console.log(item)
     return {
       cmdtcode: item.cmdtcode,
       uid: item.uid,

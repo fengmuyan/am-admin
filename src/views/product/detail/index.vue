@@ -7,7 +7,7 @@
       <div class="block" v-loading="loadingNature">
         <h4>
           自然属性
-          <el-button size="mini" class="f-r" @click="editNaturepro">修改自然属性</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editNatureproV">修改自然属性</el-button>
         </h4>
         <el-form
           :model="titleForm"
@@ -17,10 +17,22 @@
           class="b-t-g m-b-20"
         >
           <el-form-item label="商品名称：" prop="produname">
-            <el-input v-model="titleForm.produname" class="w-300"></el-input>
+            <el-input
+              v-model="titleForm.produname"
+              class="w-400"
+              maxlength="30"
+              clearable
+              placeholder="请输入商品名称"
+            ></el-input>
           </el-form-item>
           <el-form-item label="商品标题：" prop="title">
-            <el-input v-model="titleForm.title" class="w-300"></el-input>
+            <el-input
+              v-model="titleForm.title"
+              class="w-400"
+              maxlength="30"
+              clearable
+              placeholder="请输入商品标题"
+            ></el-input>
           </el-form-item>
           <el-form-item label="展示分类：" prop="homepageclass">
             <el-radio-group v-model="titleForm.homepageclass">
@@ -32,12 +44,12 @@
             </el-radio-group>
           </el-form-item>
         </el-form>
-        <dynamic-form v-model="naturalDataInit"></dynamic-form>
+        <dynamic-form v-model="naturalDataInit" ref="dynamicFormNatural"></dynamic-form>
       </div>
       <div class="block" v-loading="loadingSale">
         <h4>
           销售属性
-          <el-button size="mini" class="f-r" @click="editSalepro">修改销售属性</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editSaleproV">修改销售属性</el-button>
         </h4>
         <el-form
           :model="valuationForm"
@@ -60,10 +72,10 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="净重" prop="netweight">
-              <el-input v-model="valuationForm.netweight" class="w-300" disabled></el-input>
+              <el-input v-model="valuationForm.netweight" class="w-400" disabled></el-input>
             </el-form-item>
             <el-form-item label="毛重" prop="grossweight">
-              <el-input v-model="valuationForm.grossweight" class="w-300" disabled></el-input>
+              <el-input v-model="valuationForm.grossweight" class="w-400" disabled></el-input>
             </el-form-item>
           </div>
           <el-form-item label="折扣方式：" prop="isdiscount">
@@ -79,7 +91,12 @@
           @table-show="tableShow"
           :disabled="true"
         ></dynamic-form>
-        <dynamic-table v-if="tableIsShow" :itemIdArr="itemIdArr" :tableArr="tableArr"></dynamic-table>
+        <dynamic-table
+          v-if="tableIsShow"
+          :itemIdArr="itemIdArr"
+          :tableArr="tableArr"
+          ref="dynamicFormSale"
+        ></dynamic-table>
       </div>
       <div class="block">
         <h4>图文描述</h4>
@@ -93,10 +110,10 @@
           >
             <div v-loading="loadingUploadImg" class="b-t-g img-loading-box">
               <div v-if="imgBoxShow">
-                <el-form-item label="宝贝主图：" prop="img_one">
+                <el-form-item label="商品主图：" prop="img_one">
                   <upload-img @del-item="delImgItem" :file="[uploadForm.img_one]" ref="imgItemFir"></upload-img>
                 </el-form-item>
-                <el-form-item label="宝贝图：" prop="img_two" class="imgs-item">
+                <el-form-item label="商品图：" prop="img_two" class="imgs-item">
                   <upload-img @del-item="delImgItem" :file="[uploadForm.img_two]" ref="imgItemSec"></upload-img>
                   <upload-img
                     @del-item="delImgItem"
@@ -109,14 +126,14 @@
                     ref="imgItemFour"
                   ></upload-img>
                 </el-form-item>
-                <el-form-item label="宝贝底图：" prop="img_five">
+                <el-form-item label="商品底图：" prop="img_five">
                   <upload-img
                     :limit="1"
                     @del-item="delImgItem"
                     :file="[uploadForm.img_five]"
                     ref="imgItemFive"
                   ></upload-img>
-                  <el-button size="mini" class="f-r" @click="editProImg">修改宝贝图片</el-button>
+                  <el-button size="mini" class="f-r" type="primary" @click="editProImg">修改商品图片</el-button>
                 </el-form-item>
               </div>
             </div>
@@ -136,23 +153,28 @@
                     ref="master_video"
                   ></upload-video>
                 </el-form-item>
-                <el-form-item label="宝贝视频：" prop="baby_video">
+                <el-form-item label="商品详情视频：" prop="baby_video">
                   <upload-video
                     @add-item="addVideoItemSec"
                     :file="uploadForm.baby_video"
                     ref="baby_video"
                   ></upload-video>
-                  <el-button size="mini" class="f-r" @click="editProVideo">修改宝贝视频</el-button>
+                  <el-button size="mini" class="f-r" type="primary" @click="editProVideo">修改商品视频</el-button>
                 </el-form-item>
               </div>
             </div>
             <div v-loading="loadingUploadDec" class="dec-loading-box">
-              <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
-                <editor v-model="uploadForm.webDesc"></editor>
+              <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
+                <editor v-model="uploadForm.webDesc" @input="webEditor"></editor>
               </el-form-item>
-              <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item">
-                <editor v-model="uploadForm.phoneDesc"></editor>
-                <el-button size="mini" class="f-r edit-dec-btn" @click="editProDec">修改宝贝文本描述</el-button>
+              <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
+                <editor v-model="uploadForm.phoneDesc" @input="phoneEditor"></editor>
+                <el-button
+                  size="mini"
+                  class="f-r edit-dec-btn"
+                  type="primary"
+                  @click="editProDecV"
+                >修改商品文本描述</el-button>
               </el-form-item>
             </div>
           </el-form>
@@ -161,7 +183,7 @@
       <div class="block" v-loading="loadingPay">
         <h4>
           支付信息
-          <el-button size="mini" style="float:right" @click="editPayInfo">修改支付信息</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editPayInfo">修改支付信息</el-button>
         </h4>
         <el-form :model="payForm" ref="payForm" :rules="payFormRules" label-width="110px">
           <el-form-item label="付款方式：" prop="paymethod">
@@ -197,7 +219,7 @@
       <div class="block" v-loading="loadingServer">
         <h4>
           售后服务
-          <el-button size="mini" class="f-r" @click="editPostSale">修改售后服务</el-button>
+          <el-button size="mini" type="primary" class="f-r" @click="editPostSale">修改售后服务</el-button>
         </h4>
         <el-form
           :model="postSaleForm"
@@ -224,7 +246,7 @@
               v-model="postSaleForm.publishtime"
               placeholder="请输入上架时间"
               disabled
-              class="w-300"
+              class="w-400"
             ></el-date-picker>
           </el-form-item>
         </el-form>
@@ -255,7 +277,6 @@ import {
   setRowSpan,
   sortTableArr,
   deepClone,
-  parseTime,
   setTableSubData,
   initTableInputData,
   subTableInputData
@@ -270,6 +291,26 @@ export default {
     Editor
   },
   data() {
+    let patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    var validateNetWeight = (rule, value, callback) => {
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else {
+        if (this.valuationForm.grossweight !== "") {
+          this.$refs.valuationForm.validateField("grossweight");
+        }
+        callback();
+      }
+    };
+    var validateGrossWeight = (rule, value, callback) => {
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else if (value < this.valuationForm.netweight) {
+        callback(new Error("毛重不能小于净重"));
+      } else {
+        callback();
+      }
+    };
     return {
       loading: false,
       loadingNature: false,
@@ -343,10 +384,14 @@ export default {
         pricetype: [
           { required: true, message: "请输入计价方式", trigger: "blur" }
         ],
-        grossweight: [
-          { required: true, message: "请输入毛重", trigger: "blur" }
+        netweight: [
+          { required: true, message: "请输入净重", trigger: "blur" },
+          { validator: validateNetWeight, trigger: ["change", "blur"] }
         ],
-        netweight: [{ required: true, message: "请输入净重", trigger: "blur" }],
+        grossweight: [
+          { required: true, message: "请输入毛重", trigger: "blur" },
+          { validator: validateGrossWeight, trigger: ["change", "blur"] }
+        ],
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
         ]
@@ -363,21 +408,6 @@ export default {
       uploadFormRules: {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
-        ],
-        img_two: [
-          { required: true, message: "请输入商品图片", trigger: "blur" }
-        ],
-        img_five: [
-          { required: true, message: "请输入商品底图", trigger: "blur" }
-        ],
-        master_video: [
-          { required: true, message: "请输入商品主视频", trigger: "blur" }
-        ],
-        baby_video: [
-          { required: true, message: "请输入宝贝视频", trigger: "blur" }
-        ],
-        proportion: [
-          { required: true, message: "请输入视频比例", trigger: "blur" }
         ],
         webDesc: [
           { required: true, message: "请输入电脑端描述", trigger: "blur" }
@@ -444,6 +474,16 @@ export default {
       if (idx !== -1) {
         this.productVideos.splice(idx, 1);
       }
+    },
+
+    /* 拼装提交数据 */
+    webEditor() {
+      this.$refs["webDesc"].clearValidate();
+    },
+
+    /* 拼装提交数据 */
+    phoneEditor() {
+      this.$refs["phoneDesc"].clearValidate();
     },
 
     /* 获取详情信息 */
@@ -576,7 +616,6 @@ export default {
 
     /* 自然属性formData */
     editNaturepro() {
-      const naturalDataInit = JSON.parse(JSON.stringify(this.naturalDataInit));
       this.loadingNature = true;
       let formData = new FormData();
       formData.append("moduleNum", "1");
@@ -586,9 +625,28 @@ export default {
       formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append(
         "naturepro",
-        JSON.stringify({ naturepro: deInitFormData(naturalDataInit) })
+        JSON.stringify({ naturepro: deInitFormData(this.naturalDataInit) })
       );
       this.subTableData(formData);
+    },
+
+    /* 自然属性验证 */
+    editNatureproV() {
+      const p1 = new Promise((resolve, reject) => {
+        this.$refs["titleForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      });
+      const p2 = new Promise((resolve, reject) => {
+        this.$refs.dynamicFormNatural.$refs["[object Object]"].validate(
+          valid => {
+            if (valid) resolve();
+          }
+        );
+      });
+      Promise.all([p1, p2]).then(() => {
+        this.editNaturepro();
+      });
     },
 
     /* 销售属性formData */
@@ -602,6 +660,16 @@ export default {
         JSON.stringify(subTableInputData(this.itemIdArr))
       );
       this.subTableData(formData);
+    },
+
+    editSaleproV() {
+      const p1 = new Promise((resolve, reject) => {
+        this.$refs.dynamicFormSale.validatInit(valid => {
+          if (valid) resolve();
+        });
+      }).then(() => {
+        this.editSalepro();
+      });
     },
 
     /* 商品图片formData */
@@ -678,6 +746,16 @@ export default {
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);
       this.subTableData(formData);
+    },
+
+    editProDecV() {
+      new Promise((resolve, reject) => {
+        this.$refs["uploadForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      }).then(() => {
+        this.editProDec();
+      });
     },
 
     /* 支付信息formData */

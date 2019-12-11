@@ -18,7 +18,7 @@
             :props="{emitPath:false}"
             ref="elCascader"
             @change="cateChange"
-            style="width:360px"
+            class="w-400"
           ></el-cascader>
         </el-form-item>
         <el-form-item
@@ -30,7 +30,7 @@
             required: true, message: `${item.label}不能为空`, trigger: 'blur'
           }"
         >
-          <el-input v-model="item.inputVal" style="width:260px"></el-input>
+          <el-input v-model="item.inputVal" class="w-400"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button @click="proPublish('cateForm')">确认提交</el-button>
@@ -49,12 +49,12 @@
           ref="titleForm"
           :rules="titleFormRules"
           label-width="110px"
-          style="border-bottom: 1px solid #f3f4f5;margin-bottom:20px"
+          class="b-t-g m-b-20"
         >
           <el-form-item label="商品名称：" prop="produname">
             <el-input
               v-model="titleForm.produname"
-              style="width:400px"
+              class="w-400"
               maxlength="30"
               clearable
               placeholder="请输入商品名称"
@@ -63,7 +63,7 @@
           <el-form-item label="商品标题：" prop="title">
             <el-input
               v-model="titleForm.title"
-              style="width:400px"
+              class="w-400"
               maxlength="30"
               clearable
               placeholder="请输入商品标题"
@@ -88,7 +88,7 @@
           ref="valuationForm"
           :rules="valuationRules"
           label-width="110px"
-          style="border-bottom: 1px solid #f3f4f5;margin-bottom:20px"
+          class="b-t-g m-b-20"
         >
           <el-form-item label="计价方式：" prop="pricetype">
             <el-radio-group v-model="valuationForm.pricetype">
@@ -107,7 +107,7 @@
               <el-input
                 v-model="valuationForm.netweight"
                 maxlength="8"
-                style="width:400px"
+                class="w-400"
                 placeholder="请输入净重"
                 clearable
               ></el-input>
@@ -116,7 +116,7 @@
               <el-input
                 v-model="valuationForm.grossweight"
                 maxlength="8"
-                style="width:400px"
+                class="w-400"
                 placeholder="请输入毛重"
                 clearable
               ></el-input>
@@ -152,34 +152,34 @@
             :rules="uploadFormRules"
             style="width:100%"
           >
-            <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
-              <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
-            </el-form-item>
-            <el-form-item label="商品图：" prop="img_two">
-              <upload-img :limit="3" @add-item="addItemCenter" v-model="uploadForm.img_two"></upload-img>
-            </el-form-item>
-            <el-form-item
-              label="商品底图："
-              prop="img_five"
-              style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
-            >
-              <upload-img :limit="1" @add-item="addItemLast" v-model="uploadForm.img_five"></upload-img>
-            </el-form-item>
-            <el-form-item label="主图视频比例：" prop="proportion">
-              <el-radio-group v-model="uploadForm.proportion">
-                <el-radio label="1">1:1</el-radio>
-                <el-radio label="2">16:9</el-radio>
-                <el-radio label="3">3:4</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="主图视频：" prop="master_video">
-              <upload-video @add-item="addVideoFir" v-model="uploadForm.master_video"></upload-video>
-            </el-form-item>
-            <el-form-item
-              label="商品视频："
-              prop="baby_video"
-              style="border-bottom: 1px solid #f3f4f5;padding-bottom:30px"
-            >
+            <div class="b-t-g m-b-20">
+              <div class="img-wrap">
+                <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
+                  <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
+                </el-form-item>
+                <el-form-item label="商品图：" prop="img_two">
+                  <upload-img :limit="3" @add-item="addItemCenter" v-model="uploadForm.img_two"></upload-img>
+                </el-form-item>
+                <el-form-item label="商品底图：" prop="img_five">
+                  <upload-img :limit="1" @add-item="addItemLast" v-model="uploadForm.img_five"></upload-img>
+                </el-form-item>
+              </div>
+              <p class="tip-info">* 图片小于3MB通用格式。 * 图片建议上传750*750更好的展示效果。 * 商品图最多可传3张。</p>
+            </div>
+            <div class="b-t-g m-b-20">
+              <el-form-item label="主图视频比例：" prop="proportion">
+                <el-radio-group v-model="uploadForm.proportion">
+                  <el-radio label="1">1:1</el-radio>
+                  <el-radio label="2">16:9</el-radio>
+                  <el-radio label="3">3:4</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="主图视频：" prop="master_video">
+                <upload-video @add-item="addVideoFir" v-model="uploadForm.master_video"></upload-video>
+              </el-form-item>
+              <p class="tip-info">* 视频不大于10MB通用格式。 * 点击视频可更换。 * 用于商品主页展示。</p>
+            </div>
+            <el-form-item label="商品详情视频：" prop="baby_video">
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
             <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
@@ -188,6 +188,7 @@
             <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
               <editor @input="phoneEditor" v-model="uploadForm.phoneDesc"></editor>
             </el-form-item>
+            <p class="tip-info">* 商品详情视频在商品详情页展示。</p>
           </el-form>
         </div>
       </div>
@@ -250,7 +251,7 @@
               type="datetime"
               v-model="postSaleForm.publishtime"
               placeholder="请输入上架时间"
-              style="width:400px"
+              class="w-400"
             ></el-date-picker>
           </el-form-item>
         </el-form>
@@ -297,7 +298,7 @@ export default {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else {
-        if (!patter.test(this.valuationForm.grossweight)) {
+        if (this.valuationForm.grossweight !== "") {
           this.$refs.valuationForm.validateField("grossweight");
         }
         callback();
@@ -351,7 +352,7 @@ export default {
         img_five: "",
         master_video: "",
         baby_video: "",
-        proportion: "",
+        proportion: "1",
         webDesc: "",
         phoneDesc: "",
         imgCenter: []
@@ -492,6 +493,11 @@ export default {
       this.$refs["phoneDesc"].clearValidate();
     },
 
+    /* 拼装提交数据 */
+    switchCate() {
+      this.haveCateData = false;
+    },
+
     /* 处理成动态表格数据 */
     tableShow(val) {
       if (val === true) {
@@ -563,51 +569,78 @@ export default {
     },
 
     /* 拼装提交数据 */
-    switchCate() {
-      this.haveCateData = false;
-    },
-
-    /* 拼装提交数据 */
     formdataSubVerify() {
       const p1 = new Promise((resolve, reject) => {
         this.$refs["titleForm"].validate(valid => {
-          if (valid) resolve();
+          if (valid) {
+            resolve();
+          } else {
+            reject("err");
+          }
         });
       });
       const p2 = new Promise((resolve, reject) => {
         this.$refs["valuationForm"].validate(valid => {
-          if (valid) resolve();
+          if (valid) {
+            resolve();
+          } else {
+            reject("err");
+          }
         });
       });
       const p3 = new Promise((resolve, reject) => {
         this.$refs["uploadForm"].validate(valid => {
-          if (valid) resolve();
+          if (valid) {
+            resolve();
+          } else {
+            reject("err");
+          }
         });
       });
       const p4 = new Promise((resolve, reject) => {
         this.$refs.dynamicFormNatural.$refs["[object Object]"].validate(
           valid => {
-            if (valid) resolve();
+            if (valid) {
+              resolve();
+            } else {
+              reject("err");
+            }
           }
         );
       });
       const p5 = new Promise((resolve, reject) => {
         this.$refs.dynamicFormSale.$refs["[object Object]"].validate(valid => {
-          if (valid) resolve();
+          if (valid) {
+            resolve();
+          } else {
+            reject("err");
+          }
         });
       });
-      let validateArr = [p1, p2, p4, p5];
+      let validateArr = [p1, p2, p3, p4, p5];
       if (this.$refs.dynamicTable) {
         const p6 = new Promise((resolve, reject) => {
           this.$refs.dynamicTable.validatInit(valid => {
-            if (valid) resolve();
+            if (valid) {
+              resolve();
+            } else {
+              reject("err");
+            }
           });
         });
         validateArr.push(p6);
       }
-      Promise.all(validateArr).then(() => {
-        alert("验证通过");
-      });
+      Promise.all(validateArr)
+        .then(() => {
+          this._subTableData();
+        })
+        .catch(reason => {
+          MessageBox({
+            message: "有必填项未填写或格式不正确，请检查！",
+            type: "error",
+            duration: 5 * 1000
+          });
+        });
     },
 
     /* 拼装提交数据 */

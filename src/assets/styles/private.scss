@@ -228,7 +228,7 @@
   .block {
     border: 1px solid #ccc;
     background-color: #fff;
-    padding: 20px;
+    padding: 25px;
     margin-bottom: 20px;
     h4 {
       width: 100%;
@@ -254,6 +254,41 @@
     .el-input .el-input__count {
       color: rgb(230, 230, 230) !important;
     }
+    .imgs-item {
+      .el-form-item__content {
+        display: flex;
+        flex-direction: row;
+        .uploadImg {
+          margin-right: 10px;
+        }
+      }
+    }
+    .img-loading-box {
+      margin-bottom: 20px;
+      height: 540px;
+    }
+    .video-loading-box {
+      margin-bottom: 20px;
+      height: 440px;
+    }
+    .edit-dec-btn {
+      position: relative;
+      bottom: -60px;
+    }
+    .img-wrap{
+      display: flex;
+      flex-direction: row;
+    }
+    .tip-info{
+      color: #ccc;
+      font-size: 14px;
+      height: 15px;
+      line-height: 15px;
+      margin-left: 30px;
+      padding-left: 110px;
+      margin: 0;
+      padding-bottom: 25px;
+    }
   }
   .empty-block {
     height: 600px;
@@ -273,6 +308,9 @@
   .w-300 {
     width: 300px;
   }
+  .w-400 {
+    width: 400px;
+  }
   .m-b-20 {
     margin-bottom: 20px;
   }
@@ -280,30 +318,30 @@
 
 .pro-publish-edit {
   @extend .pro-publish;
-  .block {
-    .imgs-item {
-      .el-form-item__content {
-        display: flex;
-        flex-direction: row;
-        .uploadImg {
-          margin-right: 10px;
-        }
-      }
+}
+
+.account{
+  .code-item {
+    .el-form-item__content{
+      width: 400px;
     }
-    .img-loading-box {
-      margin-bottom: 20px;
-      height: 540px;
+    .el-button--medium {
+      font-size: 14px;
     }
-    .video-loading-box {
-      margin-bottom: 20px;
-      height: 440px;
+    .code-input {
+      width: 65%;
     }
-    .dec-loading-box {
-      padding-bottom: 30px;
-    }
-    .edit-dec-btn {
-      position: relative;
-      bottom: -60px;
+    .code-btn {
+      width: 30%;
+      padding: 0 8px;
+      float: right;
+      border: 1px solid #d9dada;
+      border-radius: 3px;
+      cursor: pointer;
+      height: 36px;
+      line-height: 36px;
+      color: #868686;
+      text-align: center;
     }
   }
 }

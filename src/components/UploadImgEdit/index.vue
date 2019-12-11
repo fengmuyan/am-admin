@@ -32,7 +32,7 @@ export default {
     }
   },
   created() {
-    this.fileList = this.file;
+    this.fileList = this.file.includes(null) ? [] : this.file;
     this._hiddenPlus();
   },
   methods: {

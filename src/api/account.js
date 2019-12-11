@@ -21,15 +21,17 @@ export function createAccount(data) {
 export function bindCardConfirm(data) {
   return request({
     url: '/pay/confirm',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 
-// 绑卡确认
+// 账户验证码重新发送
 export function resentCode(data) {
   return request({
     url: '/pay/smsSend',
-    method: 'get'
+    method: 'post',
+    data
   })
 }
 

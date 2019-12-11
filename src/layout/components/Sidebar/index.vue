@@ -8,7 +8,7 @@
         </div>
       </router-link>
       <div class="pull-right">
-        <p>admin</p>
+        <p>{{name}}</p>
         <div>
           <span class="icon-box">
             <i class="circle-icon"></i>
@@ -52,7 +52,7 @@ import variables from "@/assets/styles/variables.scss";
 export default {
   components: { SidebarItem, Logo },
   computed: {
-    ...mapGetters(["permission_routes", "sidebar", "avatar"]),
+    ...mapGetters(["permission_routes", "sidebar", "avatar", "name"]),
     activeMenu() {
       const route = this.$route;
       const { meta, path } = route;

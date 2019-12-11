@@ -75,8 +75,8 @@
         <el-table-column label="商品类目" prop="cmdtclassname" />
         <el-table-column label="商品名称" prop="title" />
         <el-table-column label="付款方式" prop="voPaymethod" />
-        <el-table-column label="付款方式" prop="voPaymethod" />
         <el-table-column label="库存计数" prop="voStockmethod" />
+        <el-table-column label="上架状态" prop="vostate" />
         <el-table-column label="上架状态" prop="vostate" />
         <el-table-column label="上架时间" prop="publishtime" />
         <el-table-column label="操作" width="240">
@@ -174,9 +174,10 @@ export default {
     },
     handleAdd() {
       this.$router.push({
-        path: `/product/publish`
+        path: `/publish/publish`
       });
     },
+
     handleOnshelf(item) {
       this.$confirm("确定要上架吗？", "提示", {
         confirmButtonText: "确定",

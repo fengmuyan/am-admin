@@ -1,7 +1,7 @@
 <template>
   <div class="box-wrap">
     <!-- <el-button @click="inputAllAc">{{!inputAll?'批量填充':'取消批量填充'}}</el-button> -->
-    <el-form class="form-table">
+    <div class="table-box">
       <table border="1" cellpadding="0" cellspacing="0">
         <thead>
           <tr>
@@ -33,7 +33,8 @@
           </tr>
         </tbody>
       </table>
-    </el-form>
+      <p class="tip-info-table">* 表格中的内容都为必填项，现价、原价和库存为非负整数或保留两位小数。</p>
+    </div>
   </div>
 </template>
 
@@ -45,7 +46,6 @@ export default {
       inputAll: false,
       thInputData: [],
       lock: true,
-      tableForm: {},
       allRight: false
     };
   },
@@ -78,8 +78,8 @@ export default {
       { name: "现价", values: "", unit: "元", width: 110 },
       { name: "原价", values: "", unit: "元", width: 110 },
       { name: "库存", values: "", unit: "", width: 110 },
-      { name: "标题", values: "", unit: "", width: 320 },
-      { name: "特色描述", values: "", unit: "", width: 280 }
+      { name: "标题", values: "", unit: "", width: 400 },
+      { name: "特色描述", values: "", unit: "", width: 320 }
     ];
   },
   methods: {
@@ -96,6 +96,7 @@ export default {
     },
 
     validatInit(fn) {
+      this.allRight = true;
       this.itemIdArr.forEach(item => {
         item.input.forEach(v => {
           this._validat(v.validateType, v, v.values);
@@ -139,19 +140,13 @@ export default {
 
 <style lang="scss">
 .box-wrap {
-  .block {
-    width: 100px;
-    height: 400px;
-    border: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-  }
-  .el-form {
+  padding-left: 40px;
+  .table-box {
     overflow-x: scroll;
     table {
       margin-top: 10px;
       border-color: rgb(250, 250, 250);
+      width: 100%;
       min-width: 1500px;
       td,
       th {
@@ -174,6 +169,12 @@ export default {
           border-color: #ef6776;
         }
       }
+    }
+    .tip-info-table{
+      color: #ccc;
+      font-size: 14px;
+      height: 20px;
+      line-height: 20px;
     }
   }
 }
