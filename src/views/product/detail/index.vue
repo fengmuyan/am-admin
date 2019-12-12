@@ -165,10 +165,10 @@
             </div>
             <div v-loading="loadingUploadDec" class="dec-loading-box">
               <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
-                <editor v-model="uploadForm.webDesc" @input="webEditor"></editor>
+                <editor v-model="uploadForm.webDesc" @input="webEditor" :moduleNum="2"></editor>
               </el-form-item>
               <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
-                <editor v-model="uploadForm.phoneDesc" @input="phoneEditor"></editor>
+                <editor v-model="uploadForm.phoneDesc" @input="phoneEditor" :moduleNum="1"></editor>
                 <el-button
                   size="mini"
                   class="f-r edit-dec-btn"
@@ -439,11 +439,9 @@ export default {
       } //服务表单验证
     };
   },
-
   async created() {
     await this.getDetailData();
   },
-
   methods: {
     /* 删除图片匹配去掉productImgs中uid */
     delImgItem(uid) {

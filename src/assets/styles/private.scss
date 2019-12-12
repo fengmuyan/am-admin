@@ -443,6 +443,10 @@
           .colorGreen {
             color: #5570c5;
           }
+          .el-checkbox__input.is-checked .el-checkbox__inner{
+            background-color: #6287fd;
+            border-color: #6287fd;
+          }
         }
         .el-checkbox__inner {
           width: 20px;
@@ -541,6 +545,34 @@
       font-size: 12px;
       margin-bottom: 60px;
     }
+    .suc-box{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10px;
+      .suc-title{
+        height: 70px;
+        line-height: 70px;
+        color: black;
+        font-size: 22px;
+      }
+      .suc-text{
+        height: 25px;
+        line-height: 25px;
+        font-size: 16px;
+        color: #999;
+      }
+      .suc-btn{
+        width: 400px;
+        height: 54px;
+        line-height: 30px;
+        background-color: #6287fd;
+        border-radius: 8px;
+        font-size: 16px;
+        color: #fff;
+        margin-top: 50px;
+      }
+    }
   }
   .step-top {
     width: 410px;
@@ -576,12 +608,6 @@
         border-color: #65bc57;
         background-color: #65bc57;
         color: #fff;
-      }
-      .ac_s {
-        text-indent: 100000px;
-        background: url("../image/reg-icon_03.png") center center
-          no-repeat;
-        border-color: #65bc57;
       }
     }
     .step-title {
@@ -662,6 +688,9 @@
         box-sizing: border-box;
         color: #606266;
         height: 45px;
+        line-height: 45px;
+      }
+      .el-input__icon{
         line-height: 45px;
       }
       .el-textarea__inner{

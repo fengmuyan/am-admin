@@ -3,38 +3,29 @@
     <!-- 图片上传组件辅助 -->
     <el-upload
       class="avatar-uploader quill-img"
-      action="#"
+      :id="`quillupload${moduleNum}`"
+      :action="uploadImgUrl"
       name="file"
+      :data="{moduleNum}"
+      :headers="headers"
       :show-file-list="false"
+      :on-success="quillImgSuccess"
+      :on-error="uploadError"
       :before-upload="quillImgBefore"
-      list-type="picture-card"
-      :auto-upload="false"
-      :on-change="upload"
-    >
-      <div slot="file" slot-scope="{file}">
-        <img id="img-test" :src="file.url" alt />
-      </div>
-    </el-upload>
+      accept=".jpg, .jpeg, .png, .gif"
+    ></el-upload>
+    
 
     <!-- 富文本组件 -->
     <quill-editor
       class="editor"
       v-model="content"
-      ref="quillEditor"
+      :ref="`quillEditor${moduleNum}`"
       :options="editorOption"
       @blur="onEditorBlur($event)"
       @focus="onEditorFocus($event)"
       @change="onEditorChange($event)"
     ></quill-editor>
-
-    <!-- 添加或修改参数配置对话框 -->
-    <el-dialog title="上传图片列表" :visible.sync="open" width="700px">
-      <el-form ref="form" :model="imgForm" label-width="100px"></el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary">确 定</el-button>
-        <el-button>取 消</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -55,8 +46,8 @@ const toolbarOptions = [
   [{ color: [] }, { background: [] }],
   [{ font: [] }],
   [{ align: [] }],
-  ["link", "image"],
-  ["clean"]
+  ["clean"],
+  ["link", "image"]
 ];
 
 import { quillEditor } from "vue-quill-editor";
@@ -74,6 +65,9 @@ export default {
     maxSize: {
       type: Number,
       default: 4000 //kb
+    },
+    moduleNum: {
+      type: Number
     }
   },
   components: { quillEditor },
@@ -81,28 +75,33 @@ export default {
     return {
       content: this.value,
       uploadImgUrl: "",
-      editorOption: {
-        placeholder: "",
-        theme: "snow", // or 'bubble'
-        placeholder: "请输入内容",
-        modules: {
-          toolbar: {
-            container: toolbarOptions,
-            handlers: {
-              image: function(value) {
-                if (value) {
-                  // 触发input框选择图片文件
-                  document.querySelector(".quill-img input").click();
-                } else {
-                  this.quill.format("image", false);
-                }
+      editorOption: {},
+      uploadImgUrl: process.env.VUE_APP_BASE_API + "/god/publish/description", // 上传的图片服务器地址
+      headers: {
+        Authorization: "Bearer " + getToken()
+      }
+    };
+  },
+  created() {
+    var _this = this;
+    _this.editorOption = {
+      placeholder: "",
+      theme: "snow",
+      placeholder: "请输入内容",
+      modules: {
+        toolbar: {
+          container: toolbarOptions,
+          handlers: {
+            image: function(value) {
+              if (value) {
+                document.querySelector(`#quillupload${_this.moduleNum} input`).click()
+              } else {
+                this.quill.format("image", false);
               }
             }
           }
         }
-      },
-      open: false,
-      imgForm: {}
+      }
     };
   },
   watch: {
@@ -133,21 +132,29 @@ export default {
       }
     },
 
-    upload(file) {
-      let quill = this.$refs.quillEditor.quill;
-      let length = quill.getSelection().index;
-      quill.insertEmbed(length, "image", 'sddad');
-      quill.setSelection(length + 1);
+    quillImgSuccess(res, file) {
+      let quill = this.$refs[`quillEditor${this.moduleNum}`].quill;
+      if (res.code === 200) {
+        let length = quill.getSelection() ? quill.getSelection().index : 0;
+        quill.insertEmbed(length, "image", res.data.fileUrl);
+        quill.setSelection(length + 1);
+      } else {
+        this.$message.error("图片插入失败");
+      }
+    },
+
+    uploadError() {
+      this.$message.error("图片插入失败");
     }
   }
 };
 </script> 
 
-<style scoped>
+<style lang="scss" scoped>
 .editor {
   line-height: normal !important;
-  height: 260px;
-  width: 1130px;
+  height: 500px;
+  width: 1150px;
 }
 .el-upload {
   display: none;

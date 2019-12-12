@@ -156,7 +156,7 @@ export default {
     UploadImg
   },
   data() {
-    var validateTel = (rule, value, callback) => {
+    const validateTel = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入客服电话"));
       } else {
@@ -172,7 +172,6 @@ export default {
       loadingImg: false,
       baseBoxShow: true,
       imgBoxShow: true,
-      imageUrl: "",
       shopcode: "",
       baseForm: {
         shopname: "",
@@ -215,6 +214,7 @@ export default {
       productImgs: [],
       provideArr: [],
       cityArr: [],
+      imageUrl: "",
       demoUrl: require("@/assets/image/demo.png")
     };
   },
@@ -253,7 +253,9 @@ export default {
         } = await getShopDetail();
         if (code === 200) {
           const adrArr = shoplocation ? shoplocation.split("_") : null;
-          this.imageUrl = shoplogo;
+          this.imageUrl = shoplogo
+            ? shoplogo
+            : "https://mounttai.oss-cn-beijing.aliyuncs.com/store/logo/logo.png";
           this.shopcode = shopcode;
           this.productImgs = storeImages.map(item => {
             return { serial: item.serial, uid: item.uid };
@@ -264,6 +266,7 @@ export default {
           this.baseForm.province = adrArr ? adrArr[0] : "";
           this.baseForm.city = adrArr ? adrArr[1] : "";
           this.baseForm.address = adrArr ? adrArr[2] : "";
+          this.cityArr = city.getCity(this.baseForm.province);
           const imgData = storeImages.map(item => {
             return Object.assign(item, { url: item.image });
           });
@@ -330,6 +333,9 @@ export default {
           formData.append("address", this.baseForm.address);
           formData.append("shopprofile", this.baseForm.shopprofile);
           formData.append("servicephone", this.baseForm.servicephone);
+          if (!this.baseForm.shoplogo) {
+            formData.delete("shoplogo");
+          }
           this.subTableData(formData);
         } else {
           return false;
@@ -357,7 +363,6 @@ export default {
           formData.append("img_two", this.$refs.imgItemTwo.fileList[0]);
           formData.append("img_three", this.$refs.imgItemThree.fileList[0]);
           formData.append("img_four", this.$refs.imgItemFour.fileList[0]);
-          console.log(this.productImgs)
           this.productImgs.forEach(item => {
             if (Number(item.serial) === 1) {
               formData.delete("img_one");
@@ -391,11 +396,12 @@ export default {
             }
           }
         );
-        this._loadingCancel();
         if (code === 200) {
           await this.getDetail();
+          this._loadingCancel();
           this.msgSuccess("修改成功");
         } else {
+          this._loadingCancel();
           MessageBox({
             message: msg,
             type: "error",

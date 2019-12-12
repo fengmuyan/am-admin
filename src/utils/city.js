@@ -2576,6 +2576,9 @@ let addressArr = [{
 ]
 
 function getCity(localName) {
+  if(!localName){
+    return []
+  }
   const item = addressArr.find((v) => {
     return v.local_name == localName
   })

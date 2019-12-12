@@ -183,10 +183,10 @@
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
             <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
-              <editor @input="webEditor" v-model="uploadForm.webDesc"></editor>
+              <editor @input="webEditor" v-model="uploadForm.webDesc" :moduleNum="2"></editor>
             </el-form-item>
             <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
-              <editor @input="phoneEditor" v-model="uploadForm.phoneDesc"></editor>
+              <editor @input="phoneEditor" v-model="uploadForm.phoneDesc" :moduleNum="1"></editor>
             </el-form-item>
             <p class="tip-info">* 商品详情视频在商品详情页展示。</p>
           </el-form>
