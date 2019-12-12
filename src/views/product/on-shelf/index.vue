@@ -157,26 +157,32 @@ export default {
         console.log(err);
       }
     },
+    
     handleQuery() {
       this.pageNum = 1;
       this.getList();
     },
+    
     resetQuery() {
       this.queryForm.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
     },
+
     handleExport() {},
+
     handleEdit(item) {
       this.$router.push({
         path: `/publish/detail/${item.producode}`
       });
     },
+
     handleAdd() {
       this.$router.push({
         path: `/product/publish`
       });
     },
+
     handleOffshelf(item) {
       this.$confirm("确定要下架吗？", "提示", {
         confirmButtonText: "确定",
@@ -191,6 +197,7 @@ export default {
         this.subTableData(formData);
       });
     },
+
     handleWarehouse(item) {
       this.$confirm("确定要放入库存吗？", "提示", {
         confirmButtonText: "确定",
@@ -213,7 +220,7 @@ export default {
         const {
           data: { code, msg }
         } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/mounttai/publish/modifyProductInfo`,
+          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
           formData,
           {
             headers: {

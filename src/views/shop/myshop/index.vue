@@ -1,0 +1,420 @@
+<template>
+  <div class="app-container my-shop">
+    <div v-if="shopcode">
+      <div class="base-info block" v-loading="loadingBase">
+        <div v-if="baseBoxShow">
+          <h4>
+            基本信息
+            <el-button
+              size="mini"
+              class="f-r"
+              type="primary"
+              @click="editBaseInfo('baseForm')"
+            >修改基本信息</el-button>
+          </h4>
+          <el-form :model="baseForm" ref="baseForm" :rules="baseFormRules" label-width="100px">
+            <el-form-item label="店铺logo：" class="upload-img">
+              <el-upload
+                class="avatar-uploader"
+                action="#"
+                list-type="picture-card"
+                :show-file-list="false"
+                :http-request="upload"
+                :before-upload="handleBeforeUpload"
+              >
+                <img :src="imageUrl" class="avatar" />
+                <span class="edit">编辑logo</span>
+              </el-upload>
+              <ul class="tip-info">
+                <li>* 图片尺寸要求：100*100像素。</li>
+                <li>* 图片大小不大于2MB，上传格式为jpg/png等格式。</li>
+              </ul>
+            </el-form-item>
+            <el-form-item label="店铺名称：" prop="shopname">
+              <el-input
+                v-model="baseForm.shopname"
+                maxlength="30"
+                clearable
+                placeholder="请输入店铺名称"
+                style="width:400px"
+              ></el-input>
+            </el-form-item>
+            <div class="adr-box">
+              <el-form-item label="店铺地区：" prop="province" class="adr-item">
+                <el-select
+                  v-model="baseForm.province"
+                  placeholder="请选择省份"
+                  @change="provideChange"
+                  style="width:190px"
+                >
+                  <el-option
+                    v-for="item in provideArr"
+                    :key="item.region_id"
+                    :label="item.local_name"
+                    :value="item.local_name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item prop="city" class="city-item">
+                <el-select
+                  v-model="baseForm.city"
+                  placeholder="请选择城市"
+                  style="width:190px;margin-left:18px"
+                >
+                  <el-option
+                    v-for="item in cityArr"
+                    :key="item.region_id"
+                    :label="item.local_name"
+                    :value="item.local_name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+            <el-form-item label="详细地址：" prop="address">
+              <el-input
+                v-model="baseForm.address"
+                maxlength="30"
+                clearable
+                placeholder="请输入详细地址"
+                style="width:400px"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="店铺简介：" prop="shopprofile">
+              <el-input
+                type="textarea"
+                v-model="baseForm.shopprofile"
+                placeholder="请输入店铺简介"
+                maxlength="200"
+                show-word-limit
+                style="width:400px"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="客服电话：" prop="servicephone">
+              <el-input
+                v-model="baseForm.servicephone"
+                maxlength="11"
+                clearable
+                placeholder="请输入客服电话"
+                style="width:400px"
+              ></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div class="img-info block" v-loading="loadingImg">
+        <div v-if="imgBoxShow">
+          <h4>
+            店铺图片
+            <el-button size="mini" class="f-r" type="primary" @click="editImgInfo('imgForm')">修改店铺图片</el-button>
+          </h4>
+          <div class="img-box-wrap">
+            <el-form :model="imgForm" ref="imgForm" :rules="imgFormRules" label-width="100px">
+              <el-form-item label="店铺图片1：" prop="img_one" ref="uploadElement">
+                <upload-img
+                  @add-item="addItemFir"
+                  @del-item="delImgItem"
+                  :file="[imgForm.img_one]"
+                  ref="imgItemOne"
+                  v-model="imgForm.img_one"
+                ></upload-img>
+                <ul class="tip-info">
+                  <li>* 图片尺寸要求：750*450像素。</li>
+                  <li>* 图片至少传一张。</li>
+                  <li>* 图片大小不大于3MB，上传格式为jpg/png等格式。</li>
+                </ul>
+              </el-form-item>
+              <el-form-item label="店铺图片2：" prop="imgTwo">
+                <upload-img @del-item="delImgItem" :file="[imgForm.img_two]" ref="imgItemTwo"></upload-img>
+              </el-form-item>
+              <el-form-item label="店铺图片3：" prop="imgThree">
+                <upload-img @del-item="delImgItem" :file="[imgForm.img_three]" ref="imgItemThree"></upload-img>
+              </el-form-item>
+              <el-form-item label="店铺图片4：" prop="imgFour">
+                <upload-img @del-item="delImgItem" :file="[imgForm.img_four]" ref="imgItemFour"></upload-img>
+              </el-form-item>
+            </el-form>
+            <div class="img-box">
+              <img :src="demoUrl" alt="#" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import axios from "axios";
+import city from "@/utils/city.js";
+import UploadImg from "@/components/UploadImgEdit";
+import { getToken } from "@/utils/auth";
+import { MessageBox } from "element-ui";
+import { getShopDetail } from "@/api/shop";
+import { deepClone } from "@/utils";
+
+export default {
+  components: {
+    UploadImg
+  },
+  data() {
+    var validateTel = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入客服电话"));
+      } else {
+        if (!/^1[3|4|5|7|8][0-9]{9}$|^0\d{2,3}-?\d{7,8}$/.test(value)) {
+          callback(new Error("请输入正确的客服电话"));
+        }
+        callback();
+      }
+    };
+    return {
+      loading: false,
+      loadingBase: false,
+      loadingImg: false,
+      baseBoxShow: true,
+      imgBoxShow: true,
+      imageUrl: "",
+      shopcode: "",
+      baseForm: {
+        shopname: "",
+        shoplogo: "",
+        province: "",
+        city: "",
+        address: "",
+        shopprofile: "",
+        servicephone: ""
+      },
+      baseFormRules: {
+        shopname: [
+          { required: true, message: "请输入店铺名称", trigger: "blur" }
+        ],
+        province: [
+          { required: true, message: "请选择地区", trigger: "change" }
+        ],
+        city: [{ required: true, message: "请选择城市", trigger: "change" }],
+        address: [
+          { required: true, message: "请输入详细地区", trigger: "blur" }
+        ],
+        shopprofile: [
+          { required: true, message: "请输入商铺简介", trigger: "blur" }
+        ],
+        servicephone: [
+          { validator: validateTel, required: true, trigger: "blur" }
+        ]
+      },
+      imgForm: {
+        img_one: null,
+        img_two: null,
+        img_three: null,
+        img_four: null
+      },
+      imgFormRules: {
+        img_one: [
+          { required: true, message: "第一张图片不能为空", trigger: "blur" }
+        ]
+      },
+      productImgs: [],
+      provideArr: [],
+      cityArr: [],
+      demoUrl: require("@/assets/image/demo.png")
+    };
+  },
+  created() {
+    this.getDetail();
+  },
+  mounted() {
+    this.provideArr = city.provide;
+  },
+  methods: {
+    /* 删除图片匹配去掉productImgs中uid */
+    delImgItem(uid) {
+      const idx = this.productImgs.findIndex(item => {
+        return item.uid === uid;
+      });
+      if (idx !== -1) {
+        this.productImgs.splice(idx, 1);
+      }
+    },
+
+    async getDetail() {
+      try {
+        const {
+          data: {
+            storeImages,
+            storeInfo: {
+              shopname,
+              shopprofile,
+              servicephone,
+              shoplocation,
+              shoplogo,
+              shopcode
+            }
+          },
+          code
+        } = await getShopDetail();
+        if (code === 200) {
+          const adrArr = shoplocation ? shoplocation.split("_") : null;
+          this.imageUrl = shoplogo;
+          this.shopcode = shopcode;
+          this.productImgs = storeImages.map(item => {
+            return { serial: item.serial, uid: item.uid };
+          });
+          this.baseForm.shopname = shopname ? shopname : "";
+          this.baseForm.shopprofile = shopprofile ? shopprofile : "";
+          this.baseForm.servicephone = servicephone ? servicephone : "";
+          this.baseForm.province = adrArr ? adrArr[0] : "";
+          this.baseForm.city = adrArr ? adrArr[1] : "";
+          this.baseForm.address = adrArr ? adrArr[2] : "";
+          const imgData = storeImages.map(item => {
+            return Object.assign(item, { url: item.image });
+          });
+          const img_one = imgData.find(item => item.serial === 1);
+          const img_two = imgData.find(item => item.serial === 2);
+          const img_three = imgData.find(item => item.serial === 3);
+          const img_four = imgData.find(item => item.serial === 4);
+          Object.assign(this.imgForm, {
+            img_one: img_one ? img_one : null,
+            img_two: img_two ? img_two : null,
+            img_three: img_three ? img_three : null,
+            img_four: img_four ? img_four : null
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    provideChange() {
+      this.baseForm.city = "";
+      this.cityArr = city.getCity(this.baseForm.province);
+    },
+
+    addItemFir(val) {
+      this.imgForm.img_one = val[0];
+      this.$refs["uploadElement"].clearValidate();
+    },
+
+    upload(file) {
+      let _this = this;
+      var reader = new FileReader();
+      reader.readAsDataURL(file.file);
+      reader.onload = function(e) {
+        var newUrl = this.result;
+        _this.imageUrl = newUrl;
+      };
+      this.baseForm.shoplogo = file.file;
+    },
+
+    handleBeforeUpload(file) {
+      var isType = /^image\/(jpeg|png|jpg|tiff)$/.test(file.type);
+      const isLt1M = file.size / 1024 / 1024 < 2;
+      if (!isType) {
+        this.$message.error("请上传图片格式jpg/jpeg/png!");
+      }
+      if (!isLt1M) {
+        this.$message.error("上传图片大小不能超过 2MB!");
+      }
+      return isType && isLt1M;
+    },
+
+    editBaseInfo(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.loadingBase = true;
+          this.baseBoxShow = false;
+          let formData = new FormData();
+          formData.append("moduleNum", "1");
+          formData.append("shopname", this.baseForm.shopname);
+          formData.append("shoplogo", this.baseForm.shoplogo);
+          formData.append("province", this.baseForm.province);
+          formData.append("city", this.baseForm.city);
+          formData.append("address", this.baseForm.address);
+          formData.append("shopprofile", this.baseForm.shopprofile);
+          formData.append("servicephone", this.baseForm.servicephone);
+          this.subTableData(formData);
+        } else {
+          return false;
+        }
+      });
+    },
+
+    editImgInfo(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.loadingImg = true;
+          this.imgBoxShow = false;
+          const cloneData = deepClone(this.productImgs);
+          let formData = new FormData();
+          formData.append("moduleNum", "2");
+          formData.append(
+            "storeEventImages",
+            JSON.stringify(
+              cloneData.map(item => {
+                return item.uid;
+              })
+            )
+          );
+          formData.append("img_one", this.$refs.imgItemOne.fileList[0]);
+          formData.append("img_two", this.$refs.imgItemTwo.fileList[0]);
+          formData.append("img_three", this.$refs.imgItemThree.fileList[0]);
+          formData.append("img_four", this.$refs.imgItemFour.fileList[0]);
+          console.log(this.productImgs)
+          this.productImgs.forEach(item => {
+            if (Number(item.serial) === 1) {
+              formData.delete("img_one");
+            } else if (Number(item.serial) === 2) {
+              formData.delete("img_two");
+            } else if (Number(item.serial) === 3) {
+              formData.delete("img_three");
+            } else if (Number(item.serial) === 4) {
+              formData.delete("img_four");
+            }
+          });
+          this.subTableData(formData);
+        } else {
+          return false;
+        }
+      });
+    },
+
+    /* 提交数据接口 */
+    async subTableData(formData) {
+      try {
+        const {
+          data: { code, msg }
+        } = await axios.post(
+          `${process.env.VUE_APP_BASE_API}/god/store/modifyStoreInfo`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: "Bearer " + getToken()
+            }
+          }
+        );
+        this._loadingCancel();
+        if (code === 200) {
+          await this.getDetail();
+          this.msgSuccess("修改成功");
+        } else {
+          MessageBox({
+            message: msg,
+            type: "error",
+            duration: 5 * 1000
+          });
+        }
+      } catch (err) {
+        this._loadingCancel();
+        console.log(err);
+      }
+    },
+
+    /*清楚loading  */
+    _loadingCancel() {
+      this.loadingBase = false;
+      this.loadingImg = false;
+      this.baseBoxShow = true;
+      this.imgBoxShow = true;
+    }
+  }
+};
+</script>

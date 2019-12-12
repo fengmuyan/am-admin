@@ -294,7 +294,7 @@ export default {
   },
   data() {
     let patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-    var validateNetWeight = (rule, value, callback) => {
+    let validateNetWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else {
@@ -304,7 +304,7 @@ export default {
         callback();
       }
     };
-    var validateGrossWeight = (rule, value, callback) => {
+    let validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else if (value < this.valuationForm.netweight) {
@@ -650,7 +650,7 @@ export default {
         const {
           data: { code, msg }
         } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/mounttai/publish/publish`,
+          `${process.env.VUE_APP_BASE_API}/god/publish/publish`,
           this._initFormdataSub(),
           {
             headers: {

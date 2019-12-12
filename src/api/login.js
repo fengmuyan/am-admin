@@ -34,7 +34,7 @@ export function logout() {
 // 获取验证码
 export function validateCapt(data) {
   return request({
-    url: '/mounttai/register/sendSmsCode',
+    url: '/god/register/sendSmsCode',
     method: 'post',
     data
   })
@@ -43,7 +43,7 @@ export function validateCapt(data) {
 // 审核验证码提交
 export function submitCapt(data) {
   return request({
-    url: '/mounttai/register/checkSmsCode',
+    url: '/god/register/checkSmsCode',
     method: 'post',
     data
   })
@@ -52,7 +52,7 @@ export function submitCapt(data) {
 // 账号信息提交
 export function submitAccountInfo(data) {
   return request({
-    url: '/mounttai/register/inputUserInfo',
+    url: '/god/register/inputUserInfo',
     method: 'post',
     data
   })

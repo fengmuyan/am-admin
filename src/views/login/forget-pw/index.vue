@@ -415,7 +415,7 @@ export default {
           formData.append("sessionId", this.secSession);
           try {
             const { code } = await axios.post(
-              `${process.env.VUE_APP_BASE_API}/mounttai/register`,
+              `${process.env.VUE_APP_BASE_API}/god/register`,
               formData,
               config
             );

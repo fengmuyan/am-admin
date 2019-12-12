@@ -212,7 +212,7 @@ export default {
         const {
           data: { code, msg }
         } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/mounttai/publish/modifyProductInfo`,
+          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
           formData,
           {
             headers: {
@@ -245,7 +245,7 @@ export default {
         const {
           data: { code, msg }
         } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/mounttai/publish/deleteProduct`,
+          `${process.env.VUE_APP_BASE_API}/god/publish/deleteProduct`,
           formData,
           {
             headers: {

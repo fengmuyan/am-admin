@@ -57,6 +57,7 @@ export default {
 
     upload(file) {
       this.fileList[0] = file.file;
+      this.$emit("add-item",this.fileList);
       this._hiddenPlus();
     },
 

@@ -291,8 +291,8 @@ export default {
     Editor
   },
   data() {
-    let patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-    var validateNetWeight = (rule, value, callback) => {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/; //数字价格类型验证
+    const validateNetWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else {
@@ -301,8 +301,8 @@ export default {
         }
         callback();
       }
-    };
-    var validateGrossWeight = (rule, value, callback) => {
+    }; //净重验证
+    const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else if (value < this.valuationForm.netweight) {
@@ -310,49 +310,48 @@ export default {
       } else {
         callback();
       }
-    };
+    }; //毛重验证
     return {
-      loading: false,
-      loadingNature: false,
-      loadingSale: false,
-      loadingUploadImg: false,
-      loadingUploadVideo: false,
-      loadingUploadDec: false,
-      loadingPay: false,
-      loadingServer: false,
-      imgBoxShow: true,
-      videoBoxShow: true,
-      cmdtclassname: "",
-      producode: "",
-      naturalData: [],
-      naturalDataInit: [],
-      saleData: [],
-      saleDataInit: [],
-      cmdtProductPrices: [],
-      itemIdArr: [],
-      tableArr: [],
-      tableIsShow: false,
-      homePageClasses: [],
-      productImgs: [],
-      productVideos: [],
-      cversion: "",
-      state: "",
+      loading: false, //初始页面loading
+      loadingNature: false, //自然属性模块loading
+      loadingSale: false, //销售属性模块loading
+      loadingUploadImg: false, //上传图片模块loading
+      loadingUploadVideo: false, //上传视频模块loading
+      loadingUploadDec: false, //图文描述模块loading
+      loadingPay: false, //支付信息模块loading
+      loadingServer: false, //售后服务模块loading
+      imgBoxShow: true, //修改成功后初始化图片内容
+      videoBoxShow: true, //修改成功后初始化视频内容
+      cmdtclassname: "", //页面显示的商品类目
+      producode: "", //商品编码（修改需要提交）
+      naturalData: [], //自然属性原始数据
+      naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
+      saleData: [], //销售属性原始数据
+      saleDataInit: [], //销售属性处理后的数据（供动态表单使用）
+      cmdtProductPrices: [], //动态表格原始数据
+      itemIdArr: [], //处理后的销售属性（供动态表格使用）
+      tableArr: [], //
+      tableIsShow: false, //动态表格显示与否开关
+      homePageClasses: [], // 产品展示分类关联数组
+      productImgs: [], //关联图片数组（用于图片提交）
+      productVideos: [], //关联视频数组（用于视频提交）
+      state: "", //上架状态初始值（判断哪些状态显示）
       cateForm: {
         cateData: "",
         cateInputArr: []
-      },
+      }, //商品类目表单
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
         grossweight: "",
         netweight: "",
         weightunit: "公斤"
-      },
+      }, //销售属性中计价表单
       postSaleForm: {
         invoice: "Y",
         state: "",
         publishtime: ""
-      },
+      }, //物流信息模块
       uploadForm: {
         img_one: "",
         img_two: "",
@@ -364,19 +363,19 @@ export default {
         proportion: "",
         webDesc: "",
         phoneDesc: ""
-      },
+      }, //上传表单
       titleForm: {
         produname: "",
         title: "",
         homepageclass: ""
-      },
+      }, //自然属性中的标题表单
       payForm: {
         paymethod: "1",
         stockmethod: "1"
-      },
+      }, //支付信息表单
       logisticsForm: {
         issupsubstitute: "Y"
-      },
+      }, //物流信息表单
       valuationRules: {
         isdiscount: [
           { required: true, message: "请输入折扣方式", trigger: "blur" }
@@ -395,7 +394,7 @@ export default {
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
         ]
-      },
+      }, //销售属性中计价表单验证
       postSaleFormRules: {
         state: [{ required: true, message: "请输入上架状态", trigger: "blur" }],
         publishtime: [
@@ -404,7 +403,7 @@ export default {
         invoice: [
           { required: true, message: "请输入是否填写发票", trigger: "blur" }
         ]
-      },
+      }, //物流表单验证
       uploadFormRules: {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
@@ -415,7 +414,7 @@ export default {
         phoneDesc: [
           { required: true, message: "请输入手机端描述", trigger: "blur" }
         ]
-      },
+      }, //上传表单验证
       titleFormRules: {
         produname: [
           { required: true, message: "请输入商品名称", trigger: "blur" }
@@ -424,7 +423,7 @@ export default {
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ]
-      },
+      }, //自然属性中的标题表单验证
       payFormRules: {
         paymethod: [
           { required: true, message: "请输入付款方式", trigger: "blur" }
@@ -432,12 +431,12 @@ export default {
         stockmethod: [
           { required: true, message: "请输入库存计数方式", trigger: "blur" }
         ]
-      },
+      }, //支付信息表单验证
       logisticsFormRules: {
         issupsubstitute: [
           { required: true, message: "请输入是否支持代发", trigger: "blur" }
         ]
-      }
+      } //服务表单验证
     };
   },
 
@@ -456,7 +455,7 @@ export default {
       }
     },
 
-    /* 删除视频匹配去掉productVideos中uid */
+    /* 删除主视频匹配去掉productVideos中uid */
     addVideoItemFir() {
       const idx = this.productVideos.findIndex(item => {
         return Number(item.serial) === 1;
@@ -466,7 +465,7 @@ export default {
       }
     },
 
-    /* 删除视频匹配去掉productVideos中uid */
+    /* 删除详情视频匹配去掉productVideos中uid */
     addVideoItemSec() {
       const idx = this.productVideos.findIndex(item => {
         return Number(item.serial) === 2;
@@ -476,17 +475,17 @@ export default {
       }
     },
 
-    /* 拼装提交数据 */
+    /* 电脑端描述输入后清除验证 */
     webEditor() {
       this.$refs["webDesc"].clearValidate();
     },
 
-    /* 拼装提交数据 */
+    /* 手机端描述输入后清除验证  */
     phoneEditor() {
       this.$refs["phoneDesc"].clearValidate();
     },
 
-    /* 获取详情信息 */
+    /* 获取本页详情信息数据 */
     async getDetailData() {
       const producode = this.$route.params.code;
       try {
@@ -593,7 +592,7 @@ export default {
       }
     },
 
-    /* 处理成动态表格数据 */
+    /* 监听销售属性判断动态表格显示与否 */
     tableShow(val) {
       if (val === true) {
         this.tableIsShow = false;
@@ -614,23 +613,7 @@ export default {
       }
     },
 
-    /* 自然属性formData */
-    editNaturepro() {
-      this.loadingNature = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "1");
-      formData.append("producode", this.producode);
-      formData.append("produname", this.titleForm.produname);
-      formData.append("title", this.titleForm.title);
-      formData.append("homepageclass", this.titleForm.homepageclass);
-      formData.append(
-        "naturepro",
-        JSON.stringify({ naturepro: deInitFormData(this.naturalDataInit) })
-      );
-      this.subTableData(formData);
-    },
-
-    /* 自然属性验证 */
+    /* 自然属性提交验证 */
     editNatureproV() {
       const p1 = new Promise((resolve, reject) => {
         this.$refs["titleForm"].validate(valid => {
@@ -649,7 +632,34 @@ export default {
       });
     },
 
-    /* 销售属性formData */
+    /* 自然属性formData组装 */
+    editNaturepro() {
+      this.loadingNature = true;
+      let formData = new FormData();
+      formData.append("moduleNum", "1");
+      formData.append("producode", this.producode);
+      formData.append("produname", this.titleForm.produname);
+      formData.append("title", this.titleForm.title);
+      formData.append("homepageclass", this.titleForm.homepageclass);
+      formData.append(
+        "naturepro",
+        JSON.stringify({ naturepro: deInitFormData(this.naturalDataInit) })
+      );
+      this.subTableData(formData);
+    },
+
+    /* 销售属性提交验证 */
+    editSaleproV() {
+      const p1 = new Promise((resolve, reject) => {
+        this.$refs.dynamicFormSale.validatInit(valid => {
+          if (valid) resolve();
+        });
+      }).then(() => {
+        this.editSalepro();
+      });
+    },
+
+    /* 销售属性formData组装 */
     editSalepro() {
       this.loadingSale = true;
       let formData = new FormData();
@@ -662,17 +672,10 @@ export default {
       this.subTableData(formData);
     },
 
-    editSaleproV() {
-      const p1 = new Promise((resolve, reject) => {
-        this.$refs.dynamicFormSale.validatInit(valid => {
-          if (valid) resolve();
-        });
-      }).then(() => {
-        this.editSalepro();
-      });
-    },
+    /* 商品图片提交验证 */
+    editProImgV() {},
 
-    /* 商品图片formData */
+    /* 商品图片formData组装 */
     editProImg() {
       this.loadingUploadImg = true;
       this.imgBoxShow = false;
@@ -709,7 +712,7 @@ export default {
       this.subTableData(formData);
     },
 
-    /* 商品视频formData */
+    /* 商品视频formData组装 */
     editProVideo() {
       this.loadingUploadVideo = true;
       this.videoBoxShow = false;
@@ -737,17 +740,7 @@ export default {
       this.subTableData(formData);
     },
 
-    /* 商品文本描述formData */
-    editProDec() {
-      this.loadingUploadDec = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "6");
-      formData.append("producode", this.producode);
-      formData.append("webDesc", this.uploadForm.webDesc);
-      formData.append("phoneDesc", this.uploadForm.phoneDesc);
-      this.subTableData(formData);
-    },
-
+    /* 商品文本描述验证提交 */
     editProDecV() {
       new Promise((resolve, reject) => {
         this.$refs["uploadForm"].validate(valid => {
@@ -758,7 +751,18 @@ export default {
       });
     },
 
-    /* 支付信息formData */
+    /* 商品文本描述formData组装 */
+    editProDec() {
+      this.loadingUploadDec = true;
+      let formData = new FormData();
+      formData.append("moduleNum", "6");
+      formData.append("producode", this.producode);
+      formData.append("webDesc", this.uploadForm.webDesc);
+      formData.append("phoneDesc", this.uploadForm.phoneDesc);
+      this.subTableData(formData);
+    },
+
+    /* 支付信息formData组装 */
     editPayInfo() {
       this.loadingPay = true;
       let formData = new FormData();
@@ -769,7 +773,7 @@ export default {
       this.subTableData(formData);
     },
 
-    /* 售后服务formData */
+    /* 售后服务formData组装 */
     editPostSale() {
       this.loadingServer = true;
       let formData = new FormData();
@@ -780,13 +784,13 @@ export default {
       this.subTableData(formData);
     },
 
-    /* 拼装提交数据 */
+    /* 提交数据接口 */
     async subTableData(formData) {
       try {
         const {
           data: { code, msg }
         } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/mounttai/publish/modifyProductInfo`,
+          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
           formData,
           {
             headers: {
