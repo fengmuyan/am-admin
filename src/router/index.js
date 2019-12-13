@@ -131,6 +131,25 @@ export const constantRoutes = [
         meta: { title: '商品详情', icon: '' }
       }
     ]
+  },
+  {
+    path: '/dynamic',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'authorize-edit/:code',
+        component: () => import('@/views/distributor/authorize-edit/index'),
+        name: '经销商授权修改',
+        meta: { title: '经销商授权修改', icon: '' }
+      },
+      {
+        path: 'discount/:code',
+        component: () => import('@/views/distributor/discount/index'),
+        name: '调整折扣',
+        meta: { title: '调整折扣', icon: '' }
+      }
+    ]
   }
 ]
 

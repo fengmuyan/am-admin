@@ -621,9 +621,6 @@
       .ac {
         color: #65bc57;
       }
-      .ac_s {
-        color: #65bc57;
-      }
     }
   }
 }
@@ -798,5 +795,148 @@
         }
       }
     }
+  }
+}
+
+.authorize{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 800px;
+  padding: 100px 0;
+  .step-top {
+    width: 420px;
+    height: 110px;
+    background-color: #fff;
+    .step-icon {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      height: 24px;
+      margin-bottom: 15px;
+      span {
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        line-height: 24px;
+        border-radius: 50%;
+        border: 1px solid #999;
+      }
+      i {
+        width: 73px;
+        height: 4px;
+        background-color: #999;
+        background: url("../image/reg-icon_06.png") center center
+          no-repeat;
+      }
+      .ac_i {
+        background-image: url("../image/reg-icon_09.png");
+      }
+      .ac {
+        border-color: #65bc57;
+        background-color: #65bc57;
+        color: #fff;
+      }
+    }
+    .step-title {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      color: #999;
+      font-size: 12px;
+      margin-left: 6px;
+      .ac {
+        color: #65bc57;
+      }
+      .span-two{
+        padding-left: 15px;
+      }
+    }
+  }
+  .content{
+    .el-form-item {
+      margin-bottom: 30px;
+      .el-input__inner {
+        height: 52px;
+        line-height: 52px;
+        border-radius: 6px;
+        border-color: #dcdfe6 !important;
+      }
+    }
+    .submit-btn {
+      width: 400px;
+      height: 54px;
+      line-height: 30px;
+      background-color: #6287fd;
+      border-radius: 8px;
+      font-size: 18px;
+      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 40px;
+    }
+    .code-item {
+      .el-form-item__content {
+        display: flex;
+        flex-direction: row;
+        .el-input__inner {
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+        span {
+          width: 160px;
+          font-size: 14px;
+          text-align: center;
+          line-height: 50px;
+          border: 1px solid #dcdfe6;
+          border-left: none;
+          border-radius: 6px;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          cursor: pointer;
+        }
+      }
+    }
+    .fir-form{
+      .phone-item {
+        .el-input__inner {
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+        }
+        .el-form-item__content {
+          display: flex;
+          flex-direction: row;
+          span {
+            width: 109px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 50px;
+            border: 1px solid #dcdfe6;
+            border-right: none;
+            border-radius: 6px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+.discount{
+  @extend .authorize;
+  .step-top{
+    width: 200px;
+  }
+}
+
+.authorize-edit{
+  @extend .authorize;
+  .step-top{
+    width: 200px;
   }
 }
