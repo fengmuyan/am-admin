@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../store'
 
 Vue.use(Router)
 
@@ -41,28 +42,21 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/forget-pw',
-    hidden: true,
-    meta: { title: '忘记密码', icon: 'user' },
-    component: () => import('@/views/login/forget-pw/index'),
-  },
-  {
     path: '/register',
     hidden: true,
     meta: { title: '注册账号', icon: 'user' },
     component: () => import('@/views/login/register/index'),
   },
   {
-    path: '/reset-pw',
+    path: '/real-authorize',
     hidden: true,
-    meta: { title: '修改密码', icon: 'user' },
-    component: () => import('@/views/login/reset-pw/index'),
-  },
-  {
-    path: '/bind-email',
-    hidden: true,
-    meta: { title: '绑定邮箱', icon: 'user' },
-    component: () => import('@/views/login/bind-email/index'),
+    meta: { title: '实名认证', icon: '' },
+    component: () => import('@/views/login/real-authorize/index'),
+    beforeEnter: (to, from, next) => {
+      if (Number(store.getters.isReal) === 0 || Number(store.getters.isReal) === 2) {
+        next()
+      }
+    }
   },
   {
     path: '/login',
@@ -148,6 +142,48 @@ export const constantRoutes = [
         component: () => import('@/views/distributor/discount/index'),
         name: '调整折扣',
         meta: { title: '调整折扣', icon: '' }
+      }
+    ]
+  }
+]
+
+export const realAuthRoutes = [
+  {
+    path: '/account',
+    component: Layout,
+    name: "收款账户",
+    alwaysShow: true,
+    meta: {
+      icon: "money",
+      title: "收款账户"
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/account/list/index'),
+        name: '渠道列表',
+        meta: { title: '渠道列表', icon: 'list' }
+      }
+    ]
+  }
+]
+
+export const accountRoutes = [
+  {
+    path: '/account',
+    component: Layout,
+    name: "收款账户",
+    alwaysShow: true,
+    meta: {
+      icon: "money",
+      title: "收款账户"
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/account/list/index'),
+        name: '渠道列表',
+        meta: { title: '渠道列表', icon: 'list' }
       }
     ]
   }

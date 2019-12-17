@@ -7,8 +7,6 @@
       @toggleClick="toggleSideBar"
     />
 
-    <!-- <breadcrumb id="breadcrumb-container" class="breadcrumb-container" /> -->
-
     <div class="right-menu">
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
@@ -73,7 +71,8 @@ export default {
       this.$confirm("确定注销并退出系统吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
+        customClass:'el-message-box-wran'
       }).then(() => {
         this.$store.dispatch("LogOut").then(() => {
           location.reload();

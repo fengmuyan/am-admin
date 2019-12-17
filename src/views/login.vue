@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login">
     <div class="login-center">
       <el-form
         class="login-form"
@@ -58,8 +58,8 @@ export default {
   data() {
     return {
       loginForm: {
-        username: "admin",
-        password: "admin123"
+        username: "fengsaikang777",
+        password: "123456789"
       },
       loginRules: {
         username: [
@@ -140,129 +140,3 @@ export default {
   }
 };
 </script>
-
-<style rel="stylesheet/scss" lang="scss">
-.login-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background: url("../assets/image/login-bg1.png") center center no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-  .login-center {
-    width: 500px;
-    height: 555px;
-    overflow: hidden;
-    background-attachment: fixed;
-    background-color: rgba(255, 255, 255, 0.75);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    .title-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      .title {
-        margin: 0;
-        font-size: 32px;
-        color: #5570c5;
-        height: 130x;
-        line-height: 130px;
-        text-align: center;
-        font-weight: bolder;
-      }
-    }
-    .content {
-      .el-form-item {
-        margin-bottom: 30px;
-        .tip {
-          font-size: 16px;
-          height: 16px;
-          line-height: 16px;
-        }
-        .el-input {
-          font-size: 20px;
-          .el-input__inner {
-            padding: 0;
-            border-color: transparent;
-            background-color: transparent;
-            height: 58px;
-            line-height: 58px;
-            color: #5570c5;
-            border-bottom-color: #5570c5;
-            border-radius: 0;
-          }
-        }
-      }
-      .pw-item {
-        margin-bottom: 0;
-        .el-input {
-          .el-input__inner {
-            height: 50px;
-            line-height: 50px;
-          }
-        }
-      }
-      .extra-item {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        height: 50px;
-        line-height: 50px;
-        font-size: 16px;
-        padding: 0 3px;
-        .register {
-          color: #5570c5;
-        }
-        margin-bottom: 10px;
-      }
-    }
-    .submit {
-      width: 392px;
-      height: 60px;
-      font-size: 18px;
-      color: #fff;
-      border-color: #6287fd;
-      background-color: #6287fd;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(60, 60, 60, 0.5);
-    }
-    .verify-box {
-      display: inline-flex;
-      flex-direction: row;
-      align-items: center;
-      width: 120px;
-      justify-content: space-between;
-    }
-    .ac-verify-box {
-      color: #5570c5;
-    }
-    .verify-btn {
-      width: 390px;
-      height: 60px;
-      background-color: #eff0f2;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #666;
-    }
-    .verify-btn-done {
-      color: #5570c5;
-    }
-  }
-  input {
-    text-fill-color: #fff;
-    -webkit-text-fill-color: #5570c5;
-  }
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    -webkit-transition-delay: 99999s;
-    -webkit-transition: color 99999s ease-out, background-color 99999s ease-out;
-  }
-}
-</style>

@@ -16,6 +16,7 @@
     <div class="content">
       <div v-if="actItem === 0" class="fir-form">
         <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
+          <div class="number-tip">将为你手机号158****4090发送验证码，请注意查收。</div>
           <el-form-item prop="smsCode" class="code-item">
             <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
             <ge-code :config="config" ref="geCode"></ge-code>

@@ -1,4 +1,4 @@
-import { constantRoutes } from '@/router'
+import { constantRoutes, accountRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index'
 
@@ -10,19 +10,36 @@ const permission = {
   mutations: {
     SET_ROUTES: (state, routes) => {
       state.addRoutes = routes
-      state.routes = constantRoutes.concat(routes)
+      state.routes = [...constantRoutes, ...routes]
     }
   },
   actions: {
     // 生成路由
-    GenerateRoutes({ commit }) {
+    GenerateRoutes({ getters, commit }) {
       return new Promise(resolve => {
-        // 向后端请求路由数据
-        getRouters().then(res => {
-          const accessedRoutes = filterAsyncRouter(res.data)
-          commit('SET_ROUTES', accessedRoutes)
-          resolve(accessedRoutes)
-        })
+        if (getters.roles.includes('admin')) {
+          getRouters().then(res => {
+            const accessedRoutes = filterAsyncRouter(res.data)
+            commit('SET_ROUTES', accessedRoutes)
+            resolve(accessedRoutes)
+          })
+        } else {
+          if (Number(getters.isReal) !== 3) {
+            commit('SET_ROUTES', [])
+            resolve([])
+          } else {
+            if (getters.isOpenAccount !== true) {
+              commit('SET_ROUTES', accountRoutes)
+              resolve(accountRoutes)
+            } else {
+              getRouters().then(res => {
+                const accessedRoutes = filterAsyncRouter(res.data)
+                commit('SET_ROUTES', accessedRoutes)
+                resolve(accessedRoutes)
+              })
+            }
+          }
+        }
       })
     }
   }

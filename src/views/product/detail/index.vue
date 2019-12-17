@@ -200,19 +200,33 @@
           </el-form-item>
         </el-form>
       </div>
-      <div class="block">
-        <h4>物流信息</h4>
+      <div class="block" v-loading="loadingLogistics">
+        <h4>
+          物流信息
+          <el-button size="mini" class="f-r" type="primary" @click="editLogistics">修改支付信息</el-button>
+        </h4>
         <el-form
           :model="logisticsForm"
           ref="logisticsForm"
           :rules="logisticsFormRules"
           label-width="120px"
         >
-          <el-form-item label="是否支持代发：" prop="issupsubstitute">
-            <el-radio-group v-model="logisticsForm.issupsubstitute">
-              <el-radio label="Y" disabled>是</el-radio>
-              <el-radio label="N" disabled>否</el-radio>
+          <el-form-item label="发货方式：" prop="deliverymode">
+            <el-radio-group
+              v-model="logisticsForm.deliverymode"
+              @change="logisticsForm.issupsubstitute = false"
+            >
+              <el-radio label="1">自提</el-radio>
+              <el-radio label="2">发货</el-radio>
             </el-radio-group>
+          </el-form-item>
+
+          <el-form-item>
+            <el-checkbox
+              v-model="logisticsForm.issupsubstitute"
+              :disabled="logisticsForm.deliverymode!=='1'"
+            >代发</el-checkbox>
+            <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -260,14 +274,13 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImgEdit";
 import UploadVideo from "@/components/UploadVideoEdit";
 import Editor from "@/components/Editor";
-import axios from "axios";
-import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
 import {
   getProCate,
   getProData,
   getHomePageClass,
-  getProDetail
+  getProDetail,
+  proPublishSubEdit
 } from "@/api/product";
 import {
   initFormData,
@@ -320,10 +333,12 @@ export default {
       loadingUploadDec: false, //图文描述模块loading
       loadingPay: false, //支付信息模块loading
       loadingServer: false, //售后服务模块loading
+      loadingLogistics: false,
       imgBoxShow: true, //修改成功后初始化图片内容
       videoBoxShow: true, //修改成功后初始化视频内容
       cmdtclassname: "", //页面显示的商品类目
       producode: "", //商品编码（修改需要提交）
+      storeInfo: {},
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
       saleData: [], //销售属性原始数据
@@ -374,7 +389,8 @@ export default {
         stockmethod: "1"
       }, //支付信息表单
       logisticsForm: {
-        issupsubstitute: "Y"
+        deliverymode: "1",
+        issupsubstitute: false
       }, //物流信息表单
       valuationRules: {
         isdiscount: [
@@ -508,7 +524,11 @@ export default {
                 publishtime,
                 paymethod,
                 stockmethod,
-                issupsubstitute
+                issupsubstitute,
+                deliverymode,
+                shippingcity: city,
+                shippingprovince: province,
+                shoplocation: address
               },
               cmdtProductDescriptions,
               cmdtProductImages,
@@ -546,7 +566,9 @@ export default {
           this.postSaleForm.publishtime = publishtime;
           this.payForm.paymethod = String(paymethod);
           this.payForm.stockmethod = String(stockmethod);
-          this.logisticsForm.issupsubstitute = issupsubstitute;
+          this.logisticsForm.issupsubstitute =
+            issupsubstitute === "Y" ? true : false;
+          this.logisticsForm.deliverymode = String(deliverymode);
           this.uploadForm.webDesc = cmdtProductDescriptions.find(
             item => item.xtype === 2
           ).xdesc;
@@ -580,6 +602,11 @@ export default {
             return { serial: item.serial, uid: item.uid };
           });
           this.state = String(state);
+          this.storeInfo = {
+            province,
+            city,
+            address
+          };
           this._loadingCancel();
         }
         if (code2 === 200) {
@@ -782,31 +809,36 @@ export default {
       this.subTableData(formData);
     },
 
+    /* 物流信息formData组装 */
+    editLogistics() {
+      this.loadingLogistics = true;
+      let formData = new FormData();
+      formData.append("moduleNum", "8");
+      formData.append("producode", this.producode);
+      formData.append(
+        "issupsubstitute",
+        this.logisticsForm.issupsubstitute === true ? "Y" : "N"
+      );
+      formData.append("deliverymode", this.logisticsForm.deliverymode);
+      formData.append("province", this.storeInfo.province);
+      formData.append("city", this.storeInfo.city);
+      this.subTableData(formData);
+    },
+
     /* 提交数据接口 */
     async subTableData(formData) {
       try {
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        const { code, msg } = await proPublishSubEdit(formData);
         if (code === 200) {
           await this.getDetailData();
-          this.msgSuccess("修改成功");
           this._loadingCancel();
-        } else {
           MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
+            message: "修改成功",
+            type: "success",
+            duration: 5 * 1000,
+            customClass: "el-message-box-suc"
           });
+        } else {
           this._loadingCancel();
         }
       } catch (err) {
@@ -824,6 +856,7 @@ export default {
       this.loadingUploadDec = false;
       this.loadingPay = false;
       this.loadingServer = false;
+      this.loadingLogistics = false;
       this.imgBoxShow = true;
       this.videoBoxShow = true;
     }

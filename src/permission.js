@@ -5,7 +5,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
 NProgress.configure({ showSpinner: false })
-const whiteList = ['/login', '/auth-redirect', '/bind', '/register', '/forget-pw']
+const whiteList = ['/login', '/auth-redirect', '/register']
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
@@ -15,7 +15,7 @@ router.beforeEach((to, from, next) => {
       NProgress.done()
     } else {
       if (store.getters.roles.length === 0) {
-        store.dispatch('GetInfo').then(res => {
+        store.dispatch('GetInfo').then((res) => {
           const roles = res.roles
           store.dispatch('GenerateRoutes', { roles }).then(accessRoutes => {
             router.addRoutes(accessRoutes)

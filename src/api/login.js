@@ -23,6 +23,16 @@ export function getInfo() {
   })
 }
 
+// 获取用户是否实名认证
+export function getRealInfo() {
+  return request({
+    url: '/god/register/getRealNameInfo',
+    method: 'get'
+  })
+}
+
+
+
 // 退出方法
 export function logout() {
   return request({
@@ -57,5 +67,27 @@ export function submitAccountInfo(data) {
     data
   })
 }
+
+// 用户实名信息提交
+export function submitRealInfo(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/register/register',
+    method: 'post',
+    data,
+  })
+}
+
+// 用户实名信息提交(修改)
+export function realNameAuth(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/register/realNameAuth',
+    method: 'post',
+    data,
+  })
+}
+
+
 
 

@@ -20,7 +20,7 @@ import RightPanel from "@/components/RightPanel";
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from "./components";
 import ResizeMixin from "./mixin/ResizeHandler";
 import { mapState } from "vuex";
-
+import { MessageBox } from "element-ui";
 export default {
   name: "Layout",
   components: {
@@ -38,7 +38,10 @@ export default {
       device: state => state.app.device,
       showSettings: state => state.settings.showSettings,
       needTagsView: state => state.settings.tagsView,
-      fixedHeader: state => state.settings.fixedHeader
+      fixedHeader: state => state.settings.fixedHeader,
+      isReal: state => state.user.isReal,
+      isOpenAccount: state => state.user.isOpenAccount,
+      roles: state => state.user.roles
     }),
     classObj() {
       return {
@@ -49,9 +52,52 @@ export default {
       };
     }
   },
+  created() {
+    const isReal = Number(this.isReal);
+    const isOpenAccount = this.isOpenAccount;
+    const roles = this.roles;
+    if (!roles.includes("admin")) {
+      if (isReal === 1) {
+        this._confirmModel("实名认证正在审核中，请等候。");
+      } else if (isReal === 0 || isReal === 2) {
+        this._confirmModel("未实名认证或实名认证未通过。", "前往认证", () => {
+          this.$router.push({ path: "/real-authorize" });
+        });
+      } else if (isReal === 3) {
+        if (isOpenAccount !== true) {
+          this._confirmModel(
+            "您收款账户咱不可用，请检查账户。",
+            "检查账户",
+            () => {
+              this.$router.push({ path: "/account/list" });
+            }
+          );
+        }
+      }
+    }
+  },
   methods: {
     handleClickOutside() {
       this.$store.dispatch("app/closeSideBar", { withoutAnimation: false });
+    },
+
+    _confirmModel(msg, confirmButtonText = "确定", confirmFn, cancelFn) {
+      MessageBox.confirm(msg, "系统提示", {
+        confirmButtonText,
+        cancelButtonText: "取消",
+        type: "warning",
+        customClass: "el-message-box-wran"
+      })
+        .then(() => {
+          if (confirmFn) {
+            confirmFn.call(this);
+          }
+        })
+        .catch(() => {
+          if (cancelFn) {
+            cancelFn.call(this);
+          }
+        });
     }
   }
 };

@@ -16,6 +16,7 @@
     <div class="content">
       <div v-if="actItem === 0" class="fir-form">
         <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
+          <div class="number-tip">将为你手机号158****4090发送验证码，请注意查收。</div>
           <el-form-item prop="smsCode" class="code-item">
             <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
             <ge-code :config="config" ref="geCode"></ge-code>
@@ -25,9 +26,12 @@
       </div>
       <div v-if="actItem === 1" class="last-form">
         <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
-          <el-form-item prop="smsCode" class="code-item">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
-            <ge-code :config="config" ref="geCode"></ge-code>
+          <el-form-item prop="smsCode">
+            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入授权额度"></el-input>
+          </el-form-item>
+          <el-form-item prop="smsCode">
+            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入风控额度"></el-input>
+            <span class="tip">* 经销商使用的总额度大于风控额度时风控状态为风控超额。</span>
           </el-form-item>
           <el-button class="submit-btn" @click="confirmAuthorize">确认</el-button>
         </el-form>

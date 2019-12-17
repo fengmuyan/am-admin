@@ -8,7 +8,7 @@
         </h2>
         <p>
           已有账号？
-          <router-link class="login" to="/login">请登录</router-link>
+          <router-link class="to-login" to="/login">请登录</router-link>
         </p>
       </div>
     </div>
@@ -204,10 +204,10 @@ import {
   validateCapt,
   submitCapt,
   submitAccountInfo,
-  submitRealAuth
+  submitRealAuth,
+  submitRealInfo
 } from "@/api/login";
 import { MessageBox } from "element-ui";
-import axios from "axios";
 export default {
   components: {
     geCode,
@@ -450,9 +450,6 @@ export default {
       this.$refs[form].validate(async valid => {
         if (valid) {
           this.loading = true;
-          const config = {
-            "Content-Type": "multipart/form-data"
-          };
           let formData = new FormData();
           formData.append("quality", Number(this.realAuthFrom.quality));
           formData.append("IDType", Number(this.realAuthFrom.IDType));
@@ -470,23 +467,12 @@ export default {
           formData.append("fr_cert_fm", this.realAuthFrom.fr_cert_fm);
           formData.append("sessionId", this.secSession);
           try {
-            const {
-              data: { code, msg }
-            } = await axios.post(
-              `${process.env.VUE_APP_BASE_API}/god/register/register`,
-              formData,
-              config
-            );
+            const { code, msg } = await submitRealInfo(formData);
             if (code === 200) {
               this.loading = false;
               this.actItem = 3;
             } else {
               this.loading = false;
-              MessageBox({
-                message: msg,
-                type: "error",
-                duration: 5 * 1000
-              });
             }
           } catch (err) {
             this.loading = false;

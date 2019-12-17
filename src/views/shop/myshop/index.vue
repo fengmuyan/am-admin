@@ -12,7 +12,7 @@
               @click="editBaseInfo('baseForm')"
             >修改基本信息</el-button>
           </h4>
-          <el-form :model="baseForm" ref="baseForm" :rules="baseFormRules" label-width="100px">
+          <el-form :model="baseForm" ref="baseForm" :rules="baseFormRules" label-width="110px">
             <el-form-item label="店铺logo：" class="upload-img">
               <el-upload
                 class="avatar-uploader"
@@ -23,7 +23,7 @@
                 :before-upload="handleBeforeUpload"
               >
                 <img :src="imageUrl" class="avatar" />
-                <span class="edit">编辑logo</span>
+                <span class="edit">点击修改</span>
               </el-upload>
               <ul class="tip-info">
                 <li>* 图片尺寸要求：100*100像素。</li>
@@ -38,6 +38,16 @@
                 placeholder="请输入店铺名称"
                 style="width:400px"
               ></el-input>
+            </el-form-item>
+            <el-form-item label="店铺slogan：" prop="slogan">
+              <el-input
+                v-model="baseForm.slogan"
+                maxlength="20"
+                clearable
+                placeholder="请输入店铺slogan"
+                style="width:400px"
+              ></el-input>
+              <div class="tip">* 显示在店铺名称下方的宣传语。</div>
             </el-form-item>
             <div class="adr-box">
               <el-form-item label="店铺地区：" prop="province" class="adr-item">
@@ -143,12 +153,10 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import city from "@/utils/city.js";
+import City from "@/utils/city.js";
 import UploadImg from "@/components/UploadImgEdit";
-import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
-import { getShopDetail } from "@/api/shop";
+import { getShopDetail, editBaseImgInfo } from "@/api/shop";
 import { deepClone } from "@/utils";
 
 export default {
@@ -175,6 +183,7 @@ export default {
       shopcode: "",
       baseForm: {
         shopname: "",
+        slogan: "",
         shoplogo: "",
         province: "",
         city: "",
@@ -198,6 +207,9 @@ export default {
         ],
         servicephone: [
           { validator: validateTel, required: true, trigger: "blur" }
+        ],
+        slogan: [
+          { required: true, message: "请输入商铺slogan", trigger: "blur" }
         ]
       },
       imgForm: {
@@ -222,7 +234,7 @@ export default {
     this.getDetail();
   },
   mounted() {
-    this.provideArr = city.provide;
+    this.provideArr = City.provide;
   },
   methods: {
     /* 删除图片匹配去掉productImgs中uid */
@@ -244,15 +256,17 @@ export default {
               shopname,
               shopprofile,
               servicephone,
-              shoplocation,
               shoplogo,
-              shopcode
+              slogan,
+              shopcode,
+              province,
+              city,
+              shoplocation
             }
           },
           code
         } = await getShopDetail();
         if (code === 200) {
-          const adrArr = shoplocation ? shoplocation.split("_") : null;
           this.imageUrl = shoplogo
             ? shoplogo
             : "https://mounttai.oss-cn-beijing.aliyuncs.com/store/logo/logo.png";
@@ -261,12 +275,13 @@ export default {
             return { serial: item.serial, uid: item.uid };
           });
           this.baseForm.shopname = shopname ? shopname : "";
+          this.baseForm.slogan = slogan ? slogan : "";
           this.baseForm.shopprofile = shopprofile ? shopprofile : "";
           this.baseForm.servicephone = servicephone ? servicephone : "";
-          this.baseForm.province = adrArr ? adrArr[0] : "";
-          this.baseForm.city = adrArr ? adrArr[1] : "";
-          this.baseForm.address = adrArr ? adrArr[2] : "";
-          this.cityArr = city.getCity(this.baseForm.province);
+          this.baseForm.province = province;
+          this.baseForm.city = city;
+          this.baseForm.address = shoplocation;
+          this.cityArr = City.getCity(province);
           const imgData = storeImages.map(item => {
             return Object.assign(item, { url: item.image });
           });
@@ -288,7 +303,7 @@ export default {
 
     provideChange() {
       this.baseForm.city = "";
-      this.cityArr = city.getCity(this.baseForm.province);
+      this.cityArr = City.getCity(this.baseForm.province);
     },
 
     addItemFir(val) {
@@ -328,6 +343,7 @@ export default {
           formData.append("moduleNum", "1");
           formData.append("shopname", this.baseForm.shopname);
           formData.append("shoplogo", this.baseForm.shoplogo);
+          formData.append("slogan", this.baseForm.slogan);
           formData.append("province", this.baseForm.province);
           formData.append("city", this.baseForm.city);
           formData.append("address", this.baseForm.address);
@@ -336,7 +352,7 @@ export default {
           if (!this.baseForm.shoplogo) {
             formData.delete("shoplogo");
           }
-          this.subTableData(formData);
+          this.subData(formData);
         } else {
           return false;
         }
@@ -374,7 +390,7 @@ export default {
               formData.delete("img_four");
             }
           });
-          this.subTableData(formData);
+          this.subData(formData);
         } else {
           return false;
         }
@@ -382,31 +398,20 @@ export default {
     },
 
     /* 提交数据接口 */
-    async subTableData(formData) {
+    async subData(formData) {
       try {
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/store/modifyStoreInfo`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        const { code, msg } = await editBaseImgInfo(formData);
         if (code === 200) {
           await this.getDetail();
           this._loadingCancel();
-          this.msgSuccess("修改成功");
+          MessageBox({
+            message: "修改成功",
+            type: "success",
+            duration: 5 * 1000,
+            customClass: "el-message-box-suc"
+          });
         } else {
           this._loadingCancel();
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
         }
       } catch (err) {
         this._loadingCancel();

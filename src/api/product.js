@@ -44,6 +44,27 @@ export function getProDetail(data = {}) {
   })
 }
 
+//商品发布
+export function proPublishSub(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/publish/publish',
+    method: 'post',
+    data,
+  })
+}
+
+//商品详情中修改
+export function proPublishSubEdit(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/publish/modifyProductInfo',
+    method: 'post',
+    data,
+  })
+}
+
+
 
 
 

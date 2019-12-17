@@ -598,7 +598,7 @@ export function setTableSubData(original, present, timeIdData) {
 }
 
 /**
- * @desc 动态表格数据匹配回填input值
+ * @desc 动态表格数据匹配（哈希匹配）回填input值
  * @param {Array} serverData 服务端返回数据
  * @param {Array} timeIdArr 动态表格绑定数据
  * 

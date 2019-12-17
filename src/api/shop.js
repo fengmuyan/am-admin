@@ -8,4 +8,17 @@ export function getShopDetail() {
   })
 }
 
+// 修改商铺基本信息和图片
+export function editBaseImgInfo(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/store/modifyStoreInfo',
+    method: 'post',
+    data,
+  })
+}
+
+
+
+
 

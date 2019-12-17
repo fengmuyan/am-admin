@@ -187,7 +187,8 @@ export default {
       this.$confirm("确定要下架吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
+        customClass: 'el-message-box-wran'
       }).then(() => {
         let formData = new FormData();
         formData.append("moduleNum", "3");
@@ -202,7 +203,8 @@ export default {
       this.$confirm("确定要放入库存吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
+        customClass: 'el-message-box-wran'
       }).then(() => {
         let formData = new FormData();
         formData.append("moduleNum", "3");

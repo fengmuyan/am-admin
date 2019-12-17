@@ -217,11 +217,21 @@
           :rules="logisticsFormRules"
           label-width="120px"
         >
-          <el-form-item label="是否支持代发：" prop="issupsubstitute">
-            <el-radio-group v-model="logisticsForm.issupsubstitute">
-              <el-radio label="Y">是</el-radio>
-              <el-radio label="N">否</el-radio>
+          <el-form-item label="发货方式：" prop="deliverymode">
+            <el-radio-group
+              v-model="logisticsForm.deliverymode"
+              @change="logisticsForm.issupsubstitute = false"
+            >
+              <el-radio label="1">自提</el-radio>
+              <el-radio label="2">发货</el-radio>
             </el-radio-group>
+          </el-form-item>
+          <el-form-item>
+            <el-checkbox
+              v-model="logisticsForm.issupsubstitute"
+              :disabled="logisticsForm.deliverymode!=='1'"
+            >代发</el-checkbox>
+            <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
           </el-form-item>
         </el-form>
       </div>
@@ -267,11 +277,13 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
 import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
-import md5 from "js-md5";
-import axios from "axios";
-import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
-import { getProCate, getProData, getHomePageClass } from "@/api/product";
+import {
+  getProCate,
+  getProData,
+  getHomePageClass,
+  proPublishSub
+} from "@/api/product";
 import {
   initFormData,
   deInitFormData,
@@ -328,6 +340,7 @@ export default {
       homePageClasses: [],
       cateDataText: "",
       cversion: "",
+      storeInfo: {}, //店铺信息（地址）
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
@@ -367,7 +380,8 @@ export default {
         stockmethod: "1"
       },
       logisticsForm: {
-        issupsubstitute: "Y"
+        deliverymode: "1",
+        issupsubstitute: false
       },
       valuationRules: {
         isdiscount: [
@@ -544,12 +558,16 @@ export default {
           try {
             const {
               code,
-              data: { naturepro, salepro, cversion }
+              data: {
+                cmdtProertiesRelation: { naturepro, salepro, cversion },
+                storeInfo
+              }
             } = await getProData({ ccode });
             if (code === 200) {
               this.loading = false;
               this.haveCateData = true;
               this.cversion = cversion;
+              this.storeInfo = storeInfo;
               this.cateDataText = this.$refs.elCascader.inputValue;
               this.naturalData = JSON.parse(naturepro).naturepro;
               this.saleData = JSON.parse(salepro).salepro;
@@ -638,39 +656,28 @@ export default {
           MessageBox({
             message: "有必填项未填写或格式不正确，请检查！",
             type: "error",
-            duration: 5 * 1000
+            duration: 5 * 1000,
+            customClass: "el-message-box-warn"
           });
         });
     },
 
     /* 拼装提交数据 */
     async _subTableData() {
-      this.loading = true;
       try {
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/publish`,
-          this._initFormdataSub(),
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        this.loading = true;
+        const { code, msg } = await proPublishSub(this._initFormdataSub());
         this.loading = false;
         if (code === 200) {
-          this.msgSuccess("发布成功");
+          MessageBox({
+            message: "商品发布成功",
+            type: "success",
+            duration: 5 * 1000,
+            customClass: "el-message-box-suc"
+          });
           setTimeout(() => {
             this.$router.go(-1);
           }, 1000);
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
         }
       } catch (err) {
         this.loading = false;
@@ -737,7 +744,13 @@ export default {
       formData.append("stockmethod", this.payForm.stockmethod);
       formData.append("invoice", this.postSaleForm.invoice);
       formData.append("state", this.postSaleForm.state);
-      formData.append("issupsubstitute", this.logisticsForm.issupsubstitute);
+      formData.append(
+        "issupsubstitute",
+        this.logisticsForm.issupsubstitute === true ? "Y" : "N"
+      );
+      formData.append("deliverymode", this.logisticsForm.deliverymode);
+      formData.append("province", this.storeInfo.province);
+      formData.append("city", this.storeInfo.city);
       if (this.postSaleForm.state === "4") {
         formData.append(
           "publishtime",

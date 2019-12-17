@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, logout, getInfo, getRealInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -7,6 +7,8 @@ const user = {
     name: '',
     avatar: '',
     roles: [],
+    isReal: '',
+    isOpenAccount: '',
     permissions: []
   },
 
@@ -25,7 +27,13 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
-    }
+    },
+    SET_REAL: (state, isReal) => {
+      state.isReal = isReal
+    },
+    SET_ACCOUNT: (state, isOpenAccount) => {
+      state.isOpenAccount = isOpenAccount
+    },
   },
 
   actions: {
@@ -50,7 +58,7 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(res => {
-          const user = res.user
+          const user = res.user;
           const avatar = user.avatar == "" ? require("@/assets/image/profile.jpg") : process.env.VUE_APP_BASE_API + user.avatar;
           if (res.roles && res.roles.length > 0) {
             commit('SET_ROLES', res.roles)
@@ -59,11 +67,13 @@ const user = {
             commit('SET_ROLES', ['ROLE_DEFAULT'])
           }
           commit('SET_NAME', user.userName)
+          commit('SET_REAL', res.realNameState)
+          commit('SET_ACCOUNT', res.bankAccountState)
           commit('SET_AVATAR', avatar)
           resolve(res)
         }).catch(error => {
           reject(error)
-        })
+        });
       })
     },
 

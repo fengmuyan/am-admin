@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { Notification, MessageBox } from 'element-ui'
+import qs from 'qs'
+import { MessageBox } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
@@ -13,6 +14,10 @@ service.interceptors.request.use(
   config => {
     if (getToken()) {
       config.headers['Authorization'] = 'Bearer ' + getToken()
+    }
+    if (config.data && config.data.$_isFormData === true) {
+      config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      config.data = config.data.formData
     }
     return config
   },
@@ -31,7 +36,8 @@ service.interceptors.response.use(res => {
       {
         confirmButtonText: '重新登录',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
+        customClass: 'el-message-box-wran'
       }
     ).then(() => {
       store.dispatch('LogOut').then(() => {
@@ -42,7 +48,8 @@ service.interceptors.response.use(res => {
     MessageBox({
       message: res.data.msg,
       type: 'error',
-      duration: 5 * 1000
+      duration: 5 * 1000,
+      customClass: 'el-message-box-err'
     })
     return Promise.reject('error')
   } else {
@@ -54,7 +61,8 @@ service.interceptors.response.use(res => {
     MessageBox({
       message: error.message,
       type: 'error',
-      duration: 5 * 1000
+      duration: 5 * 1000,
+      customClass: 'el-message-box-err'
     })
     return Promise.reject(error)
   }
