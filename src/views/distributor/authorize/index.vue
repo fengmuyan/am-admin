@@ -15,7 +15,7 @@
           <span :class="{ac:!(actItem<0)}">验证身份</span>
           <span :class="{ac:!(actItem<1)}">核对对方信息</span>
           <span :class="{ac:!(actItem<2)}">验证对方身份</span>
-          <span :class="{ac:actItem===3}">授权额度</span>
+          <span :class="{ac:actItem===3}">信用额度</span>
         </div>
       </div>
     </div>

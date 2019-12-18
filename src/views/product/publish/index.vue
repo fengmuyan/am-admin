@@ -275,7 +275,7 @@
 import DynamicForm from "@/components/DynamicForm";
 import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
-import UploadVideo from "@/components/UploadVideo";
+import UploadVideo from "@/components/UploadVideoEdit";
 import Editor from "@/components/Editor";
 import { MessageBox } from "element-ui";
 import {
@@ -365,6 +365,8 @@ export default {
         img_five: "",
         master_video: "",
         baby_video: "",
+        zduration: "0",
+        fduration: "0",
         proportion: "1",
         webDesc: "",
         phoneDesc: "",
@@ -489,12 +491,14 @@ export default {
 
     /* 拼装提交数据 */
     addVideoFir(val) {
-      this.uploadForm.master_video = val;
+      this.uploadForm.master_video = val.video;
+      this.uploadForm.zduration = val.duration ? val.duration : 0;
     },
 
     /* 拼装提交数据 */
     addVideoSec(val) {
-      this.uploadForm.baby_video = val;
+      this.uploadForm.baby_video = val.video;
+      this.uploadForm.fduration = val.duration ? val.duration : 0;
     },
 
     /* 拼装提交数据 */
@@ -691,17 +695,14 @@ export default {
         Object.assign(pre, { [item.label]: item.inputVal });
         return pre;
       }, {});
-      const naturalDataInit = JSON.parse(JSON.stringify(this.naturalDataInit));
-      const saleDataInit = JSON.parse(JSON.stringify(this.saleDataInit));
+      const naturalDataInit = deepClone(this.naturalDataInit);
+      const saleDataInit = deepClone(this.saleDataInit);
       const salInputData = deepClone(saleDataInit)
         .filter(item => item.type === "3" || item.type === "4")
         .map(item => {
           return {
             key: item.code,
-            value:
-              item.type === "4"
-                ? parseTime(item.values, "{y}-{m}-{d}")
-                : item.values
+            value: item.values
           };
         });
       let formData = new FormData();
@@ -740,6 +741,9 @@ export default {
       formData.append("proportion", this.uploadForm.proportion);
       formData.append("master_video", this.uploadForm.master_video);
       formData.append("baby_video", this.uploadForm.baby_video);
+      formData.append("master_video", this.uploadForm.master_video);
+      formData.append("zduration", this.uploadForm.zduration);
+      formData.append("fduration", this.uploadForm.fduration);
       formData.append("paymethod", this.payForm.paymethod);
       formData.append("stockmethod", this.payForm.stockmethod);
       formData.append("invoice", this.postSaleForm.invoice);

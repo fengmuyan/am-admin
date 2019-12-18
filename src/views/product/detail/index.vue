@@ -375,6 +375,8 @@ export default {
         img_five: "",
         master_video: null,
         baby_video: null,
+        zduration: "0",
+        fduration: "0",
         proportion: "",
         webDesc: "",
         phoneDesc: ""
@@ -470,23 +472,25 @@ export default {
     },
 
     /* 删除主视频匹配去掉productVideos中uid */
-    addVideoItemFir() {
+    addVideoItemFir(val) {
       const idx = this.productVideos.findIndex(item => {
         return Number(item.serial) === 1;
       });
       if (idx !== -1) {
         this.productVideos.splice(idx, 1);
       }
+      this.uploadForm.zduration = val.duration ? val.duration : 0;
     },
 
     /* 删除详情视频匹配去掉productVideos中uid */
-    addVideoItemSec() {
+    addVideoItemSec(val) {
       const idx = this.productVideos.findIndex(item => {
         return Number(item.serial) === 2;
       });
       if (idx !== -1) {
         this.productVideos.splice(idx, 1);
       }
+      this.uploadForm.fduration = val.duration ? val.duration : 0;
     },
 
     /* 电脑端描述输入后清除验证 */
@@ -627,7 +631,8 @@ export default {
         this.tableArr = InitTableData(deInitFormData(data));
         this.itemIdArr = initTableInputData(
           this.cmdtProductPrices,
-          setRowSpan(sortTableArr(toCombination(this.tableArr)))
+          setRowSpan(sortTableArr(toCombination(this.tableArr))),
+          deepClone(this.saleData)
         );
         this.$nextTick(() => {
           this.tableIsShow = true;
@@ -754,11 +759,15 @@ export default {
       );
       formData.append("master_video", this.$refs.master_video.video);
       formData.append("baby_video", this.$refs.baby_video.video);
+      formData.append("zduration", this.uploadForm.zduration);
+      formData.append("fduration", this.uploadForm.fduration);
       this.productVideos.forEach(item => {
         if (Number(item.serial) === 1) {
           formData.delete("master_video");
+          formData.delete("zduration");
         } else if (Number(item.serial) === 2) {
           formData.delete("baby_video");
+          formData.delete("fduration");
         }
       });
       formData.append("proportion", this.uploadForm.proportion);

@@ -87,7 +87,7 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/user',
+    path: '/user-ad',
     component: Layout,
     hidden: true,
     redirect: 'noredirect',
@@ -110,38 +110,6 @@ export const constantRoutes = [
         component: () => import('@/views/system/dict/data'),
         name: '字典数据',
         meta: { title: '字典数据', icon: '' }
-      }
-    ]
-  },
-  {
-    path: '/publish',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: 'detail/:code',
-        component: () => import('@/views/product/detail/index'),
-        name: '商品详情',
-        meta: { title: '商品详情', icon: '' }
-      }
-    ]
-  },
-  {
-    path: '/dynamic',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: 'authorize-edit/:code',
-        component: () => import('@/views/distributor/authorize-edit/index'),
-        name: '经销商授权修改',
-        meta: { title: '经销商授权修改', icon: '' }
-      },
-      {
-        path: 'discount/:code',
-        component: () => import('@/views/distributor/discount/index'),
-        name: '调整折扣',
-        meta: { title: '调整折扣', icon: '' }
       }
     ]
   }
@@ -184,6 +152,41 @@ export const accountRoutes = [
         component: () => import('@/views/account/list/index'),
         name: '渠道列表',
         meta: { title: '渠道列表', icon: 'list' }
+      }
+    ]
+  }
+]
+
+export const dynamicRoutes = [
+  {
+    path: '/publish',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'detail/:code',
+        component: () => import('@/views/product/detail/index'),
+        name: '商品详情',
+        meta: { title: '商品详情', icon: '' }
+      }
+    ]
+  },
+  {
+    path: '/dynamic',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'authorize-edit/:code',
+        component: () => import('@/views/distributor/authorize-edit/index'),
+        name: '经销商授权修改',
+        meta: { title: '经销商授权修改', icon: '' }
+      },
+      {
+        path: 'discount/:code',
+        component: () => import('@/views/distributor/discount/index'),
+        name: '调整折扣',
+        meta: { title: '调整折扣', icon: '' }
       }
     ]
   }

@@ -52,8 +52,17 @@ export default {
       }
     },
     upload(file) {
-      this.video = file.file;
-      this.$emit("add-item");
+      const url = URL.createObjectURL(file.file);
+      const audioElement = new Audio(url);
+      let duration;
+      audioElement.addEventListener("loadedmetadata", _event => {
+        duration = audioElement.duration;
+        this.video = file.file;
+        this.$emit("add-item", {
+          video: this.video,
+          duration: parseInt(duration)
+        });
+      });
     }
   }
 };

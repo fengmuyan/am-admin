@@ -15,25 +15,25 @@
     </div>
     <div class="content">
       <div v-if="actItem === 0" class="fir-form">
-        <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
+        <el-form :model="firForm" :rules="firFormRules" ref="firForm">
           <div class="number-tip">将为你手机号158****4090发送验证码，请注意查收。</div>
           <el-form-item prop="smsCode" class="code-item">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
+            <el-input v-model="firForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
             <ge-code :config="config" ref="geCode"></ge-code>
           </el-form-item>
-          <el-button class="submit-btn" @click="toAuthorize">下一步</el-button>
+          <el-button class="submit-btn" @click="toAuthorize('firForm')">下一步</el-button>
         </el-form>
       </div>
       <div v-if="actItem === 1" class="last-form">
-        <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
-          <el-form-item prop="smsCode">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入授权额度"></el-input>
+        <el-form :model="fourForm" :rules="fourFormRules" ref="fourForm">
+          <el-form-item prop="sqMoney">
+            <el-input v-model="fourForm.sqMoney" placeholder="输入授权额度"></el-input>
           </el-form-item>
-          <el-form-item prop="smsCode">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入风控额度"></el-input>
+          <el-form-item prop="fkMoney">
+            <el-input v-model="fourForm.fkMoney" placeholder="输入风控额度"></el-input>
             <span class="tip">* 经销商使用的总额度大于风控额度时风控状态为风控超额。</span>
           </el-form-item>
-          <el-button class="submit-btn" @click="confirmAuthorize">确认</el-button>
+          <el-button class="submit-btn" @click="confirmAuthorize('fourForm')">确认</el-button>
         </el-form>
       </div>
     </div>
@@ -49,6 +49,29 @@ export default {
     geCode
   },
   data() {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    const validateSq = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入授权额度"));
+      } else {
+        if (!patter.test(value)) {
+          callback(new Error("必须非负整数或至多保留两位小数！"));
+        } else {
+          callback();
+        }
+      }
+    };
+    const validateFk = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入风控额度"));
+      } else {
+        if (!patter.test(value)) {
+          callback(new Error("必须非负整数或至多保留两位小数！"));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
       actItem: 0, //当前进行的step
       loading: false, //下一步按钮loading
@@ -63,22 +86,37 @@ export default {
           return "重新获取 " + num + "s";
         }
       },
-      codeForm: {
-        phone: "",
-        smsCode: ""
+      firForm: { smsCode: "" },
+      firFormRules: {
+        smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
-      infoForm: {},
-      codeFormRules: {},
-      infoFormRules: {}
+      fourForm: { sqMoney: "", fkMoney: "" },
+      fourFormRules: {
+        sqMoney: [{ validator: validateSq, required: true, trigger: "blur" }],
+        fkMoney: [{ validator: validateFk, required: true, trigger: "blur" }]
+      }
     };
   },
   mounted() {},
   methods: {
-    toAuthorize() {
-      this.actItem = 1;
+    toAuthorize(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.actItem = 1;
+        } else {
+          return false;
+        }
+      });
     },
-    confirmAuthorize() {
-      this.$router.push("/distributor/list");
+
+    confirmAuthorize(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.$router.push("/distributor/list");
+        } else {
+          return false;
+        }
+      });
     }
   }
 };

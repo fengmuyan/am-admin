@@ -66,8 +66,8 @@ export default {
       } else if (isReal === 3) {
         if (isOpenAccount !== true) {
           this._confirmModel(
-            "您收款账户咱不可用，请检查账户。",
-            "检查账户",
+            "您收款账户未完全开通，请开通账户。",
+            "开通账户",
             () => {
               this.$router.push({ path: "/account/list" });
             }

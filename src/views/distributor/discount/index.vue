@@ -15,21 +15,21 @@
     </div>
     <div class="content">
       <div v-if="actItem === 0" class="fir-form">
-        <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
+        <el-form :model="firForm" :rules="firFormRules" ref="firForm">
           <div class="number-tip">将为你手机号158****4090发送验证码，请注意查收。</div>
           <el-form-item prop="smsCode" class="code-item">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
+            <el-input v-model="firForm.smsCode" maxlength="6" placeholder="输入验证码"></el-input>
             <ge-code :config="config" ref="geCode"></ge-code>
           </el-form-item>
-          <el-button class="submit-btn" @click="toConfirmInfo">下一步</el-button>
+          <el-button class="submit-btn" @click="toConfirmInfo('firForm')">下一步</el-button>
         </el-form>
       </div>
       <div v-if="actItem === 1" class="last-form">
-        <el-form :model="codeForm" :rules="codeFormRules" ref="codeForm">
-          <el-form-item prop="smsCode">
-            <el-input v-model="codeForm.smsCode" maxlength="6" placeholder="输入折扣率"></el-input>
+        <el-form :model="fourForm" :rules="fourFormRules" ref="fourForm">
+          <el-form-item prop="discount">
+            <el-input v-model="fourForm.discount" placeholder="输入折扣率"></el-input>
           </el-form-item>
-          <el-button class="submit-btn" @click="confirmDiscount">确认</el-button>
+          <el-button class="submit-btn" @click="confirmDiscount('fourForm')">确认</el-button>
         </el-form>
       </div>
     </div>
@@ -45,6 +45,18 @@ export default {
     geCode
   },
   data() {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    const validateDis = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入折扣率"));
+      } else {
+        if (!patter.test(value)) {
+          callback(new Error("必须非负整数或至多保留两位小数！"));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
       actItem: 0, //当前进行的step
       loading: false, //下一步按钮loading
@@ -59,22 +71,35 @@ export default {
           return "重新获取 " + num + "s";
         }
       },
-      codeForm: {
-        phone: "",
-        smsCode: ""
+      firForm: { smsCode: "" },
+      firFormRules: {
+        smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
-      infoForm: {},
-      codeFormRules: {},
-      infoFormRules: {}
+      fourForm: { discount: "" },
+      fourFormRules: {
+        discount: [{ validator: validateDis, required: true, trigger: "blur" }]
+      }
     };
   },
   mounted() {},
   methods: {
-    toConfirmInfo() {
-      this.actItem = 1;
+    toConfirmInfo(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.actItem = 1;
+        } else {
+          return false;
+        }
+      });
     },
-    confirmDiscount() {
-      this.$router.push("/distributor/list");
+    confirmDiscount(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.$router.push("/distributor/list");
+        } else {
+          return false;
+        }
+      });
     }
   }
 };

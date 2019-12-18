@@ -1,4 +1,4 @@
-import { constantRoutes, accountRoutes } from '@/router'
+import { constantRoutes, accountRoutes, dynamicRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index'
 
@@ -20,8 +20,8 @@ const permission = {
         if (getters.roles.includes('admin')) {
           getRouters().then(res => {
             const accessedRoutes = filterAsyncRouter(res.data)
-            commit('SET_ROUTES', accessedRoutes)
-            resolve(accessedRoutes)
+            commit('SET_ROUTES', [...accessedRoutes, ...dynamicRoutes])
+            resolve([...accessedRoutes, ...dynamicRoutes])
           })
         } else {
           if (Number(getters.isReal) !== 3) {
@@ -34,8 +34,8 @@ const permission = {
             } else {
               getRouters().then(res => {
                 const accessedRoutes = filterAsyncRouter(res.data)
-                commit('SET_ROUTES', accessedRoutes)
-                resolve(accessedRoutes)
+                commit('SET_ROUTES', [...accessedRoutes, ...dynamicRoutes])
+                resolve([...accessedRoutes, ...dynamicRoutes])
               })
             }
           }

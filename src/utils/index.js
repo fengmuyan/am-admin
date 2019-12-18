@@ -356,7 +356,6 @@ export function removeClass(ele, cls) {
   }
 }
 
-
 /**
  * @desc 动态表单初始化数据
  * @param {Object} obj 待处理对象
@@ -430,7 +429,7 @@ export function InitTableData(arr) {
   return arr.map(item => {
     Object.assign(item, {
       values: item.values.filter(j => j.checked === true).map((v, i) =>
-        Object.assign(v, { itemId: i })
+        Object.assign(v, { itemId: i, itemKey: v.code })
       )
     });
     return item;
@@ -457,18 +456,22 @@ export function toCombination(sourceList) {
     rangeList = [];
     items.forEach(function (item) {
       let itemId = item.itemId;
+      let itemKey = item.itemKey;
       let cloneInput = deepClone(input)
       if (isFirstItem) {
         rangeList.push({
           rangeArr: [itemId],
+          keyArr: [itemKey],
           input: cloneInput
         });
       } else {
         for (let m = 0; m < cloneRangeList.length; m++) {
           let rangeArr = cloneRangeList[m].rangeArr || [];
+          let keyArr = cloneRangeList[m].keyArr || [];
           let cloneInputSec = deepClone(input)
           rangeList.push({
             rangeArr: [...rangeArr, itemId],
+            keyArr: [...keyArr, itemKey],
             input: cloneInputSec
           });
         }
@@ -567,7 +570,9 @@ export function setTableSubData(original, present, timeIdData) {
         k = 0;
       }
       if (cloneData[i].type === "1") {
-        const values = cloneData[i].values[item.rangeArr[j]];
+        const values = cloneData[i].values.find((val => {
+          return val.code === item.keyArr[j]
+        }))
         Object.assign(cloneData[i], { values });
         dataArr.push(cloneData[i]);
         j++;
@@ -579,6 +584,7 @@ export function setTableSubData(original, present, timeIdData) {
         dataArr.push(cloneData[i]);
         k++;
       } else {
+        Object.assign(cloneData[i], { values: "" });
         dataArr.push(cloneData[i]);
       }
     }
@@ -603,9 +609,41 @@ export function setTableSubData(original, present, timeIdData) {
  * @param {Array} timeIdArr 动态表格绑定数据
  * 
  */
-export function initTableInputData(serverData, timeIdArr) {
-  return timeIdArr.map((item, index) => {
-    const data = serverData[index];
+export function initTableInputData(serverData, timeIdArr, originalData) {
+  const checkBoxArr = deepClone(originalData).filter(item => item.type === "1");
+  const radioArr = deepClone(originalData).filter(item => item.type === "2");
+  return timeIdArr.map((item) => {
+    const cloneData = deepClone(originalData);
+    let dataArr = [];
+    let j = 0;
+    for (let i = 0; i < cloneData.length; i++) {
+      if (j > checkBoxArr.length) {
+        j = 0;
+      }
+      if (cloneData[i].type === "1") {
+        const values = cloneData[i].values.find((val => {
+          return val.code === item.keyArr[j]
+        }))
+        delete values.checked
+        Object.assign(cloneData[i], { values });
+        dataArr.push(cloneData[i]);
+        j++;
+      } else if (cloneData[i].type === "2") {
+        const values = cloneData[i].values.find(item => {
+          return item.checked === true;
+        });
+        delete values.checked
+        Object.assign(cloneData[i], { values });
+        dataArr.push(cloneData[i]);
+      } else {
+        Object.assign(cloneData[i], { values: "" });
+        dataArr.push(cloneData[i]);
+      }
+    }
+    const hash = md5(JSON.stringify({ salepro: [...dataArr] }));
+    const data = serverData.find(val => {
+      return val.saleprohash === hash
+    });
     return Object.assign(item, {
       input: [
         { key: "prices", name: "现价", values: data.totalprice, unit: "元", validate: false, validateType: "num" },
@@ -638,7 +676,3 @@ export function subTableInputData(timeIdArr) {
     }
   })
 }
-
-
-
-

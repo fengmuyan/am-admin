@@ -9,6 +9,10 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <span class="right-tip" v-if="Number(isReal) === 1">实名认证正在审核中。</span>
+        <span class="right-tip" v-if="isShowTip">
+          <router-link to="/real-authorize">点击前往实名认证。</router-link>
+        </span>
         <search id="header-search" class="right-menu-item" />
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
@@ -20,7 +24,7 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/user/profile">
+          <router-link to="/user-ad/profile">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
           <el-dropdown-item>
@@ -50,7 +54,7 @@ export default {
     Search
   },
   computed: {
-    ...mapGetters(["sidebar", "avatar", "device"]),
+    ...mapGetters(["sidebar", "avatar", "device", "roles", "isReal"]),
     setting: {
       get() {
         return this.$store.state.settings.showSettings;
@@ -60,6 +64,17 @@ export default {
           key: "showSettings",
           value: val
         });
+      }
+    },
+    isShowTip() {
+      if (this.roles.includes("admin")) {
+        return false;
+      } else {
+        if (Number(this.isReal) === 0 || Number(this.isReal) === 2) {
+          return true;
+        } else {
+          return false;
+        }
       }
     }
   },
@@ -72,7 +87,7 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-        customClass:'el-message-box-wran'
+        customClass: "el-message-box-wran"
       }).then(() => {
         this.$store.dispatch("LogOut").then(() => {
           location.reload();
@@ -116,9 +131,18 @@ export default {
     float: right;
     height: 100%;
     line-height: 50px;
-
     &:focus {
       outline: none;
+    }
+    .right-tip {
+      color: #fff;
+      line-height: 20px;
+      vertical-align: top;
+      display: inline-block;
+      margin-right: 5px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     .right-menu-item {
