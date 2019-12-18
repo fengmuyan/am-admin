@@ -55,12 +55,14 @@ export const constantRoutes = [
     beforeEnter: (to, from, next) => {
       if (Number(store.getters.isReal) === 0 || Number(store.getters.isReal) === 2) {
         next()
+      } else {
+        next({ path: '/401', replace: true })
       }
     }
   },
   {
     path: '/login',
-    component: () => import('@/views/login'),
+    component: () => import('@/views/login/login/index'),
     hidden: true
   },
   {

@@ -11,6 +11,7 @@ import App from './App'
 import store from './store'
 import router from './router'
 import permission from './directive/permission'
+import throttle from './directive/throttle'
 
 import './assets/icons'
 import './permission'
@@ -42,6 +43,7 @@ Vue.prototype.msgInfo = function (msg) {
 Vue.component('Pagination', Pagination)
 
 Vue.use(permission)
+Vue.use(throttle)
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium'
 })

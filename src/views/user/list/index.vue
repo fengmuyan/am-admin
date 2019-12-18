@@ -93,7 +93,7 @@
               size="mini"
               type="text"
               icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
+              v-throttle="{callback:handleUpdate,params:[12,122,'ada']}"
             >修改</el-button>
             <el-button
               v-if="scope.row.userId !== 1"
@@ -171,7 +171,7 @@ export default {
       // 总条数
       total: 30,
       // 用户表格数据
-      userList: [{userId:"000123",userName:"fengsaikang777",}],
+      userList: [{ userId: "000123", userName: "fengsaikang777" }],
       open: false,
       // 日期范围
       dateRange: [],
@@ -215,7 +215,9 @@ export default {
     handleAdd() {
       this.open = true;
     },
-    handleUpdate() {},
+    handleUpdate(val, dff, ge) {
+      console.log(23154615, val, dff, ge);
+    },
     handleDelete() {},
     handleExport() {},
     submitForm() {},

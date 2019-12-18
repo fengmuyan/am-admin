@@ -39,15 +39,20 @@
           <el-form-item>
             <el-button class="verify-btn" id="Captcha">
               <span :class="['verify-box',captchaStatus === 2 ? 'ac-verify-box' : '']">
-                <img v-if="captchaStatus === 0" src="../assets/image/index02.png" alt="icon" />
-                <img v-if="captchaStatus === 2" src="../assets/image/index01.png" alt="icon" />
+                <img v-if="captchaStatus === 0" src="../../../assets/image/index02.png" alt="icon" />
+                <img v-if="captchaStatus === 2" src="../../../assets/image/index01.png" alt="icon" />
                 点击完成验证
               </span>
               <div v-if="captchaTip" class="el-form-item__error">请完成验证</div>
             </el-button>
           </el-form-item>
         </div>
-        <el-button type="primary" class="submit" :loading="loading" @click="handleLogin">登 录</el-button>
+        <el-button
+          type="primary"
+          class="submit"
+          :loading="loading"
+          v-throttle="{callback:handleLogin}"
+        >登 录</el-button>
       </el-form>
     </div>
   </div>
