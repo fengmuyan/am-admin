@@ -5,23 +5,13 @@
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
         </el-col>
-        <el-col :span="1.5">
-          <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
-        </el-col>
       </el-row>
-
-      <el-row :gutter="10" class="mb10 f-r icon-wrap">
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-t" @click="resetQuery">
-            <i class="el-icon-refresh"></i>
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-table v-loading="loading" :data="userList">
-        <el-table-column label="角色编号" prop="userId" width="120" />
-        <el-table-column label="角色名称" prop="userName" />
-        <el-table-column label="状态">
+      <el-table v-loading="loading" :data="roleList">
+        <el-table-column label="角色编号" prop="roleId" width="120" />
+        <el-table-column label="角色名称" prop="roleName" />
+        <el-table-column label="权限标识" prop="roleKey" />
+        <el-table-column label="排序" prop="roleSort" />
+        <el-table-column label="状态" prop="status">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.status"
@@ -31,15 +21,10 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
         <el-table-column
           label="操作"
           align="center"
-          width="680"
+          width="400"
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
@@ -48,7 +33,7 @@
               type="text"
               icon="el-icon-edit"
               @click="handleUpdate(scope.row)"
-            >修改（分配菜单）</el-button>
+            >分配菜单</el-button>
             <el-button
               v-if="scope.row.userId !== 1"
               size="mini"
@@ -59,26 +44,35 @@
           </template>
         </el-table-column>
       </el-table>
-
-      <pagination
-        v-show="total>0"
-        :total="total"
-        :page.sync="queryParams.pageNum"
-        :limit.sync="queryParams.pageSize"
-        @pagination="getList"
-      />
     </div>
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog title="新增角色" :visible.sync="open" width="450px">
-      <el-form :model="form" label-width="100px">
-        <el-form-item label="角色名称：">
-          <el-input v-model="form.roleName" />
+    <el-dialog title="新增角色" :visible.sync="open" width="500px">
+      <el-form ref="roleForm" :model="roleForm" :rules="roleFormRules" label-width="110px">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="roleForm.roleName" placeholder="请输入用户名称" />
         </el-form-item>
-        <el-form-item label="分配菜单：">
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm('roleForm')">确 定</el-button>
+        <el-button @click="open = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="分配菜单" :visible.sync="openEdit" width="500px">
+      <el-form
+        ref="roleEditform"
+        :model="roleEditform"
+        :rules="roleEditformRules"
+        label-width="90px"
+      >
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="roleEditform.roleName" />
+        </el-form-item>
+        <el-form-item label="菜单权限" v-loading="menuLoading">
           <el-tree
-            :data="deptOptions"
+            :data="menuOptions"
             show-checkbox
-            default-expand-all
+            ref="menu"
             node-key="id"
             empty-text="加载中，请稍后"
             :props="defaultProps"
@@ -86,113 +80,206 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="submitFormEdit('roleEditform')">确 定</el-button>
+        <el-button @click="openEdit = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { MessageBox } from "element-ui";
+import { deepClone } from "@/utils";
+import { addRole, getRoleList } from "@/api/user";
+import { delRole, updateRole, changeRoleStatus } from "@/api/system/role";
+import {
+  godTreeselect as treeselect,
+  roleMenuTreeselect
+} from "@/api/system/menu";
 export default {
   data() {
     return {
-      // 遮罩层
       loading: false,
-      // 总条数
-      total: 30,
-      // 用户表格数据
-      userList: [{ userId: "000123", userName: "fengsaikang777" }],
+      menuLoading: false,
       open: false,
-      // 日期范围
-      dateRange: [],
-
-      postOptions: [],
-      // 角色选项
-      roleOptions: [],
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        userName: undefined,
-        phonenumber: undefined,
-        status: undefined,
-        deptId: undefined
+      openEdit: false,
+      roleList: [],
+      roleForm: {
+        roleName: ""
       },
-      form: {},
-      deptOptions: [
-        {
-          id: 1,
-          label: "一级 1",
-          children: [
-            {
-              id: 4,
-              label: "二级 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "三级 1-1-1"
-                },
-                {
-                  id: 10,
-                  label: "三级 1-1-2"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          label: "一级 2",
-          children: [
-            {
-              id: 5,
-              label: "二级 2-1"
-            },
-            {
-              id: 6,
-              label: "二级 2-2"
-            }
-          ]
-        },
-        {
-          id: 3,
-          label: "一级 3",
-          children: [
-            {
-              id: 7,
-              label: "二级 3-1"
-            },
-            {
-              id: 8,
-              label: "二级 3-2"
-            }
-          ]
-        }
-      ],
+      roleFormRules: {
+        roleName: [
+          { required: true, message: "用户名称不能为空", trigger: "blur" }
+        ]
+      },
+      roleEditform: {
+        roleName: "",
+        roleId: undefined,
+        roleKey: undefined,
+        roleSort: 0,
+        menuIds: []
+      },
+      roleEditformRules: {
+        roleName: [
+          { required: true, message: "用户名称不能为空", trigger: "blur" }
+        ]
+      },
       defaultProps: {
         children: "children",
         label: "label"
-      }
+      },
+      menuOptions: []
     };
   },
-  created() {},
+  created() {
+    this.getList();
+  },
   methods: {
-    /** 查询用户列表 */
-    getList() {
-      this.userList = [];
-      this.total = 0;
-      this.loading = false;
+    async getList() {
+      try {
+        this.loading = true;
+        const { code, data } = await getRoleList();
+        this.loading = false;
+        if (code === 200) {
+          this.roleList = data;
+        }
+      } catch (err) {
+        this.loading = false;
+        console.log(err);
+      }
     },
-    handleQuery() {},
-    resetQuery() {},
+    async handleUpdate(row) {
+      this.resetEdit();
+      Object.assign(this.roleEditform, {
+        roleId: row.roleId,
+        roleName: row.roleName,
+        roleKey: row.roleKey,
+        roleSort: row.roleSort
+      });
+      this.openEdit = true;
+      this.menuLoading = true;
+      const { data: treeData } = await treeselect();
+      const { data } = await roleMenuTreeselect(row.roleId);
+      this.menuOptions = treeData;
+      this.$refs.menu.setCheckedKeys(data);
+      this.menuLoading = false;
+    },
     handleAdd() {
+      this.reset();
       this.open = true;
     },
-    handleUpdate() {},
-    handleDelete() {},
-    handleExport() {},
-    submitForm() {},
-    cancel() {}
+    handleDelete(row) {
+      this.$confirm(
+        '是否确认删除角色编号为"' + row.roleId + '"的数据项?',
+        "警告",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          customClass: "el-message-box-wran"
+        }
+      )
+        .then(function() {
+          return delRole(row.roleId);
+        })
+        .then(() => {
+          this.getList();
+          this.msgSuccess("删除成功");
+        })
+        .catch(function() {});
+    },
+    handleStatusChange(row) {
+      let text = row.status === "0" ? "启用" : "停用";
+      this.$confirm(
+        '确认要"' + text + '""' + row.roleName + '"角色吗?',
+        "警告",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          customClass: "el-message-box-wran"
+        }
+      )
+        .then(function() {
+          return changeRoleStatus(row.roleId, row.status);
+        })
+        .then(() => {
+          this.msgSuccess(text + "成功");
+        })
+        .catch(function() {
+          row.status = row.status === "0" ? "1" : "0";
+        });
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const { code, msg } = await addRole(this.roleForm);
+            if (code === 200) {
+              this.open = false;
+              await this.getList();
+              MessageBox({
+                message: "添加成功",
+                type: "success",
+                duration: 5 * 1000,
+                customClass: "el-message-box-suc"
+              });
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    submitFormEdit(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const data = this.roleEditform;
+            const { code } = await updateRole(
+              Object.assign(data, {
+                menuIds: this._getMenuAllCheckedKeys()
+              })
+            );
+            if (code === 200) {
+              this.msgSuccess("修改成功");
+              this.openEdit = false;
+              this.getList();
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        } else {
+        }
+      });
+    },
+    reset() {
+      this.roleForm = {
+        roleName: ""
+      };
+      this.resetForm("roleForm");
+    },
+    resetEdit() {
+      if (this.$refs.menu !== undefined) {
+        this.$refs.menu.setCheckedKeys([]);
+      }
+      this.roleEditform = {
+        roleName: "",
+        roleId: undefined,
+        roleKey: undefined,
+        roleSort: 0,
+        menuIds: []
+      };
+      this.resetForm("roleEditform");
+    },
+    _getMenuAllCheckedKeys() {
+      let checkedKeys = this.$refs.menu.getHalfCheckedKeys();
+      let halfCheckedKeys = this.$refs.menu.getCheckedKeys();
+      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
+      return checkedKeys;
+    }
   }
 };
 </script>

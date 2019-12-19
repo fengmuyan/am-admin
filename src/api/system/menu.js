@@ -25,6 +25,13 @@ export function treeselect() {
   })
 }
 
+export function godTreeselect() {
+  return request({
+    url: '/system/menu/godTreeselect',
+    method: 'get'
+  })
+}
+
 // 根据角色ID查询菜单下拉树结构
 export function roleMenuTreeselect(roleId) {
   return request({

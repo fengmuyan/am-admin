@@ -117,13 +117,13 @@ export default {
     return {
       loading: false,
       productList: [],
-      total: 0,
       formShow: true,
       queryForm: {
         dateRange: [],
         state: 1,
         conditionParameter: undefined
       },
+      total: 0,
       pageNum: 1,
       pageSize: 10,
       total: 0,
