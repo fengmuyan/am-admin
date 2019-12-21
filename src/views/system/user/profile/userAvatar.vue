@@ -24,7 +24,11 @@
       <br />
       <el-row>
         <el-col :lg="2" :md="2">
-          <el-upload :show-file-list="false" :before-upload="beforeUpload">
+          <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            action="https://jsonplaceholder.typicode.com/posts/"
+          >
             <el-button size="small">
               上传
               <i class="el-icon-upload el-icon--right"></i>
@@ -99,6 +103,7 @@ export default {
     },
     // 上传预处理
     beforeUpload(file) {
+      console.log(file);
       if (file.type.indexOf("image/") == -1) {
         this.msgError("文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。");
       } else {

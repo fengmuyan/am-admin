@@ -21,8 +21,10 @@
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
           <img :src="avatar" class="user-avatar" />
+          <span class="user-name">{{name}}</span>
           <i class="el-icon-caret-bottom" />
         </div>
+
         <el-dropdown-menu slot="dropdown">
           <router-link to="/user-ad/profile">
             <el-dropdown-item>个人中心</el-dropdown-item>
@@ -54,7 +56,14 @@ export default {
     Search
   },
   computed: {
-    ...mapGetters(["sidebar", "avatar", "device", "roles", "isReal"]),
+    ...mapGetters([
+      "sidebar",
+      "avatar",
+      "device",
+      "roles",
+      "isReal",
+      "name"
+    ]),
     setting: {
       get() {
         return this.$store.state.settings.showSettings;
@@ -180,9 +189,21 @@ export default {
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
+          right: -15px;
+          top: 18px;
+          font-size: 14px;
+        }
+
+        .user-name {
+          vertical-align: top;
+          line-height: 50px;
+          margin-left: 5px;
+          font-size: 18px;
+          display: inline-block;
+          width: 70px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
     }

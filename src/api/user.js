@@ -20,7 +20,6 @@ export function getUserList(data) {
 
 // 新增角色
 export function addRole(data) {
-  console.log(data)
   return request({
     url: '/god/register/saveRole',
     method: 'post',

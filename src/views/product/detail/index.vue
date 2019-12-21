@@ -1,6 +1,6 @@
 <template>
   <div class="pro-publish-edit app-container">
-    <div v-if="producode" v-loading="loading">
+    <div v-if="cmdtclassname" v-loading="loading">
       <div class="block">
         <h4>当前类目：{{cmdtclassname}}</h4>
       </div>
@@ -338,6 +338,7 @@ export default {
       videoBoxShow: true, //修改成功后初始化视频内容
       cmdtclassname: "", //页面显示的商品类目
       producode: "", //商品编码（修改需要提交）
+      uid: "", //商品uid（修改需要提交）
       storeInfo: {},
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
@@ -368,11 +369,11 @@ export default {
         publishtime: ""
       }, //物流信息模块
       uploadForm: {
-        img_one: "",
-        img_two: "",
-        img_three: "",
-        img_four: "",
-        img_five: "",
+        img_one: null,
+        img_two: null,
+        img_three: null,
+        img_four: null,
+        img_five: null,
         master_video: null,
         baby_video: null,
         zduration: "0",
@@ -451,13 +452,16 @@ export default {
         ]
       }, //支付信息表单验证
       logisticsFormRules: {
-        issupsubstitute: [
-          { required: true, message: "请输入是否支持代发", trigger: "blur" }
+        deliverymode: [
+          { required: true, message: "请输入发货方式", trigger: "blur" }
         ]
       } //服务表单验证
     };
   },
   async created() {
+    const codeArr = this.$route.params.code.split("-");
+    this.producode = codeArr[0];
+    this.uid = codeArr[1];
     await this.getDetailData();
   },
   methods: {
@@ -505,8 +509,8 @@ export default {
 
     /* 获取本页详情信息数据 */
     async getDetailData() {
-      const producode = this.$route.params.code;
       try {
+        const { producode, uid } = this;
         const [
           {
             code: code1,
@@ -545,11 +549,10 @@ export default {
             code: code2
           }
         ] = await Promise.all([
-          getProDetail({ producode }),
+          getProDetail({ producode, uid }),
           getHomePageClass()
         ]);
         if (code1 === 200) {
-          this.producode = producode;
           this.cmdtclassname = cmdtclassname;
           this.titleForm.produname = produname;
           this.titleForm.title = title;
@@ -667,7 +670,6 @@ export default {
       this.loadingNature = true;
       let formData = new FormData();
       formData.append("moduleNum", "1");
-      formData.append("producode", this.producode);
       formData.append("produname", this.titleForm.produname);
       formData.append("title", this.titleForm.title);
       formData.append("homepageclass", this.titleForm.homepageclass);
@@ -694,7 +696,6 @@ export default {
       this.loadingSale = true;
       let formData = new FormData();
       formData.append("moduleNum", "7");
-      formData.append("producode", this.producode);
       formData.append(
         "productPrices",
         JSON.stringify(subTableInputData(this.itemIdArr))
@@ -712,7 +713,6 @@ export default {
       let formData = new FormData();
       const cloneData = deepClone(this.productImgs);
       formData.append("moduleNum", "4");
-      formData.append("producode", this.producode);
       formData.append(
         "productImgs",
         JSON.stringify(
@@ -748,7 +748,6 @@ export default {
       this.videoBoxShow = false;
       let formData = new FormData();
       formData.append("moduleNum", "5");
-      formData.append("producode", this.producode);
       formData.append(
         "productVideos",
         JSON.stringify(
@@ -790,7 +789,6 @@ export default {
       this.loadingUploadDec = true;
       let formData = new FormData();
       formData.append("moduleNum", "6");
-      formData.append("producode", this.producode);
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);
       this.subTableData(formData);
@@ -801,7 +799,6 @@ export default {
       this.loadingPay = true;
       let formData = new FormData();
       formData.append("moduleNum", "2");
-      formData.append("producode", this.producode);
       formData.append("paymethod", this.payForm.paymethod);
       formData.append("stockmethod", this.payForm.stockmethod);
       this.subTableData(formData);
@@ -812,7 +809,6 @@ export default {
       this.loadingServer = true;
       let formData = new FormData();
       formData.append("moduleNum", "3");
-      formData.append("producode", this.producode);
       formData.append("invoice", this.postSaleForm.invoice);
       formData.append("state", this.postSaleForm.state);
       this.subTableData(formData);
@@ -823,7 +819,6 @@ export default {
       this.loadingLogistics = true;
       let formData = new FormData();
       formData.append("moduleNum", "8");
-      formData.append("producode", this.producode);
       formData.append(
         "issupsubstitute",
         this.logisticsForm.issupsubstitute === true ? "Y" : "N"
@@ -837,6 +832,8 @@ export default {
     /* 提交数据接口 */
     async subTableData(formData) {
       try {
+        formData.append("producode", this.producode);
+        formData.append("uid", this.uid);
         const { code, msg } = await proPublishSubEdit(formData);
         if (code === 200) {
           await this.getDetailData();

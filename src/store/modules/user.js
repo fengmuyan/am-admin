@@ -9,6 +9,7 @@ const user = {
     roles: [],
     isReal: '',
     isOpenAccount: '',
+    userNumber: '',
     permissions: []
   },
 
@@ -34,6 +35,9 @@ const user = {
     SET_ACCOUNT: (state, isOpenAccount) => {
       state.isOpenAccount = isOpenAccount
     },
+    SET_NUMBER: (state, number) => {
+      state.userNumber = number
+    }
   },
 
   actions: {
@@ -69,6 +73,7 @@ const user = {
           commit('SET_NAME', user.userName)
           commit('SET_REAL', res.realNameState)
           commit('SET_ACCOUNT', res.bankAccountState)
+          commit('SET_NUMBER', user.phonenumber)
           commit('SET_AVATAR', avatar)
           resolve(res)
         }).catch(error => {

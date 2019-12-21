@@ -102,9 +102,7 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import { getProList } from "@/api/product";
-import { getToken } from "@/utils/auth";
+import { getProList, proPublishSubEdit } from "@/api/product";
 import { MessageBox } from "element-ui";
 export default {
   data() {
@@ -151,7 +149,7 @@ export default {
         console.log(err);
       }
     },
-    
+
     handleQuery() {
       this.pageNum = 1;
       this.getList();
@@ -167,7 +165,7 @@ export default {
 
     handleEdit(item) {
       this.$router.push({
-        path: `/publish/detail/${item.producode}`
+        path: `/publish/detail/${item.producode}-${item.uid}`
       });
     },
 
@@ -182,11 +180,12 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-        customClass: 'el-message-box-wran'
+        customClass: "el-message-box-wran"
       }).then(() => {
         let formData = new FormData();
         formData.append("moduleNum", "3");
         formData.append("producode", item.producode);
+        formData.append("uid", item.uid);
         formData.append("invoice", item.invoice);
         formData.append("state", "1");
         this.subTableData(formData);
@@ -197,28 +196,11 @@ export default {
     async subTableData(formData) {
       try {
         this.loading = true;
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        const { code, msg } = await proPublishSubEdit(formData);
         this.loading = false;
         if (code === 200) {
           this.msgSuccess("修改成功");
           this.getList();
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
         }
       } catch (err) {
         this.loading = true;

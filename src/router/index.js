@@ -174,6 +174,19 @@ export const dynamicRoutes = [
     ]
   },
   {
+    path: '/orderDetail',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'detail/:code',
+        component: () => import('@/views/order/detail/index'),
+        name: '订单详情',
+        meta: { title: '订单详情', icon: '' }
+      }
+    ]
+  },
+  {
     path: '/dynamic',
     component: Layout,
     hidden: true,

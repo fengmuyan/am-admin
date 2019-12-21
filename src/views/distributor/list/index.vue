@@ -54,23 +54,28 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="distributorList">
-        <el-table-column label="商户编号" prop="aa" />
-        <el-table-column label="信用额度" prop="aa" />
-        <el-table-column label="已用额度" prop="bb" />
-        <el-table-column label="可用额度" prop="cc" />
-        <el-table-column label="风控额度" prop="cc" />
-        <el-table-column label="信用额度最新使用时间" prop="dd" width="240" />
-        <el-table-column label="授权额度最新更改时间" prop="ee" width="240" />
-        <el-table-column label="授权额度初始创建时间" prop="ff" width="240" />
-        <el-table-column label="折扣" prop="cc" />
-        <el-table-column label="风控状态" prop="hh" />
-        <el-table-column label="操作" width="240">
+        <el-table-column label="经销商名称" prop="username" width="180" />
+        <el-table-column label="信用额度" prop="creditlimit" />
+        <el-table-column label="已用额度" prop="usedlimit" />
+        <el-table-column label="可用额度" prop="usablelimit" />
+        <el-table-column label="风控额度" prop="risklimit" />
+        <el-table-column label="平台总使用额度" prop="sumlimit" width="160" />
+        <el-table-column label="风控状态">
+          <template
+            slot-scope="scope"
+          >{{Number(scope.row.sumlimit)>Number(scope.row.risklimit)?'风控超额':'正常'}}</template>
+        </el-table-column>
+        <el-table-column label="信用额度最新使用时间" prop="latestusedtime" width="180" />
+        <el-table-column label="授权额度最新更改时间" prop="latestmodifytime" width="180" />
+        <el-table-column label="授权额度初始创建时间" prop="initcreatetime" width="180" />
+        <el-table-column label="折扣" prop="vodiscount"></el-table-column>
+        <el-table-column label="操作" width="160">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">授权</el-button>
             <el-button
               size="mini"
               type="text"
-              icon="el-icon-sell"
+              icon="el-icon-sold-out"
               @click="handleDiscount(scope.row)"
             >折扣</el-button>
           </template>
@@ -87,25 +92,15 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
+import { list } from "@/api/distributor";
 export default {
   data() {
     return {
       loading: false,
       formShow: true,
-      distributorList: [
-        {
-          aa: 50,
-          bb: 20,
-          cc: 30,
-          dd: "2019-10-12 20:12:23",
-          ee: "2019-8-12 20:12:23",
-          ff: "2019-1-01 20:12:23",
-          hh: "风控超额"
-        }
-      ],
+      distributorList: [],
       queryForm: {
         dateRange: [],
         state: 2,
@@ -116,22 +111,38 @@ export default {
       total: 10
     };
   },
-  created() {},
+  created() {
+    this.getList();
+  },
   methods: {
-    getList() {},
+    async getList() {
+      try {
+        this.loading = true;
+        const { code, rows } = await list();
+        this.loading = false;
+        if (code === 200) {
+          this.distributorList = rows;
+        }
+      } catch (err) {
+        this.loading = false;
+        console.log(err);
+      }
+    },
     goAuthorize() {
       this.$router.push({
         path: `/distributor/authorize`
       });
     },
     handleEdit(item) {
+      const { creditlimit, risklimit, uid, usercode } = item;
       this.$router.push({
-        path: `/dynamic/authorize-edit/023000023`
+        path: `/dynamic/authorize-edit/${uid}-${usercode}-${creditlimit}-${risklimit}`
       });
     },
-    handleDiscount() {
+    handleDiscount(item) {
+      const { uid, discount, usercode } = item;
       this.$router.push({
-        path: `/dynamic/discount/023000023`
+        path: `/dynamic/discount/${uid}-${usercode}-${discount}`
       });
     }
   }

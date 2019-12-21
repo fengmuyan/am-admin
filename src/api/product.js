@@ -64,6 +64,17 @@ export function proPublishSubEdit(formData) {
   })
 }
 
+//产品删除
+export function proPublishDel(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/publish/deleteProduct',
+    method: 'post',
+    data,
+  })
+}
+
+
 
 
 

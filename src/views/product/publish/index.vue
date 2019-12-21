@@ -442,8 +442,8 @@ export default {
         ]
       },
       logisticsFormRules: {
-        issupsubstitute: [
-          { required: true, message: "请输入是否支持代发", trigger: "blur" }
+        deliverymode: [
+          { required: true, message: "请输入发货方式", trigger: "blur" }
         ]
       }
     };
@@ -657,12 +657,16 @@ export default {
           this._subTableData();
         })
         .catch(reason => {
-          MessageBox({
-            message: "有必填项未填写或格式不正确，请检查！",
-            type: "error",
-            duration: 5 * 1000,
-            customClass: "el-message-box-warn"
-          });
+          MessageBox.confirm(
+            "必填项未填写或格式不正确，请检查！",
+            "系统提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+              customClass: "el-message-box-wran"
+            }
+          )
         });
     },
 

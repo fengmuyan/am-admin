@@ -6,13 +6,23 @@
           <el-form-item label="模糊搜索" prop="conditionParameter">
             <el-input
               v-model="queryForm.conditionParameter"
-              placeholder="请输入商品名称或标题"
+              placeholder="请输入订单号/商品名称/买家昵称"
               clearable
               size="small"
               style="width: 240px"
             />
           </el-form-item>
-          <el-form-item label="发布时间" prop="dateRange">
+          <el-form-item label="交易类型" prop="conditionParameter">
+            <el-select v-model="queryForm.conditionParameter" placeholder="请选择">
+              <el-option
+                v-for="item in []"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="成交时间" prop="dateRange">
             <el-date-picker
               v-model="queryForm.dateRange"
               size="small"
@@ -24,6 +34,7 @@
               end-placeholder="结束日期"
             ></el-date-picker>
           </el-form-item>
+
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -33,67 +44,37 @@
     </el-collapse-transition>
 
     <div class="table-p">
-      <el-row :gutter="10" class="mb10 f-l">
-        <el-col :span="1.5">
-          <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">发布商品</el-button>
-        </el-col>
-        <el-col :span="1.5">
-          <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10" class="mb10 f-r icon-wrap">
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-f" @click="formShow = !formShow">
-            <i class="el-icon-zoom-in"></i>
-          </div>
-        </el-col>
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-s" @click="resetQuery">
-            <i class="el-icon-refresh"></i>
-          </div>
-        </el-col>
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-t">
-            <el-dropdown trigger="click">
-              <el-button type="primary">
-                <i class="el-icon-menu"></i>
-                <i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-checkbox
-                  v-for="(item,index) in initData"
-                  :key="index"
-                  v-model="item.checked"
-                >{{item.label}}</el-checkbox>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-        </el-col>
-      </el-row>
-      <el-table style="width: 100%" v-loading="loading" :data="productList">
-        <el-table-column label="商品编码" prop="ccode" />
-        <el-table-column label="商品类目" prop="cmdtclassname" />
-        <el-table-column label="商品名称" prop="title" />
-        <el-table-column label="付款方式" prop="voPaymethod" />
-        <el-table-column label="库存计数" prop="voStockmethod" />
-        <el-table-column label="上架状态" prop="vostate" />
-        <el-table-column label="上架状态" prop="vostate" />
-        <el-table-column label="上架时间" prop="publishtime" />
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="全部订单" name="first"></el-tab-pane>
+        <el-tab-pane label="待买家付款" name="second"></el-tab-pane>
+        <el-tab-pane label="代发货" name="third"></el-tab-pane>
+        <el-tab-pane label="已发货" name="fourth"></el-tab-pane>
+        <el-tab-pane label="已成功订单" name="five"></el-tab-pane>
+        <el-tab-pane label="已取消订单" name="six"></el-tab-pane>
+      </el-tabs>
+      <el-table style="width: 100%" v-loading="loading" :data="orderList">
+        <el-table-column label="订单号" prop="aa" />
+        <el-table-column label="创建时间" prop="bb" />
+        <el-table-column label="订单金额" prop="cc" />
+        <el-table-column label="买家昵称" prop="dd" />
+        <el-table-column label="实收款" prop="ee" />
+        <el-table-column label="售后服务" prop="ff" />
+        <el-table-column label="交易状态" prop="gg" />
+        <el-table-column label="订单状态" prop="hh" />
         <el-table-column label="操作" width="240">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
             <el-button
               size="mini"
               type="text"
-              icon="el-icon-sell"
-              @click="handleOnshelf(scope.row)"
-            >上架</el-button>
+              icon="el-icon-edit"
+              @click="handleDetail(scope.row)"
+            >详情</el-button>
             <el-button
               size="mini"
               type="text"
-              icon="el-icon-delete"
-              @click="handleDel(scope.row)"
-            >删除</el-button>
+              icon="el-icon-truck"
+              @click="handleEdit(scope.row)"
+            >发货</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -108,55 +89,61 @@
   </div>
 </template>
 <script>
-import axios from "axios";
 import { getProList } from "@/api/product";
-import { getToken } from "@/utils/auth";
 import { MessageBox } from "element-ui";
 export default {
   data() {
     return {
       loading: false,
-      productList: [],
-      total: 0,
+      activeName: "first",
+      orderList: [
+        {
+          aa: "ljk58425625255llk",
+          bb: "2019-10-13 20:32:33",
+          cc: "5863.32",
+          dd: "mafangyuan",
+          ee: "5863.32",
+          ff: "开发票",
+          gg: "交易完成",
+          hh: "未付款"
+        },
+        {
+          aa: "ljk58425625255llk",
+          bb: "2019-10-13 20:32:33",
+          cc: "5863.32",
+          dd: "mafangyuan",
+          ee: "5863.32",
+          ff: "开发票",
+          gg: "交易完成",
+          hh: "未付款"
+        },
+        {
+          aa: "ljk58425625255llk",
+          bb: "2019-10-13 20:32:33",
+          cc: "5863.32",
+          dd: "mafangyuan",
+          ee: "5863.32",
+          ff: "开发票",
+          gg: "交易完成",
+          hh: "未付款"
+        }
+      ],
       formShow: true,
+      total: 20,
       queryForm: {
         dateRange: [],
         state: 2,
         conditionParameter: undefined
       },
       pageNum: 1,
-      pageSize: 10,
-      total: 0,
-      initData: []
+      pageSize: 10
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    async getList() {
-      try {
-        this.loading = true;
-        const {
-          code,
-          data: {
-            pageResult: { content, pageNum, pageSize, totalPages, totalSize }
-          }
-        } = await getProList({
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-          ...this.queryForm
-        });
-        this.loading = false;
-        if (code === 200) {
-          this.productList = content;
-          this.total = totalSize;
-        }
-      } catch (err) {
-        this.loading = false;
-        console.log(err);
-      }
-    },
+    async getList() {},
     handleQuery() {
       this.pageNum = 1;
       this.getList();
@@ -167,109 +154,14 @@ export default {
       this.handleQuery();
     },
     handleExport() {},
-    handleEdit(item) {
+    handleEdit() {},
+    handleAdd() {},
+    handleDetail() {
       this.$router.push({
-        path: `/publish/detail/${item.producode}`
+        path: `/orderDetail/detail/ljk58425625255llk`
       });
     },
-    handleAdd() {
-      this.$router.push({
-        path: `/publish/publish`
-      });
-    },
-
-    handleOnshelf(item) {
-      this.$confirm("确定要上架吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        let formData = new FormData();
-        formData.append("moduleNum", "3");
-        formData.append("producode", item.producode);
-        formData.append("invoice", item.invoice);
-        formData.append("state", "1");
-        this.subTableData(formData);
-      });
-    },
-
-    handleDel(item) {
-      this.$confirm("确定要删除吗？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(() => {
-        let formData = new FormData();
-        formData.append("producode", item.producode);
-        this.delTableData(formData);
-      });
-    },
-
-    /* 拼装提交数据 */
-    async subTableData(formData) {
-      try {
-        this.loading = true;
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
-        this.loading = false;
-        if (code === 200) {
-          this.msgSuccess("修改成功");
-          this.getList();
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
-        }
-      } catch (err) {
-        this.loading = true;
-        console.log(err);
-      }
-    },
-
-    /* 删除数据 */
-    async delTableData(formData) {
-      try {
-        this.loading = true;
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/deleteProduct`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
-        this.loading = false;
-        if (code === 200) {
-          this.msgSuccess("删除成功");
-          this.getList();
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
-        }
-      } catch (err) {
-        this.loading = true;
-        console.log(err);
-      }
-    }
+    handleClick() {}
   }
 };
 </script>

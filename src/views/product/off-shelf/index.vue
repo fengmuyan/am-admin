@@ -108,9 +108,7 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import { getProList } from "@/api/product";
-import { getToken } from "@/utils/auth";
+import { getProList, proPublishSubEdit, proPublishDel } from "@/api/product";
 import { MessageBox } from "element-ui";
 export default {
   data() {
@@ -169,7 +167,7 @@ export default {
     handleExport() {},
     handleEdit(item) {
       this.$router.push({
-        path: `/publish/detail/${item.producode}`
+        path: `/publish/detail/${item.producode}-${item.uid}`
       });
     },
     handleAdd() {
@@ -182,11 +180,12 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-        customClass: 'el-message-box-wran'
+        customClass: "el-message-box-wran"
       }).then(() => {
         let formData = new FormData();
         formData.append("moduleNum", "3");
         formData.append("producode", item.producode);
+        formData.append("uid", item.uid);
         formData.append("invoice", item.invoice);
         formData.append("state", "1");
         this.subTableData(formData);
@@ -198,10 +197,11 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-        customClass: 'el-message-box-wran'
+        customClass: "el-message-box-wran"
       }).then(() => {
         let formData = new FormData();
         formData.append("producode", item.producode);
+        formData.append("uid", item.uid);
         this.delTableData(formData);
       });
     },
@@ -210,28 +210,11 @@ export default {
     async subTableData(formData) {
       try {
         this.loading = true;
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/modifyProductInfo`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        const { code, msg } = await proPublishSubEdit(formData);
         this.loading = false;
         if (code === 200) {
           this.msgSuccess("修改成功");
           this.getList();
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
         }
       } catch (err) {
         this.loading = true;
@@ -243,28 +226,11 @@ export default {
     async delTableData(formData) {
       try {
         this.loading = true;
-        const {
-          data: { code, msg }
-        } = await axios.post(
-          `${process.env.VUE_APP_BASE_API}/god/publish/deleteProduct`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: "Bearer " + getToken()
-            }
-          }
-        );
+        const { code, msg } = await proPublishDel(formData);
         this.loading = false;
         if (code === 200) {
           this.msgSuccess("删除成功");
           this.getList();
-        } else {
-          MessageBox({
-            message: msg,
-            type: "error",
-            duration: 5 * 1000
-          });
         }
       } catch (err) {
         this.loading = true;

@@ -12,6 +12,7 @@ const getters = {
   permissions: state => state.user.permissions,
   isReal: state => state.user.isReal,
   isOpenAccount: state => state.user.isOpenAccount,
+  userNumber: state => state.user.userNumber,
   permission_routes: state => state.permission.routes
 }
 export default getters
