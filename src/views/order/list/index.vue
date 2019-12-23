@@ -13,20 +13,50 @@
             />
           </el-form-item>
           <el-form-item label="订单来源" prop="ordersource">
-            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+            <el-select
+              v-model="queryForm.ordersource"
+              placeholder="请选择"
+              clearable
+              size="small"
+              style="width: 240px"
+            >
               <el-option label="PC" value="0" />
               <el-option label="Android" value="1" />
               <el-option label="ios" value="2" />
             </el-select>
           </el-form-item>
+          <el-form-item label="订单状态" prop="orderstate">
+            <el-select
+              v-model="queryForm.orderstate"
+              placeholder="请选择"
+              clearable
+              size="small"
+              style="width: 240px"
+            >
+              <el-option label="正常" value="Y" />
+              <el-option label="删除" value="N" />
+            </el-select>
+          </el-form-item>
           <el-form-item label="支付类型" prop="ordersource">
-            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+            <el-select
+              v-model="queryForm.ordersource"
+              placeholder="请选择"
+              clearable
+              size="small"
+              style="width: 240px"
+            >
               <el-option label="货币支付" value="0" />
               <el-option label="信用额度支付" value="1" />
             </el-select>
           </el-form-item>
           <el-form-item label="支付状态" prop="ordersource">
-            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+            <el-select
+              v-model="queryForm.ordersource"
+              placeholder="请选择"
+              clearable
+              size="small"
+              style="width: 240px"
+            >
               <el-option label="支付未完成" value="0" />
               <el-option label="支付完成" value="1" />
             </el-select>
@@ -35,9 +65,8 @@
             <el-date-picker
               v-model="queryForm.dateRange"
               size="small"
-              style="width: 240px"
-              value-format="yyyy-MM-dd"
-              type="daterange"
+              style="width: 360px"
+              type="datetimerange"
               range-separator="-"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
@@ -54,6 +83,7 @@
     <div class="table-p">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="全部订单" name="-1"></el-tab-pane>
+        <el-tab-pane label="待买家称重" name="10"></el-tab-pane>
         <el-tab-pane label="待买家付款" name="0"></el-tab-pane>
         <el-tab-pane label="代发货" name="1"></el-tab-pane>
         <el-tab-pane label="已发货" name="2"></el-tab-pane>

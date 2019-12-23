@@ -331,8 +331,8 @@ export default {
     const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else if (value < this.valuationForm.netweight) {
-        callback(new Error("毛重不能小于净重"));
+      } else if (!(value > this.valuationForm.netweight)) {
+        callback(new Error("毛重必须大于净重"));
       } else {
         callback();
       }

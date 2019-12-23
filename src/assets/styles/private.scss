@@ -1440,14 +1440,21 @@
     }
   }
   .goods-info{
-    margin-left: 28px;
-    height: 50px;
-    line-height: 50px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-left: 44px;
+    line-height: 30px;
     font-size: 15px;
     color: #999;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     span{
       margin-right: 10px;
+      b{
+        color: #ff0000;
+        font-weight: normal;
+        font-size: 18px;
+      }
     }
   }
 }

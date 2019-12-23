@@ -117,10 +117,15 @@ export default {
     async getList() {
       try {
         this.loading = true;
-        const { code, rows } = await list();
+        const {
+          code,
+          data: {
+            pageResult: { content }
+          }
+        } = await list();
         this.loading = false;
         if (code === 200) {
-          this.distributorList = rows;
+          this.distributorList = content;
         }
       } catch (err) {
         this.loading = false;
