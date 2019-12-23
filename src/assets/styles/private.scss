@@ -1225,7 +1225,7 @@
     height: 260px;
     background-color: #fff;
     .statusLeft {
-      width: 400px;;
+      width: 380px;;
       height: 100%;
       float: left;
       border-right: 1px solid #ececec;
@@ -1243,16 +1243,21 @@
         line-height: 158px;
         font-size: 30px;
         color: #14cfa0;
-        text-align: center;;
+        text-align: center;
+      }
+      p{
+        height: 50px;
+        line-height: 50px;
+        font-size: 15px;
+        padding-left: 24px;
       }
     }
     .statusRight {
       height: 100%;
-      width: 1000px;
       padding: 68px 0 0 60px;
       float: left;
       li {
-        width: 90px;
+        width: 84px;
         height: 135px;
         padding-top: 17px;
         float: left;
@@ -1274,6 +1279,9 @@
         .imgIcon5 {
           background-image: url(../image/1085.png);
         }
+        .imgIcon6 {
+          background-image: url(../image/1086.png);
+        }
         .iconTitle {
           font-size: 14px;
           height: 30px;
@@ -1291,7 +1299,7 @@
         }
       }
       li.line {
-        width: 113px;
+        width: 100px;
         .imgLine {
           height: 2px;
           width: 100%;
@@ -1338,7 +1346,17 @@
         font-size: 14px;
         line-height: 100px;
       }
-
+      .weight-box{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        span{
+          height: 25px;
+          line-height: 25px;
+        }
+      }
       .imgBox {
         width: 100px;
         height: 100px;

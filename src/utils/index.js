@@ -1,4 +1,5 @@
 import md5 from "js-md5";
+import CryptoJS from 'crypto-js'
 
 /**
  * @desc 格式化时间
@@ -611,7 +612,6 @@ export function setTableSubData(original, present, timeIdData) {
  */
 export function initTableInputData(serverData, timeIdArr, originalData) {
   const checkBoxArr = deepClone(originalData).filter(item => item.type === "1");
-  const radioArr = deepClone(originalData).filter(item => item.type === "2");
   return timeIdArr.map((item) => {
     const cloneData = deepClone(originalData);
     let dataArr = [];
@@ -675,4 +675,74 @@ export function subTableInputData(timeIdArr) {
       feature: item.input[4].values
     }
   })
+}
+
+/**
+ * @desc 根据后台发票类型返回数据 （0：不提供发票，1：普通发票，2：增值税发票，3：普通发票和增值税发票）
+ * 
+ */
+export function initInvoice(invoice) {
+  const form = {
+    invoice: '0',
+    ticketType: ['1']
+  }
+  if (invoice === '0') {
+    Object.assign(form, { invoice: '0' })
+  } else if (invoice === '1') {
+    Object.assign(form, { invoice: '1' })
+  } else if (invoice === '2') {
+    Object.assign(form, {
+      invoice: '1',
+      ticketType: ['2']
+    })
+  } else if (invoice === '3') {
+    Object.assign(form, {
+      invoice: '1',
+      ticketType: ['1', '2']
+    })
+  }
+  return form
+}
+
+/**
+ * @desc 根据invoice类型返回提交数据 （0：不提供发票，1：普通发票，2：增值税发票，3：普通发票和增值税发票）
+ * 
+ */
+export function initInvoiceSub(invoice, ticketType) {
+  let invoiceInit;
+  if (invoice === '0') {
+    invoiceInit = '0';
+  } else if (invoice === '1') {
+    if (ticketType.length === 2) {
+      invoiceInit = '3';
+    } else {
+      invoiceInit = ticketType[0];
+    }
+  }
+  return invoiceInit
+}
+
+/**
+ * @desc 数据加密
+ * @param {Object} word 待加密字符串或实例化的对象
+ * @param {String} keyStr 加密需要用到的16位字符串的key
+ * @returns {Function}
+ */
+export function encrypt(word, keyStr = 'abcdefgabcdefg12') {
+  var key = CryptoJS.enc.Utf8.parse(keyStr);
+  var srcs = CryptoJS.enc.Utf8.parse(word);
+  var encrypted = CryptoJS.AES.encrypt(srcs, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+  return encrypted.toString();
+}
+
+/**
+ * @desc 数据解密
+ * @param {Object} word 待解密字符串或实例化的对象
+ * @param {String} keyStr 解密需要用到的16位字符串的key
+ * @returns {Function}
+ */
+export function decrypt(word, keyStr = 'abcdefgabcdefg12') {
+  var key = CryptoJS.enc.Utf8.parse(keyStr);
+  var decrypt = CryptoJS.AES.decrypt(word, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
+  return CryptoJS.enc.Utf8.stringify(decrypt).toString();
 }

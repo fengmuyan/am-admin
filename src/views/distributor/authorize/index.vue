@@ -87,7 +87,6 @@
 
 <script>
 import geCode from "vue-gecode";
-import { MessageBox } from "element-ui";
 import { mapGetters } from "vuex";
 import {
   sendSmsCode,
@@ -276,7 +275,7 @@ export default {
     toConfirmIdentity(formName) {
       const { username, phone, idnumber } = this.checkInfoForm;
       if (username !== "" && phone !== "" && idnumber !== "") {
-        MessageBox.confirm("确认信息已经核对完成？", "系统提示", {
+        this.$confirm("确认信息已经核对完成？", "系统提示", {
           confirmButtonText: "确认",
           cancelButtonText: "取消",
           type: "warning",
@@ -285,7 +284,7 @@ export default {
           this.actItem = 2;
         });
       } else {
-        MessageBox.confirm("核对信息不能为空。", "系统提示", {
+        this.$confirm("核对信息不能为空。", "系统提示", {
           confirmButtonText: "确认",
           cancelButtonText: "取消",
           type: "warning",

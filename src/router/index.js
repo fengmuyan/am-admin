@@ -1,8 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
 import store from '../store'
-
-Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
@@ -179,7 +175,7 @@ export const dynamicRoutes = [
     hidden: true,
     children: [
       {
-        path: 'detail/:code',
+        path: 'detail/:code+',
         component: () => import('@/views/order/detail/index'),
         name: '订单详情',
         meta: { title: '订单详情', icon: '' }
@@ -207,7 +203,7 @@ export const dynamicRoutes = [
   }
 ]
 
-export default new Router({
+export default new VueRouter({
   mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes

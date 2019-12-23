@@ -39,7 +39,6 @@
 
 <script>
 import geCode from "vue-gecode";
-import { MessageBox } from "element-ui";
 import { mapGetters } from "vuex";
 import {
   sendSmsCode,

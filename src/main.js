@@ -1,7 +1,5 @@
 import Vue from 'vue'
-import Cookies from 'js-cookie'
 import 'normalize.css/normalize.css'
-import Element from 'element-ui'
 import './assets/styles/element-variables.scss'
 
 import '@/assets/styles/index.scss'
@@ -44,9 +42,6 @@ Vue.component('Pagination', Pagination)
 
 Vue.use(permission)
 Vue.use(throttle)
-Vue.use(Element, {
-  size: Cookies.get('size') || 'medium'
-})
 
 Vue.config.productionTip = false
 

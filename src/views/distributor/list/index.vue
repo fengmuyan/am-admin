@@ -93,7 +93,6 @@
 </template>
 <script>
 import { getToken } from "@/utils/auth";
-import { MessageBox } from "element-ui";
 import { list } from "@/api/distributor";
 export default {
   data() {

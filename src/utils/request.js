@@ -1,5 +1,3 @@
-import axios from 'axios'
-import { MessageBox } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
@@ -29,7 +27,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(res => {
   const code = res.data.code
   if (code === 401) {
-    MessageBox.confirm(
+    ELEMENT.MessageBox(
       '登录状态已过期，您可以继续留在该页面，或重新登录',
       '系统提示',
       {
@@ -44,7 +42,7 @@ service.interceptors.response.use(res => {
       })
     })
   } else if (code !== 200) {
-    MessageBox({
+    ELEMENT.MessageBox({
       message: res.data.msg,
       type: 'error',
       duration: 5 * 1000,
@@ -57,7 +55,7 @@ service.interceptors.response.use(res => {
 },
   error => {
     console.log('err' + error)
-    MessageBox({
+    ELEMENT.MessageBox({
       message: error.message,
       type: 'error',
       duration: 5 * 1000,

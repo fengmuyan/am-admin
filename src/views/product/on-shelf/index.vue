@@ -109,7 +109,6 @@
 </template>
 <script>
 import { getProList, proPublishSubEdit } from "@/api/product";
-import { MessageBox } from "element-ui";
 export default {
   data() {
     return {

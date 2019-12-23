@@ -244,10 +244,22 @@
           label-width="110px"
         >
           <el-form-item label="提供发票：" prop="invoice">
-            <el-radio-group v-model="postSaleForm.invoice">
-              <el-radio label="Y">是</el-radio>
-              <el-radio label="N">否</el-radio>
+            <el-radio-group
+              v-model="postSaleForm.invoice"
+              @change="postSaleForm.ticketType = ['1']"
+            >
+              <el-radio label="0">否</el-radio>
+              <el-radio label="1">是</el-radio>
             </el-radio-group>
+          </el-form-item>
+          <el-form-item prop="ticketType">
+            <el-checkbox-group
+              v-model="postSaleForm.ticketType"
+              :disabled="postSaleForm.invoice === '0'"
+            >
+              <el-checkbox label="1">普通发票</el-checkbox>
+              <el-checkbox label="2">增值税发票</el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
           <el-form-item label="上架状态：" prop="state">
             <el-radio-group v-model="postSaleForm.state">
@@ -277,7 +289,6 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
 import UploadVideo from "@/components/UploadVideoEdit";
 import Editor from "@/components/Editor";
-import { MessageBox } from "element-ui";
 import {
   getProCate,
   getProData,
@@ -293,7 +304,8 @@ import {
   sortTableArr,
   deepClone,
   parseTime,
-  setTableSubData
+  setTableSubData,
+  initInvoiceSub
 } from "@/utils";
 
 export default {
@@ -340,7 +352,7 @@ export default {
       homePageClasses: [],
       cateDataText: "",
       cversion: "",
-      storeInfo: {}, //店铺信息（地址）
+      storeInfo: {},
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
@@ -349,9 +361,10 @@ export default {
         weightunit: "公斤"
       },
       postSaleForm: {
-        invoice: "Y",
+        invoice: "0",
         state: "3",
-        publishtime: ""
+        publishtime: "",
+        ticketType: ["1"]
       },
       cateForm: {
         cateData: "",
@@ -411,6 +424,9 @@ export default {
         ],
         invoice: [
           { required: true, message: "请输入是否填写发票", trigger: "blur" }
+        ],
+        ticketType: [
+          { required: true, message: "请至少选择一项", trigger: "change" }
         ]
       },
       uploadFormRules: {
@@ -639,7 +655,16 @@ export default {
           }
         });
       });
-      let validateArr = [p1, p2, p3, p4, p5];
+      const p6 = new Promise((resolve, reject) => {
+        this.$refs["postSaleForm"].validate(valid => {
+          if (valid) {
+            resolve();
+          } else {
+            reject("err");
+          }
+        });
+      });
+      let validateArr = [p1, p2, p3, p4, p5, p6];
       if (this.$refs.dynamicTable) {
         const p6 = new Promise((resolve, reject) => {
           this.$refs.dynamicTable.validatInit(valid => {
@@ -656,17 +681,17 @@ export default {
         .then(() => {
           this._subTableData();
         })
-        .catch(reason => {
-          MessageBox.confirm(
-            "必填项未填写或格式不正确，请检查！",
+        .catch(() => {
+          this.$confirm(
+            "您有必填项未填写或格式不正确，请检查。",
             "系统提示",
             {
-              confirmButtonText: "确定",
+              confirmButtonText: "确认",
               cancelButtonText: "取消",
               type: "warning",
               customClass: "el-message-box-wran"
             }
-          )
+          );
         });
     },
 
@@ -677,7 +702,7 @@ export default {
         const { code, msg } = await proPublishSub(this._initFormdataSub());
         this.loading = false;
         if (code === 200) {
-          MessageBox({
+          ELEMENT.MessageBox({
             message: "商品发布成功",
             type: "success",
             duration: 5 * 1000,
@@ -699,6 +724,7 @@ export default {
         Object.assign(pre, { [item.label]: item.inputVal });
         return pre;
       }, {});
+      const { invoice, ticketType } = this.postSaleForm;
       const naturalDataInit = deepClone(this.naturalDataInit);
       const saleDataInit = deepClone(this.saleDataInit);
       const salInputData = deepClone(saleDataInit)
@@ -750,7 +776,7 @@ export default {
       formData.append("fduration", this.uploadForm.fduration);
       formData.append("paymethod", this.payForm.paymethod);
       formData.append("stockmethod", this.payForm.stockmethod);
-      formData.append("invoice", this.postSaleForm.invoice);
+      formData.append("invoice", initInvoiceSub(invoice, ticketType));
       formData.append("state", this.postSaleForm.state);
       formData.append(
         "issupsubstitute",

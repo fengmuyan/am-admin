@@ -1,25 +1,34 @@
 <template>
   <div class="app-container">
     <el-collapse-transition>
-      <div class="form-p" v-show="formShow">
+      <div class="form-p">
         <el-form :model="queryForm" ref="queryForm" :inline="true">
-          <el-form-item label="模糊搜索" prop="conditionParameter">
+          <el-form-item label="订单号" prop="orderno">
             <el-input
-              v-model="queryForm.conditionParameter"
-              placeholder="请输入订单号/商品名称/买家昵称"
+              v-model="queryForm.orderno"
+              placeholder="请输入订单号"
               clearable
               size="small"
               style="width: 240px"
             />
           </el-form-item>
-          <el-form-item label="交易类型" prop="conditionParameter">
-            <el-select v-model="queryForm.conditionParameter" placeholder="请选择">
-              <el-option
-                v-for="item in []"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+          <el-form-item label="订单来源" prop="ordersource">
+            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+              <el-option label="PC" value="0" />
+              <el-option label="Android" value="1" />
+              <el-option label="ios" value="2" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="支付类型" prop="ordersource">
+            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+              <el-option label="货币支付" value="0" />
+              <el-option label="信用额度支付" value="1" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="支付状态" prop="ordersource">
+            <el-select v-model="queryForm.ordersource" placeholder="请选择" clearable size="small">
+              <el-option label="支付未完成" value="0" />
+              <el-option label="支付完成" value="1" />
             </el-select>
           </el-form-item>
           <el-form-item label="成交时间" prop="dateRange">
@@ -34,7 +43,6 @@
               end-placeholder="结束日期"
             ></el-date-picker>
           </el-form-item>
-
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -45,23 +53,30 @@
 
     <div class="table-p">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="全部订单" name="first"></el-tab-pane>
-        <el-tab-pane label="待买家付款" name="second"></el-tab-pane>
-        <el-tab-pane label="代发货" name="third"></el-tab-pane>
-        <el-tab-pane label="已发货" name="fourth"></el-tab-pane>
-        <el-tab-pane label="已成功订单" name="five"></el-tab-pane>
-        <el-tab-pane label="已取消订单" name="six"></el-tab-pane>
+        <el-tab-pane label="全部订单" name="-1"></el-tab-pane>
+        <el-tab-pane label="待买家付款" name="0"></el-tab-pane>
+        <el-tab-pane label="代发货" name="1"></el-tab-pane>
+        <el-tab-pane label="已发货" name="2"></el-tab-pane>
+        <el-tab-pane label="已成功订单" name="4"></el-tab-pane>
+        <el-tab-pane label="已取消订单" name="5"></el-tab-pane>
       </el-tabs>
       <el-table style="width: 100%" v-loading="loading" :data="orderList">
-        <el-table-column label="订单号" prop="aa" />
-        <el-table-column label="创建时间" prop="bb" />
-        <el-table-column label="订单金额" prop="cc" />
-        <el-table-column label="买家昵称" prop="dd" />
-        <el-table-column label="实收款" prop="ee" />
-        <el-table-column label="售后服务" prop="ff" />
-        <el-table-column label="交易状态" prop="gg" />
-        <el-table-column label="订单状态" prop="hh" />
-        <el-table-column label="操作" width="240">
+        <el-table-column label="订单号" prop="orderno" width="200" />
+        <el-table-column label="创建时间" prop="createtime" width="180" />
+        <el-table-column label="订单金额" prop="orderamount" />
+        <el-table-column label="用户编号" prop="usercode" />
+        <el-table-column label="应收款" prop="needprice" />
+        <el-table-column label="实收款" prop="realprice" />
+        <el-table-column label="支付状态" prop="paystate">
+          <template slot-scope="scope">{{scope.row.paystate | initPaystate }}</template>
+        </el-table-column>
+        <el-table-column label="交易状态" prop="tradestate">
+          <template slot-scope="scope">{{scope.row.tradestate | initTradestate}}</template>
+        </el-table-column>
+        <el-table-column label="订单状态" prop="orderstate" width="120">
+          <template slot-scope="scope">{{scope.row.orderstate | initOrderstate}}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="200">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -73,7 +88,8 @@
               size="mini"
               type="text"
               icon="el-icon-truck"
-              @click="handleEdit(scope.row)"
+              v-if="Number(scope.row.tradestate) === 1"
+              @click="handleSent(scope.row)"
             >发货</el-button>
           </template>
         </el-table-column>
@@ -89,61 +105,76 @@
   </div>
 </template>
 <script>
-import { getProList } from "@/api/product";
-import { MessageBox } from "element-ui";
+import { getOrderList, orderToSent } from "@/api/order";
+import { encrypt } from "@/utils";
 export default {
   data() {
     return {
       loading: false,
-      activeName: "first",
-      orderList: [
-        {
-          aa: "ljk58425625255llk",
-          bb: "2019-10-13 20:32:33",
-          cc: "5863.32",
-          dd: "mafangyuan",
-          ee: "5863.32",
-          ff: "开发票",
-          gg: "交易完成",
-          hh: "未付款"
-        },
-        {
-          aa: "ljk58425625255llk",
-          bb: "2019-10-13 20:32:33",
-          cc: "5863.32",
-          dd: "mafangyuan",
-          ee: "5863.32",
-          ff: "开发票",
-          gg: "交易完成",
-          hh: "未付款"
-        },
-        {
-          aa: "ljk58425625255llk",
-          bb: "2019-10-13 20:32:33",
-          cc: "5863.32",
-          dd: "mafangyuan",
-          ee: "5863.32",
-          ff: "开发票",
-          gg: "交易完成",
-          hh: "未付款"
-        }
-      ],
-      formShow: true,
-      total: 20,
+      activeName: "-1",
+      orderList: [],
+      total: 0,
       queryForm: {
-        dateRange: [],
-        state: 2,
-        conditionParameter: undefined
+        dateRange: []
       },
       pageNum: 1,
-      pageSize: 10
+      pageSize: 10,
+      tradestate: undefined
     };
+  },
+  filters: {
+    initTradestate(val) {
+      const arr = [
+        "待买家付款",
+        "待卖家发货",
+        "卖家已发货",
+        "物流派件中",
+        "交易成功",
+        "交易关闭",
+        "待买家称重"
+      ];
+      return arr[val];
+    },
+    initPaystate(val) {
+      const arr = ["支付未完成", "支付完成"];
+      return arr[val];
+    },
+    initOrderstate(val) {
+      if (val === "Y") {
+        return "正常";
+      } else if (val === "N") {
+        return "删除";
+      }
+    }
   },
   created() {
     this.getList();
   },
   methods: {
-    async getList() {},
+    async getList() {
+      try {
+        this.loading = true;
+        const tradestate = this.activeName;
+        const {
+          code,
+          data: {
+            pageResult: { content, totalSize }
+          }
+        } = await getOrderList({
+          pageNum: 1,
+          pageSize: 5,
+          tradestate: tradestate === "-1" ? null : tradestate
+        });
+        this.loading = false;
+        if (code === 200) {
+          this.orderList = content;
+          this.total = totalSize;
+        }
+      } catch (err) {
+        this.loading = false;
+        console.log(err);
+      }
+    },
     handleQuery() {
       this.pageNum = 1;
       this.getList();
@@ -156,12 +187,47 @@ export default {
     handleExport() {},
     handleEdit() {},
     handleAdd() {},
-    handleDetail() {
+    handleDetail(item) {
+      const params = {
+        orderno: item.orderno,
+        needprice: item.needprice,
+        realprice: item.realprice,
+        carriage: item.carriage
+      };
       this.$router.push({
-        path: `/orderDetail/detail/ljk58425625255llk`
+        path: `/orderDetail/detail/${encrypt(JSON.stringify(params))}`
       });
     },
-    handleClick() {}
+    handleClick() {
+      this.getList();
+    },
+    handleSent(item) {
+      this.$confirm("确定要发货吗？", "系统提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        customClass: "el-message-box-wran"
+      }).then(async () => {
+        try {
+          const { uid, orderno } = item;
+          this.loading = true;
+          const { code } = await orderToSent({ uid, orderno });
+          this.loading = false;
+          if (code === 200) {
+            await this.getList();
+            ELEMENT.MessageBox({
+              message: "发货成功。",
+              type: "success",
+              duration: 5 * 1000,
+              customClass: "el-message-box-suc"
+            });
+          }
+        } catch (err) {
+          this.loading = false;
+          console.log(err);
+        }
+      });
+    }
   }
 };
 </script>

@@ -88,7 +88,6 @@
 </template>
 
 <script>
-import { MessageBox } from "element-ui";
 import { deepClone } from "@/utils";
 import { addRole, getRoleList } from "@/api/user";
 import { delRole, updateRole, changeRoleStatus } from "@/api/system/role";
@@ -218,7 +217,7 @@ export default {
             if (code === 200) {
               this.open = false;
               await this.getList();
-              MessageBox({
+              ELEMENT.MessageBox({
                 message: "添加成功",
                 type: "success",
                 duration: 5 * 1000,

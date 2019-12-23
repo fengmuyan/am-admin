@@ -155,7 +155,6 @@
 <script>
 import City from "@/utils/city.js";
 import UploadImg from "@/components/UploadImgEdit";
-import { MessageBox } from "element-ui";
 import { getShopDetail, editBaseImgInfo } from "@/api/shop";
 import { deepClone } from "@/utils";
 
@@ -404,7 +403,7 @@ export default {
         if (code === 200) {
           await this.getDetail();
           this._loadingCancel();
-          MessageBox({
+          ELEMENT.MessageBox({
             message: "修改成功",
             type: "success",
             duration: 5 * 1000,

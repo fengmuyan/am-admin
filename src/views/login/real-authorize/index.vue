@@ -82,7 +82,6 @@
 
 <script>
 import { realNameAuth } from "@/api/login";
-import { MessageBox } from "element-ui";
 import UploadImg from "@/components/UploadImg";
 export default {
   components: {

@@ -233,7 +233,7 @@
       <div class="block" v-loading="loadingServer">
         <h4>
           售后服务
-          <el-button size="mini" type="primary" class="f-r" @click="editPostSale">修改售后服务</el-button>
+          <el-button size="mini" type="primary" class="f-r" @click="editPostSaleV">修改售后服务</el-button>
         </h4>
         <el-form
           :model="postSaleForm"
@@ -242,10 +242,22 @@
           label-width="110px"
         >
           <el-form-item label="提供发票：" prop="invoice">
-            <el-radio-group v-model="postSaleForm.invoice">
-              <el-radio label="Y">是</el-radio>
-              <el-radio label="N">否</el-radio>
+            <el-radio-group
+              v-model="postSaleForm.invoice"
+              @change="postSaleForm.ticketType = ['1']"
+            >
+              <el-radio label="0">否</el-radio>
+              <el-radio label="1">是</el-radio>
             </el-radio-group>
+          </el-form-item>
+          <el-form-item prop="ticketType">
+            <el-checkbox-group
+              v-model="postSaleForm.ticketType"
+              :disabled="postSaleForm.invoice === '0'"
+            >
+              <el-checkbox label="1">普通发票</el-checkbox>
+              <el-checkbox label="2">增值税发票</el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
           <el-form-item label="上架状态：" prop="state">
             <el-radio-group v-model="postSaleForm.state">
@@ -274,7 +286,6 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImgEdit";
 import UploadVideo from "@/components/UploadVideoEdit";
 import Editor from "@/components/Editor";
-import { MessageBox } from "element-ui";
 import {
   getProCate,
   getProData,
@@ -292,7 +303,9 @@ import {
   deepClone,
   setTableSubData,
   initTableInputData,
-  subTableInputData
+  subTableInputData,
+  initInvoice,
+  initInvoiceSub
 } from "@/utils";
 
 export default {
@@ -364,9 +377,10 @@ export default {
         weightunit: "公斤"
       }, //销售属性中计价表单
       postSaleForm: {
-        invoice: "Y",
-        state: "",
-        publishtime: ""
+        invoice: "0",
+        state: "3",
+        publishtime: "",
+        ticketType: ["1"]
       }, //物流信息模块
       uploadForm: {
         img_one: null,
@@ -421,6 +435,9 @@ export default {
         ],
         invoice: [
           { required: true, message: "请输入是否填写发票", trigger: "blur" }
+        ],
+        ticketType: [
+          { required: true, message: "请至少选择一项", trigger: "change" }
         ]
       }, //物流表单验证
       uploadFormRules: {
@@ -568,9 +585,9 @@ export default {
           this.saleDataInit = initFormData(deepClone(this.saleData));
           this.cmdtProductPrices = cmdtProductPrices;
           this.tableShow(true);
-          this.postSaleForm.invoice = invoice;
           this.postSaleForm.state = String(state);
           this.postSaleForm.publishtime = publishtime;
+          Object.assign(this.postSaleForm, initInvoice(invoice));
           this.payForm.paymethod = String(paymethod);
           this.payForm.stockmethod = String(stockmethod);
           this.logisticsForm.issupsubstitute =
@@ -804,12 +821,24 @@ export default {
       this.subTableData(formData);
     },
 
+    /* 售后服务验证提交 */
+    editPostSaleV() {
+      new Promise((resolve, reject) => {
+        this.$refs["postSaleForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      }).then(() => {
+        this.editPostSale();
+      });
+    },
+
     /* 售后服务formData组装 */
     editPostSale() {
       this.loadingServer = true;
+      const { invoice, ticketType } = this.postSaleForm;
       let formData = new FormData();
       formData.append("moduleNum", "3");
-      formData.append("invoice", this.postSaleForm.invoice);
+      formData.append("invoice", initInvoiceSub(invoice, ticketType));
       formData.append("state", this.postSaleForm.state);
       this.subTableData(formData);
     },
@@ -838,7 +867,7 @@ export default {
         if (code === 200) {
           await this.getDetailData();
           this._loadingCancel();
-          MessageBox({
+          ELEMENT.MessageBox({
             message: "修改成功",
             type: "success",
             duration: 5 * 1000,

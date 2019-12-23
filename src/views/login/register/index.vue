@@ -207,7 +207,6 @@ import {
   submitRealAuth,
   submitRealInfo
 } from "@/api/login";
-import { MessageBox } from "element-ui";
 export default {
   components: {
     geCode,

@@ -184,7 +184,6 @@
 </template>
 
 <script>
-import { MessageBox } from "element-ui";
 import { addUser, getUserList, getRoleList } from "@/api/user";
 import { delUser, resetUserPwd, changeUserStatus } from "@/api/system/user";
 import { deepClone } from "@/utils";

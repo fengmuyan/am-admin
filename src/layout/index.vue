@@ -20,7 +20,6 @@ import RightPanel from "@/components/RightPanel";
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from "./components";
 import ResizeMixin from "./mixin/ResizeHandler";
 import { mapState } from "vuex";
-import { MessageBox } from "element-ui";
 export default {
   name: "Layout",
   components: {
@@ -82,7 +81,7 @@ export default {
     },
 
     _confirmModel(msg, confirmButtonText = "确定", confirmFn, cancelFn) {
-      MessageBox.confirm(msg, "系统提示", {
+      this.$confirm(msg, "系统提示", {
         confirmButtonText,
         cancelButtonText: "取消",
         type: "warning",
