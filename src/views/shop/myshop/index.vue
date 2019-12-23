@@ -69,7 +69,7 @@
                 <el-select
                   v-model="baseForm.city"
                   placeholder="请选择城市"
-                  style="width:190px;margin-left:18px"
+                  style="width:190px"
                 >
                   <el-option
                     v-for="item in cityArr"

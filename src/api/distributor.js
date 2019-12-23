@@ -55,10 +55,11 @@ export function save(data) {
 }
 
 //查询授权信用额度列表
-export function list() {
+export function list(data = {}) {
   return request({
     url: '/god/creditlimit/list',
-    method: 'get'
+    method: 'post',
+    data
   })
 }
 

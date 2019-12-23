@@ -18,7 +18,7 @@ export function createAccount(data) {
 }
 
 // 绑卡确认
-export function bindCardConfirm(data) {
+export function bindCardConfirm(data = {}) {
   return request({
     url: '/pay/confirm',
     method: 'post',

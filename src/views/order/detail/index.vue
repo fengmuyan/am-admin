@@ -1,15 +1,10 @@
 <template>
-  <div class="app-container">
+  <div class="order-detail-wrap app-container">
     <div class="order-detail" :loading="loading">
       <div class="statusStep">
         <div class="statusLeft">
           <p>订单号：{{params.orderno}}</p>
           <h3>{{tradestate | initTradestate}}</h3>
-          <!-- <ul>
-          <li>订单号：ljk58425625255llk</li>
-          <li>创建日期：2019-10-23 10:20:33</li>
-          <li></li>
-          </ul>-->
         </div>
         <ul class="statusRight">
           <li>
@@ -20,40 +15,71 @@
               12:23:54
             </p>
           </li>
-          <li class="line">
+          <li class="line" v-if="tradestate === 10">
             <div class="imgLine"></div>
           </li>
-          <li>
-            <div class="imgIcon imgIcon6"></div>
+          <li v-if="tradestate === 10">
+            <div class="imgIcon imgIcon1"></div>
             <p class="iconTitle">买家称重</p>
+            <p class="date">
+              2018-03-04
+              12:23:54
+            </p>
           </li>
           <li class="line">
             <div class="imgLine gryLine"></div>
           </li>
           <li>
-            <div class="imgIcon imgIcon2"></div>
-            <p class="iconTitle">买家付款</p>
+            <div :class="['imgIcon', 'imgIcon2',ac124?'imgIcon2-ac':'']"></div>
+            <p :class="['iconTitle',ac124?'active':'']">买家付款</p>
+            <p class="date" v-if="ac124">
+              2018-03-04
+              12:23:54
+            </p>
           </li>
           <li class="line">
             <div class="imgLine gryLine"></div>
           </li>
           <li>
-            <div class="imgIcon imgIcon3"></div>
-            <p class="iconTitle">商家发货</p>
+            <div :class="['imgIcon', 'imgIcon2',ac24?'imgIcon3-ac':'']"></div>
+            <p :class="['iconTitle',ac24?'active':'']">商家发货</p>
+            <p class="date" v-if="ac24">
+              2018-03-04
+              12:23:54
+            </p>
+          </li>
+          <li class="line">
+            <div class="imgLine gryLine"></div>
+          </li>
+          <li>
+            <div :class="['imgIcon', 'imgIcon2',ac4?'imgIcon3-ac':'']"></div>
+            <p :class="['iconTitle',ac4?'active':'']">买家确认收货</p>
+            <p class="date" v-if="ac4">
+              2018-03-04
+              12:23:54
+            </p>
           </li>
           <li class="line">
             <div class="imgLine gryLine"></div>
           </li>
           <li>
             <div class="imgIcon imgIcon5"></div>
-            <p class="iconTitle">买家确认收货</p>
+            <p class="iconTitle">完成</p>
+            <p class="date" v-if="tradestate === 4">
+              2018-03-04
+              12:23:54
+            </p>
           </li>
-          <li class="line">
+          <li class="line" v-if="tradestate === 5">
             <div class="imgLine gryLine"></div>
           </li>
-          <li>
-            <div class="imgIcon imgIcon4"></div>
-            <p class="iconTitle">完成</p>
+          <li v-if="tradestate === 5">
+            <div class="imgIcon imgIcon6"></div>
+            <p class="iconTitle">已取消</p>
+            <p class="date">
+              2018-03-04
+              12:23:54
+            </p>
           </li>
         </ul>
       </div>
@@ -84,7 +110,7 @@
                 <span>{{scope.row.tradestate | initTradestate}}</span>
                 <el-button
                   type="text"
-                  v-if="scope.row.tradestate === '6'"
+                  v-if="true"
                   icon="el-icon-odometer"
                   @click="handelWeight(scope.row)"
                 >前往称重</el-button>
@@ -116,10 +142,21 @@
         </div>
       </div>
     </div>
-    <el-dialog title="商品称重" :visible.sync="openWeight" width="500px">
-      <el-form ref="weightForm" :model="weightForm" :rules="weightFormRules" label-width="90px">
-        <el-form-item label="角色名称" prop="price">
-          <el-input v-model="weightForm.price" />
+    <el-dialog title="商品称重" :visible.sync="openWeight" width="550px">
+      <el-form ref="weightForm" :model="weightForm" :rules="weightFormRules" label-width="120px">
+        <div class="goods-info">
+          <span>商品毛重：25kg；</span>
+          <span>商品净重：20kg；</span>
+          <span>商品总价：1652；</span>
+        </div>
+        <el-form-item label="称重后毛重：" prop="weight">
+          <el-input v-model="weightForm.weight" />
+        </el-form-item>
+        <el-form-item label="称重后净重：" prop="price">
+          <el-input v-model="weightForm.price" disabled placeholder="由计算得出" />
+        </el-form-item>
+        <el-form-item label="称重后总价：" prop="totalPrice">
+          <el-input v-model="weightForm.totalPrice" disabled placeholder="由计算得出" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -140,9 +177,17 @@ export default {
       openWeight: false,
       loading: false,
       weightForm: {
-        price: 0
+        weight: "20",
+        price: "",
+        totalPrice: ""
       },
-      weightFormRules: {},
+      weightFormRules: {
+        weight: [{ required: true, message: "请输入毛重", trigger: "blur" }],
+        price: [{ required: true, message: "请输入单价", trigger: "blur" }],
+        totalPrice: [
+          { required: true, message: "请输入总价", trigger: "blur" }
+        ]
+      },
       goodsList: [],
       params: {},
       tradestate: "",
@@ -150,6 +195,7 @@ export default {
       totalPrice: ""
     };
   },
+  watch: {},
   filters: {
     initTradestate(val) {
       const arr = [
@@ -162,6 +208,20 @@ export default {
         "待买家称重"
       ];
       return arr[val];
+    }
+  },
+  computed: {
+    ac124() {
+      const tradestate = this.tradestate;
+      return tradestate === 1 || tradestate === 2 || tradestate === 4;
+    },
+    ac24() {
+      const tradestate = this.tradestate;
+      return tradestate === 2 || tradestate === 4;
+    },
+    ac4() {
+      const tradestate = this.tradestate;
+      return tradestate === 4;
     }
   },
   created() {
@@ -178,7 +238,7 @@ export default {
         this.loading = false;
         if (code === 200) {
           this.goodsList = data;
-          this.tradestate = data[0].tradestate;
+          this.tradestate = Number(data[0].tradestate);
           this.totalNum = data.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
             return pre;
