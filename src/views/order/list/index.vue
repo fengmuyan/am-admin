@@ -65,9 +65,11 @@
             <el-date-picker
               v-model="queryForm.dateRange"
               size="small"
-              style="width: 360px"
+              style="width: 380px"
               type="datetimerange"
-              range-separator="-"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
             ></el-date-picker>
@@ -81,7 +83,7 @@
     </el-collapse-transition>
 
     <div class="table-p">
-      <el-tabs v-model="queryForm.tradestate" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="全部订单" name="-1"></el-tab-pane>
         <el-tab-pane label="待买家称重" name="10"></el-tab-pane>
         <el-tab-pane label="待买家付款" name="0"></el-tab-pane>
@@ -136,11 +138,12 @@
 </template>
 <script>
 import { getOrderList, orderToSent } from "@/api/order";
-import { encrypt, parseTime } from "@/utils";
+import { encrypt } from "@/utils";
 export default {
   data() {
     return {
       loading: false,
+      activeName: "-1",
       orderList: [],
       total: 0,
       queryForm: {
@@ -165,6 +168,10 @@ export default {
         "物流派件中",
         "交易成功",
         "交易关闭",
+        "待买家称重",
+        "",
+        "",
+        "",
         "待买家称重"
       ];
       return arr[val];
@@ -188,13 +195,12 @@ export default {
     async getList() {
       try {
         this.loading = true;
-        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
             pageResult: { content, totalSize }
           }
-        } = await getOrderList(_initParams(queryForm));
+        } = await getOrderList(this._initParams(this.queryForm));
         this.loading = false;
         if (code === 200) {
           this.orderList = content;
@@ -256,12 +262,11 @@ export default {
       });
     },
     _initParams(obj) {
-      const { tradestate, dateRange } = obj;
+      const { tradestate, dateRange, activeName } = obj;
       Object.assign(obj, {
-        tradestate: obj.tradestate === "-1" ? null : obj.tradestate,
-        paytimestart: parseTime(dateRange[0]),
-        paytimeend: parseTime(dateRange[1]),
-        dateRange: null
+        tradestate: activeName === "-1" ? null : activeName,
+        paytimestart: dateRange.length > 0 ? dateRange[0] : null,
+        paytimeend: dateRange.length > 0 ? dateRange[1] : null
       });
       return obj;
     }

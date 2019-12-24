@@ -110,7 +110,7 @@
                 <span>{{scope.row.tradestate | initTradestate}}</span>
                 <el-button
                   type="text"
-                  v-if="true"
+                  v-if="Number(scope.row.tradestate) === 10"
                   icon="el-icon-odometer"
                   @click="handelWeight(scope.row)"
                 >前往称重</el-button>
@@ -315,6 +315,10 @@ export default {
         "物流派件中",
         "交易成功",
         "交易关闭",
+        "",
+        "",
+        "",
+        "",
         "待买家称重"
       ];
       return arr[val];
