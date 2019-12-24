@@ -3,14 +3,26 @@
     <el-collapse-transition>
       <div class="form-p" v-show="formShow">
         <el-form :model="queryForm" ref="queryForm" :inline="true">
-          <el-form-item label="模糊搜索" prop="conditionParameter">
+          <el-form-item label="经销商名称" prop="username">
             <el-input
-              v-model="queryForm.conditionParameter"
-              placeholder="请输入商户编号或用户编号"
+              v-model="queryForm.username"
+              placeholder="请输入经销商名称"
               clearable
               size="small"
               style="width: 240px"
             />
+          </el-form-item>
+          <el-form-item label="是否有效" prop="isvalid">
+            <el-select
+              v-model="queryForm.isvalid"
+              placeholder="请选择"
+              clearable
+              size="small"
+              style="width: 240px"
+            >
+              <el-option label="有效" value="Y" />
+              <el-option label="无效" value="N" />
+            </el-select>
           </el-form-item>
           <el-form-item label="授权时间" prop="dateRange">
             <el-date-picker
@@ -25,8 +37,8 @@
             ></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini">重置</el-button>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -48,7 +60,7 @@
           </div>
         </el-col>
         <el-col :span="1.5">
-          <div class="icon-box icon-box-t">
+          <div class="icon-box icon-box-t" @click="handleQuery">
             <i class="el-icon-refresh"></i>
           </div>
         </el-col>
@@ -92,22 +104,22 @@
   </div>
 </template>
 <script>
-import { getToken } from "@/utils/auth";
 import { list } from "@/api/distributor";
+import { parseTime } from "@/utils";
 export default {
   data() {
     return {
       loading: false,
       formShow: true,
       distributorList: [],
+      total: 0,
       queryForm: {
+        pageNum: 1,
+        pageSize: 10,
         dateRange: [],
-        state: 2,
-        conditionParameter: undefined
-      },
-      pageNum: 1,
-      pageSize: 10,
-      total: 10
+        username: undefined,
+        isvalid: undefined
+      }
     };
   },
   created() {
@@ -117,20 +129,31 @@ export default {
     async getList() {
       try {
         this.loading = true;
+        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
-            pageResult: { content }
+            pageResult: { content, totalSize }
           }
-        } = await list();
+        } = await list(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.distributorList = content;
+          this.total = totalSize;
         }
       } catch (err) {
         this.loading = false;
         console.log(err);
       }
+    },
+    handleQuery() {
+      this.queryForm.pageNum = 1;
+      this.getList();
+    },
+    resetQuery() {
+      this.queryForm.dateRange = [];
+      this.resetForm("queryForm");
+      this.handleQuery();
     },
     goAuthorize() {
       this.$router.push({
@@ -148,6 +171,15 @@ export default {
       this.$router.push({
         path: `/dynamic/discount/${uid}-${usercode}-${discount}`
       });
+    },
+    _initParams(obj) {
+      const { dateRange } = obj;
+      Object.assign(obj, {
+        timestart: parseTime(dateRange[0]),
+        timeend: parseTime(dateRange[1]),
+        dateRange: null
+      });
+      return obj;
     }
   }
 };

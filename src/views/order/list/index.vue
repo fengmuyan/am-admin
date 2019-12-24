@@ -37,9 +37,9 @@
               <el-option label="删除" value="N" />
             </el-select>
           </el-form-item>
-          <el-form-item label="支付类型" prop="ordersource">
+          <el-form-item label="支付类型" prop="paytype">
             <el-select
-              v-model="queryForm.ordersource"
+              v-model="queryForm.paytype"
               placeholder="请选择"
               clearable
               size="small"
@@ -49,9 +49,9 @@
               <el-option label="信用额度支付" value="1" />
             </el-select>
           </el-form-item>
-          <el-form-item label="支付状态" prop="ordersource">
+          <el-form-item label="支付状态" prop="paystate">
             <el-select
-              v-model="queryForm.ordersource"
+              v-model="queryForm.paystate"
               placeholder="请选择"
               clearable
               size="small"
@@ -81,7 +81,7 @@
     </el-collapse-transition>
 
     <div class="table-p">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="queryForm.tradestate" @tab-click="handleClick">
         <el-tab-pane label="全部订单" name="-1"></el-tab-pane>
         <el-tab-pane label="待买家称重" name="10"></el-tab-pane>
         <el-tab-pane label="待买家付款" name="0"></el-tab-pane>
@@ -127,8 +127,8 @@
       <pagination
         v-show="total>0"
         :total="total"
-        :page.sync="pageNum"
-        :limit.sync="pageSize"
+        :page.sync="queryForm.pageNum"
+        :limit.sync="queryForm.pageSize"
         @pagination="getList"
       />
     </div>
@@ -136,20 +136,24 @@
 </template>
 <script>
 import { getOrderList, orderToSent } from "@/api/order";
-import { encrypt } from "@/utils";
+import { encrypt, parseTime } from "@/utils";
 export default {
   data() {
     return {
       loading: false,
-      activeName: "-1",
       orderList: [],
       total: 0,
       queryForm: {
+        pageNum: 1,
+        pageSize: 10,
+        tradestate: undefined,
+        orderno: undefined,
+        paytype: undefined,
+        ordersource: undefined,
+        paystate: undefined,
+        orderstate: undefined,
         dateRange: []
-      },
-      pageNum: 1,
-      pageSize: 10,
-      tradestate: undefined
+      }
     };
   },
   filters: {
@@ -184,17 +188,13 @@ export default {
     async getList() {
       try {
         this.loading = true;
-        const tradestate = this.activeName;
+        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
             pageResult: { content, totalSize }
           }
-        } = await getOrderList({
-          pageNum: 1,
-          pageSize: 5,
-          tradestate: tradestate === "-1" ? null : tradestate
-        });
+        } = await getOrderList(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.orderList = content;
@@ -206,7 +206,7 @@ export default {
       }
     },
     handleQuery() {
-      this.pageNum = 1;
+      this.queryForm.pageNum = 1;
       this.getList();
     },
     resetQuery() {
@@ -214,9 +214,6 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    handleExport() {},
-    handleEdit() {},
-    handleAdd() {},
     handleDetail(item) {
       const params = {
         orderno: item.orderno,
@@ -257,6 +254,16 @@ export default {
           console.log(err);
         }
       });
+    },
+    _initParams(obj) {
+      const { tradestate, dateRange } = obj;
+      Object.assign(obj, {
+        tradestate: obj.tradestate === "-1" ? null : obj.tradestate,
+        paytimestart: parseTime(dateRange[0]),
+        paytimeend: parseTime(dateRange[1]),
+        dateRange: null
+      });
+      return obj;
     }
   }
 };

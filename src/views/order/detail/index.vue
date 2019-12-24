@@ -119,26 +119,59 @@
           </el-table-column>
         </el-table>
         <div class="goodsFooter">
-          <p>
-            <b class="totalGoods">
-              共
-              <span>{{totalNum}}</span>件商品
-            </b>
-            <b>商品总价：</b>
-            <span>￥{{totalPrice}}</span>
-          </p>
-          <p>
-            <b>运费（快递）：</b>
-            <span>+￥{{this.params.carriage}}</span>
-          </p>
-          <p>
-            <b>应付总价：</b>
-            <span>￥{{this.params.needprice}}</span>
-          </p>
-          <p class="total">
-            <b>实付总价：</b>
-            <span>￥{{this.params.realprice}}</span>
-          </p>
+          <div class="footer-left">
+            <h4>物流信息</h4>
+            <p>
+              <b>收货人：</b>
+              <span>岳云鹏</span>
+            </p>
+            <p>
+              <b>联系方式：</b>
+              <span>15810664988</span>
+            </p>
+            <p>
+              <b>收获地址：</b>
+              <span>北京市宣武区牛街183号3层406北京市</span>
+            </p>
+          </div>
+          <div class="footer-left">
+            <h4>发票信息</h4>
+            <p>
+              <b>发票名称：</b>
+              <span>北京市宣武区牛街183号3层406北京市</span>
+            </p>
+            <p>
+              <b>发票类型：</b>
+              <span>增值税发票</span>
+            </p>
+            <p>
+              <b>发票内容：</b>
+              <span>北京市宣武</span>
+            </p>
+          </div>
+          <div class="footer-mid"></div>
+          <div class="footer-right">
+            <p>
+              <b class="totalGoods">
+                共
+                <span>{{totalNum}}</span>件商品
+              </b>
+              <b>商品总价：</b>
+              <span>￥{{totalPrice}}</span>
+            </p>
+            <p>
+              <b>运费（快递）：</b>
+              <span>+￥{{this.params.carriage}}</span>
+            </p>
+            <p>
+              <b>应付总价：</b>
+              <span>￥{{this.params.needprice}}</span>
+            </p>
+            <p class="total">
+              <b>实付总价：</b>
+              <span>￥{{this.params.realprice}}</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -393,7 +426,6 @@ export default {
         if (valid) {
           try {
             this.loading = true;
-
           } catch (err) {
             this.loading = false;
             console.log(err);

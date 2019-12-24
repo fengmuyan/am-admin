@@ -1,65 +1,11 @@
 <template>
   <div class="app-container">
-    <el-collapse-transition>
-      <div class="form-p" v-show="formShow">
-        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="68px">
-          <el-form-item label="用户名称" prop="userName">
-            <el-input
-              v-model="queryForm.userName"
-              placeholder="请输入用户名称"
-              clearable
-              size="small"
-              style="width: 240px"
-            />
-          </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
-            <el-input
-              v-model="queryForm.phonenumber"
-              placeholder="请输入手机号码"
-              clearable
-              size="small"
-              style="width: 240px"
-            />
-          </el-form-item>
-          <el-form-item label="创建时间">
-            <el-date-picker
-              v-model="queryForm.dateRange"
-              size="small"
-              style="width: 240px"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            ></el-date-picker>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-collapse-transition>
     <div class="table-p">
       <el-row :gutter="10" class="mb10 f-l">
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
         </el-col>
       </el-row>
-
-      <el-row :gutter="10" class="mb10 f-r icon-wrap">
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-f" @click="formShow = !formShow">
-            <i class="el-icon-zoom-in"></i>
-          </div>
-        </el-col>
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-t" @click="resetQuery">
-            <i class="el-icon-refresh"></i>
-          </div>
-        </el-col>
-      </el-row>
-
       <el-table v-loading="loading" :data="userList">
         <el-table-column label="用户编号" prop="userId" width="120" />
         <el-table-column label="用户名称" prop="userName" />
@@ -191,17 +137,8 @@ export default {
   data() {
     return {
       loading: false,
-      formShow: true,
       open: false,
       openEdit: false,
-      queryForm: {
-        dateRange: [],
-        state: 1,
-        conditionParameter: undefined
-      },
-      total: 0,
-      pageNum: 1,
-      pageSize: 10,
       total: 0,
       userList: [],
       userForm: {
@@ -275,8 +212,6 @@ export default {
       };
       this.resetForm("userForm");
     },
-    handleQuery() {},
-    resetQuery() {},
     async handleAdd() {
       this.reset();
       const { msg, data } = await getRoleList();
