@@ -61,9 +61,9 @@
               <el-option label="支付完成" value="1" />
             </el-select>
           </el-form-item>
-          <el-form-item label="成交时间" prop="dateRange">
+          <el-form-item label="成交时间">
             <el-date-picker
-              v-model="queryForm.dateRange"
+              v-model="dateRange"
               size="small"
               style="width: 380px"
               type="datetimerange"
@@ -146,6 +146,7 @@ export default {
       activeName: "-1",
       orderList: [],
       total: 0,
+      dateRange: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
@@ -154,8 +155,7 @@ export default {
         paytype: undefined,
         ordersource: undefined,
         paystate: undefined,
-        orderstate: undefined,
-        dateRange: []
+        orderstate: undefined
       }
     };
   },
@@ -195,12 +195,13 @@ export default {
     async getList() {
       try {
         this.loading = true;
+        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
             pageResult: { content, totalSize }
           }
-        } = await getOrderList(this._initParams(this.queryForm));
+        } = await getOrderList(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.orderList = content;
@@ -216,7 +217,7 @@ export default {
       this.getList();
     },
     resetQuery() {
-      this.queryForm.dateRange = [];
+      this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
     },
@@ -262,7 +263,7 @@ export default {
       });
     },
     _initParams(obj) {
-      const { tradestate, dateRange, activeName } = obj;
+      const { dateRange, activeName } = this;
       Object.assign(obj, {
         tradestate: activeName === "-1" ? null : activeName,
         paytimestart: dateRange.length > 0 ? dateRange[0] : null,

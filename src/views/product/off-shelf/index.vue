@@ -12,11 +12,12 @@
               style="width: 240px"
             />
           </el-form-item>
-          <el-form-item label="发布时间" prop="dateRange">
+          <el-form-item label="发布时间">
             <el-date-picker
-              v-model="queryForm.dateRange"
+              v-model="dateRange"
               size="small"
               style="width: 240px"
+              format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"
               type="daterange"
               range-separator="-"
@@ -37,9 +38,6 @@
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">发布商品</el-button>
         </el-col>
-        <el-col :span="1.5">
-          <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
-        </el-col>
       </el-row>
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">
@@ -48,25 +46,8 @@
           </div>
         </el-col>
         <el-col :span="1.5">
-          <div class="icon-box icon-box-s" @click="resetQuery">
+          <div class="icon-box icon-box-t" @click="resetQuery">
             <i class="el-icon-refresh"></i>
-          </div>
-        </el-col>
-        <el-col :span="1.5">
-          <div class="icon-box icon-box-t">
-            <el-dropdown trigger="click">
-              <el-button type="primary">
-                <i class="el-icon-menu"></i>
-                <i class="el-icon-arrow-down el-icon--right"></i>
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-checkbox
-                  v-for="(item,index) in initData"
-                  :key="index"
-                  v-model="item.checked"
-                >{{item.label}}</el-checkbox>
-              </el-dropdown-menu>
-            </el-dropdown>
           </div>
         </el-col>
       </el-row>
@@ -100,8 +81,8 @@
       <pagination
         v-show="total>0"
         :total="total"
-        :page.sync="pageNum"
-        :limit.sync="pageSize"
+        :page.sync="queryForm.pageNum"
+        :limit.sync="queryForm.pageSize"
         @pagination="getList"
       />
     </div>
@@ -114,17 +95,15 @@ export default {
     return {
       loading: false,
       productList: [],
-      total: 0,
       formShow: true,
-      queryForm: {
-        dateRange: [],
-        state: 2,
-        conditionParameter: undefined
-      },
-      pageNum: 1,
-      pageSize: 10,
       total: 0,
-      initData: []
+      dateRange: [],
+      queryForm: {
+        state: 2,
+        pageNum: 1,
+        pageSize: 10,
+        conditionParameter: undefined
+      }
     };
   },
   created() {
@@ -134,16 +113,13 @@ export default {
     async getList() {
       try {
         this.loading = true;
+        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
-            pageResult: { content, pageNum, pageSize, totalPages, totalSize }
+            pageResult: { content, totalSize }
           }
-        } = await getProList({
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-          ...this.queryForm
-        });
+        } = await getProList(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.productList = content;
@@ -155,25 +131,27 @@ export default {
       }
     },
     handleQuery() {
-      this.pageNum = 1;
+      this.queryForm.pageNum = 1;
       this.getList();
     },
     resetQuery() {
-      this.queryForm.dateRange = [];
+      this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    handleExport() {},
+
     handleEdit(item) {
       this.$router.push({
         path: `/publish/detail/${item.producode}-${item.uid}`
       });
     },
+
     handleAdd() {
       this.$router.push({
         path: `/product/publish`
       });
     },
+
     handleOnshelf(item) {
       this.$confirm("确定要上架吗？", "提示", {
         confirmButtonText: "确定",
@@ -235,6 +213,15 @@ export default {
         this.loading = true;
         console.log(err);
       }
+    },
+
+    _initParams(obj) {
+      const dateRange = this.dateRange;
+      Object.assign(obj, {
+        timestart: dateRange.length > 0 ? dateRange[0] : null,
+        timeend: dateRange.length > 0 ? dateRange[1] : null
+      });
+      return obj;
     }
   }
 };

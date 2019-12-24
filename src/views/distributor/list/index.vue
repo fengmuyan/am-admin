@@ -24,14 +24,14 @@
               <el-option label="无效" value="N" />
             </el-select>
           </el-form-item>
-          <el-form-item label="授权时间" prop="dateRange">
+          <el-form-item label="授权时间">
             <el-date-picker
-              v-model="queryForm.dateRange"
+              v-model="dateRange"
               size="small"
-              style="width: 240px"
+              style="width: 260px"
+              format="yyyy-MM-dd"
               value-format="yyyy-MM-dd"
               type="daterange"
-              range-separator="-"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
             ></el-date-picker>
@@ -96,8 +96,8 @@
       <pagination
         v-show="total>0"
         :total="total"
-        :page.sync="pageNum"
-        :limit.sync="pageSize"
+        :page.sync="queryForm.pageNum"
+        :limit.sync="queryForm.pageSize"
         @pagination="getList"
       />
     </div>
@@ -105,7 +105,6 @@
 </template>
 <script>
 import { list } from "@/api/distributor";
-import { parseTime } from "@/utils";
 export default {
   data() {
     return {
@@ -113,10 +112,10 @@ export default {
       formShow: true,
       distributorList: [],
       total: 0,
+      dateRange: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        dateRange: [],
         username: undefined,
         isvalid: undefined
       }
@@ -151,7 +150,7 @@ export default {
       this.getList();
     },
     resetQuery() {
-      this.queryForm.dateRange = [];
+      this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
     },
@@ -173,11 +172,10 @@ export default {
       });
     },
     _initParams(obj) {
-      const { dateRange } = obj;
+      const dateRange = this.dateRange;
       Object.assign(obj, {
-        timestart: parseTime(dateRange[0]),
-        timeend: parseTime(dateRange[1]),
-        dateRange: null
+        timestart: dateRange.length > 0 ? dateRange[0] : null,
+        timeend: dateRange.length > 0 ? dateRange[1] : null
       });
       return obj;
     }
