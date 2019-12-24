@@ -22,6 +22,7 @@
       placeholder="选择日期"
       style="width:400px"
       format="yyyy-MM-dd"
+      value-format="yyyy-MM-dd"
     ></el-date-picker>
   </el-form-item>
 </template>

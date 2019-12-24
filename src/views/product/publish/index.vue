@@ -271,6 +271,8 @@
           <el-form-item v-if="this.postSaleForm.state === '4'" label="上架时间：" prop="publishtime">
             <el-date-picker
               type="datetime"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
               v-model="postSaleForm.publishtime"
               placeholder="请输入上架时间"
               class="w-400"
@@ -303,7 +305,6 @@ import {
   setRowSpan,
   sortTableArr,
   deepClone,
-  parseTime,
   setTableSubData,
   initInvoiceSub
 } from "@/utils";
@@ -682,16 +683,12 @@ export default {
           this._subTableData();
         })
         .catch(() => {
-          this.$confirm(
-            "您有必填项未填写或格式不正确，请检查。",
-            "系统提示",
-            {
-              confirmButtonText: "确认",
-              cancelButtonText: "取消",
-              type: "warning",
-              customClass: "el-message-box-wran"
-            }
-          );
+          this.$confirm("您有必填项未填写或格式不正确，请检查。", "系统提示", {
+            confirmButtonText: "确认",
+            cancelButtonText: "取消",
+            type: "warning",
+            customClass: "el-message-box-wran"
+          });
         });
     },
 
@@ -786,10 +783,7 @@ export default {
       formData.append("province", this.storeInfo.province);
       formData.append("city", this.storeInfo.city);
       if (this.postSaleForm.state === "4") {
-        formData.append(
-          "publishtime",
-          parseTime(this.postSaleForm.publishtime, "{y}-{m}-{d} {h}:{i}:{s}")
-        );
+        formData.append("publishtime", this.postSaleForm.publishtime);
       }
       salInputData.forEach(item => {
         formData.append(item.key, item.value);

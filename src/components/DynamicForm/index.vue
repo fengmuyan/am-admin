@@ -14,7 +14,6 @@
 
 <script>
 import DynamicFormItem from "@/components/DynamicFormItem";
-import { parseTime } from "@/utils";
 
 export default {
   inheritAttrs: false,
@@ -49,9 +48,6 @@ export default {
     handleInput(val, name, type) {
       const { value, isHaveTable } = this;
       const idx = value.findIndex(item => item.name === name);
-      if (type === "4") {
-        val = parseTime(val, "{y}-{m}-{d}");
-      }
       this.dynamicForm[name] = val;
       value[idx].values = val;
       if (isHaveTable) {

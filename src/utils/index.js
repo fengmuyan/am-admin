@@ -545,17 +545,9 @@ export function setTableSubData(original, present, timeIdData) {
   const checkBoxArr = original.filter(item => item.type === "1");
   const radioArr = present.filter(item => item.type === "2");
   const inputArrVal = present
-    .filter(item => item.type === "3")
+    .filter(item => item.type === "3" || item.type === "4")
     .reduce((pre, item) => {
       Object.assign(pre, { [item.code]: item.values });
-      return pre;
-    }, {});
-  const dateArrVal = present
-    .filter(item => item.type === "4")
-    .reduce((pre, item) => {
-      Object.assign(pre, {
-        [item.code]: parseTime(item.values, "{y}-{m}-{d}")
-      });
       return pre;
     }, {});
   const subData = timeIdData.reduce((preArr, item) => {
@@ -596,7 +588,6 @@ export function setTableSubData(original, present, timeIdData) {
     preArr.push({
       saleHashData: md5(JSON.stringify({ salepro: [...dataArr] })),
       ...inputArrVal,
-      ...dateArrVal,
       ...inputItemVal
     });
     return preArr;
