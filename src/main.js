@@ -1,6 +1,4 @@
 import 'normalize.css/normalize.css'
-import './assets/styles/element-variables.scss'
-
 import '@/assets/styles/index.scss'
 import '@/assets/styles/am.scss'
 import '@/assets/styles/private.scss'

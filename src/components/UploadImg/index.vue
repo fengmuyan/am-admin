@@ -43,16 +43,15 @@ export default {
     },
 
     handleBeforeUpload(file) {
-      const typeArr = ["image/jpeg", "image/png"];
-      const isType = typeArr.includes(file.type);
-      const isLt3M = file.size / 1024 / 1024 < 3;
+      const isType = /^image\/(jpeg|png|jpg|tiff)$/.test(file.type);
+      const isLt1M = file.size / 1024 / 1024 < 2;
       if (!isType) {
         this.$message.error("请上传图片格式jpg/jpeg/png!");
       }
-      if (!isLt3M) {
-        this.$message.error("上传图片大小不能超过 3MB!");
+      if (!isLt1M) {
+        this.$message.error("上传图片大小不能超过 2MB!");
       }
-      return isType && isLt3M;
+      return isType && isLt1M;
     },
 
     upload(file) {

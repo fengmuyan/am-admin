@@ -11,7 +11,6 @@
     "preview": "node build/index.js --preview",
     "lint": "eslint --ext .js,.vue src",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
-    "new": "plop",
     "analyzer": "use_analyzer=true npm run serve"
   },
   "husky": {
@@ -27,24 +26,19 @@
   },
   "dependencies": {
     "@riophae/vue-treeselect": "0.1.0",
-    "axios": "0.18.1",
     "crypto-js": "^3.1.9-1",
-    "echarts": "4.2.1",
-    "element-ui": "2.11.1",
     "fuse.js": "3.4.4",
     "js-cookie": "2.2.0",
+    "js-md5": "^0.7.3",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",
     "screenfull": "4.2.0",
-    "vue": "2.6.10",
     "vue-count-to": "1.0.13",
     "vue-cropper": "0.4.9",
     "vue-gecode": "^0.0.6",
     "vue-quill-editor": "3.0.6",
-    "vue-router": "3.0.2",
-    "vue-splitpane": "1.0.4",
-    "vuex": "3.1.0"
+    "vue-splitpane": "1.0.4"
   },
   "devDependencies": {
     "@babel/core": "7.0.0",
@@ -68,7 +62,6 @@
     "husky": "1.3.1",
     "lint-staged": "8.1.5",
     "node-sass": "^4.9.0",
-    "plop": "2.3.0",
     "runjs": "^4.3.2",
     "sass-loader": "^7.1.0",
     "script-ext-html-webpack-plugin": "2.1.3",
