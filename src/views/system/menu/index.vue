@@ -213,8 +213,6 @@ import {
   addMenu,
   updateMenu
 } from "@/api/system/menu";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
 
 export default {

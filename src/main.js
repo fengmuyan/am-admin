@@ -1,5 +1,6 @@
 import 'normalize.css/normalize.css'
 import '@/assets/styles/index.scss'
+import '@/assets/el-style/index.css'
 import '@/assets/styles/am.scss'
 import '@/assets/styles/private.scss'
 import App from './App'
@@ -35,6 +36,7 @@ Vue.prototype.msgInfo = function (msg) {
 }
 
 // 全局组件挂载
+Vue.component('Treeselect', VueTreeselect.Treeselect)
 Vue.component('Pagination', Pagination)
 
 Vue.use(permission)

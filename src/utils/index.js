@@ -1,5 +1,4 @@
 import md5 from "js-md5";
-import CryptoJS from 'crypto-js'
 
 /**
  * @param {string} url
@@ -615,29 +614,4 @@ export function initInvoiceSub(invoice, ticketType) {
     }
   }
   return invoiceInit
-}
-
-/**
- * @desc 数据加密
- * @param {Object} word 待加密字符串或实例化的对象
- * @param {String} keyStr 加密需要用到的16位字符串的key
- * @returns {Function}
- */
-export function encrypt(word, keyStr = 'abcdefgabcdefg12') {
-  var key = CryptoJS.enc.Utf8.parse(keyStr);
-  var srcs = CryptoJS.enc.Utf8.parse(word);
-  var encrypted = CryptoJS.AES.encrypt(srcs, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
-  return encrypted.toString();
-}
-
-/**
- * @desc 数据解密
- * @param {Object} word 待解密字符串或实例化的对象
- * @param {String} keyStr 解密需要用到的16位字符串的key
- * @returns {Function}
- */
-export function decrypt(word, keyStr = 'abcdefgabcdefg12') {
-  var key = CryptoJS.enc.Utf8.parse(keyStr);
-  var decrypt = CryptoJS.AES.decrypt(word, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 });
-  return CryptoJS.enc.Utf8.stringify(decrypt).toString();
 }

@@ -138,7 +138,6 @@
 </template>
 <script>
 import { getOrderList, orderToSent } from "@/api/order";
-import { encrypt } from "@/utils";
 export default {
   data() {
     return {
@@ -222,14 +221,8 @@ export default {
       this.handleQuery();
     },
     handleDetail(item) {
-      const params = {
-        orderno: item.orderno,
-        needprice: item.needprice,
-        realprice: item.realprice,
-        carriage: item.carriage
-      };
       this.$router.push({
-        path: `/orderDetail/detail/${encrypt(JSON.stringify(params))}`
+        path: `/orderDetail/detail/${item.orderno}`
       });
     },
     handleClick() {

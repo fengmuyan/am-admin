@@ -3,7 +3,7 @@
     <div class="order-detail" :loading="loading">
       <div class="statusStep">
         <div class="statusLeft">
-          <p>订单号：{{params.orderno}}</p>
+          <p>订单号：{{orderno}}</p>
           <h3>{{tradestate | initTradestate}}</h3>
         </div>
         <ul class="statusRight">
@@ -161,15 +161,15 @@
             </p>
             <p>
               <b>运费（快递）：</b>
-              <span>+￥{{this.params.carriage}}</span>
+              <span>+￥{{233.23}}</span>
             </p>
             <p>
               <b>应付总价：</b>
-              <span>￥{{this.params.needprice}}</span>
+              <span>￥{{65.22}}</span>
             </p>
             <p class="total">
               <b>实付总价：</b>
-              <span>￥{{this.params.realprice}}</span>
+              <span>￥{{21.22}}</span>
             </p>
           </div>
         </div>
@@ -218,7 +218,6 @@
 
 <script>
 import { getOrderDetail } from "@/api/order";
-import { decrypt } from "@/utils";
 export default {
   name: "orderDetail",
   data() {
@@ -272,10 +271,10 @@ export default {
         weighedCtp: [{ validator: validateOther, trigger: ["blur", "change"] }]
       },
       goodsList: [],
-      params: {},
       tradestate: "",
       totalNum: "",
-      totalPrice: ""
+      totalPrice: "",
+      orderno: ""
     };
   },
   watch: {
@@ -341,7 +340,7 @@ export default {
     }
   },
   created() {
-    this.params = JSON.parse(decrypt(this.$route.params.code));
+    this.orderno = this.$route.params.code;
     this.getDetail();
   },
   methods: {
@@ -366,7 +365,7 @@ export default {
       try {
         this.loading = true;
         const { code, data } = await getOrderDetail({
-          orderno: this.params.orderno
+          orderno: this.orderno
         });
         this.loading = false;
         if (code === 200) {
