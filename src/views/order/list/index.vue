@@ -250,12 +250,7 @@ export default {
           this.loading = false;
           if (code === 200) {
             await this.getList();
-            ELEMENT.MessageBox({
-              message: "发货成功。",
-              type: "success",
-              duration: 5 * 1000,
-              customClass: "el-message-box-suc"
-            });
+            this.msgSuccess("发货成功");
           }
         } catch (err) {
           this.loading = false;

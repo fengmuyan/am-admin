@@ -128,7 +128,6 @@
                 </el-form-item>
                 <el-form-item label="商品底图：" prop="img_five">
                   <upload-img
-                    :limit="1"
                     @del-item="delImgItem"
                     :file="[uploadForm.img_five]"
                     ref="imgItemFive"
@@ -283,8 +282,8 @@
 <script>
 import DynamicForm from "@/components/DynamicForm";
 import DynamicTable from "@/components/DynamicTable";
-import UploadImg from "@/components/UploadImgEdit";
-import UploadVideo from "@/components/UploadVideoEdit";
+import UploadImg from "@/components/UploadImg";
+import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
 import {
   getProCate,

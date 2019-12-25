@@ -15,13 +15,13 @@
               12:23:54
             </p>
           </li>
-          <li class="line" v-if="tradestate === 10">
+          <li class="line" v-if="ac10">
             <div class="imgLine"></div>
           </li>
-          <li v-if="tradestate === 10">
+          <li v-if="ac10">
             <div class="imgIcon imgIcon1"></div>
             <p class="iconTitle">买家称重</p>
-            <p class="date">
+            <p class="date" v-if="false">
               2018-03-04
               12:23:54
             </p>
@@ -334,8 +334,10 @@ export default {
       return tradestate === 2 || tradestate === 4;
     },
     ac4() {
-      const tradestate = this.tradestate;
-      return tradestate === 4;
+      return this.tradestate === 4;
+    },
+    ac10() {
+      return this.tradestate === 10;
     }
   },
   created() {

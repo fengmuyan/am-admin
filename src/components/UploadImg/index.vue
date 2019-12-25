@@ -7,7 +7,8 @@
       :on-remove="handleRemove"
       :before-upload="handleBeforeUpload"
       list-type="picture-card"
-      :limit="limit"
+      :file-list="fileList"
+      :limit="1"
     >
       <i class="el-icon-plus"></i>
     </el-upload>
@@ -19,25 +20,26 @@ export default {
   data() {
     return {
       isShow: true,
-      uploadImg: []
+      fileList: []
     };
   },
   props: {
-    limit: {
-      type: Number,
-      required: true
+    file: {
+      type: Array,
+      default() {
+        return [];
+      }
     }
+  },
+  created() {
+    this.fileList = this.file.includes(null) ? [] : this.file;
+    this._hiddenPlus();
   },
   methods: {
     handleRemove(file, fileList) {
-      const index = this.uploadImg.findIndex(item => {
-        return file.uid === item.uid;
-      });
-      this.uploadImg.splice(index, 1);
-      if (this.uploadImg.length < this.limit) {
-        this.isShow = true;
-      }
-      this.$emit("add-item", this.uploadImg);
+      this.$emit("del-item", file.uid);
+      this.fileList = [];
+      this._hiddenPlus();
     },
 
     handleBeforeUpload(file) {
@@ -54,11 +56,17 @@ export default {
     },
 
     upload(file) {
-      this.uploadImg.push(file.file);
-      if (this.uploadImg.length === this.limit) {
+      this.fileList[0] = file.file;
+      this.$emit("add-item",this.fileList);
+      this._hiddenPlus();
+    },
+
+    _hiddenPlus() {
+      if (this.fileList.filter(item => Boolean(item)).length === 1) {
         this.isShow = false;
+      } else {
+        this.isShow = true;
       }
-      this.$emit("add-item", this.uploadImg);
     }
   }
 };

@@ -66,11 +66,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item prop="city" class="city-item">
-                <el-select
-                  v-model="baseForm.city"
-                  placeholder="请选择城市"
-                  style="width:190px"
-                >
+                <el-select v-model="baseForm.city" placeholder="请选择城市" style="width:190px">
                   <el-option
                     v-for="item in cityArr"
                     :key="item.region_id"
@@ -154,7 +150,7 @@
 </template>
 <script>
 import City from "@/utils/city.js";
-import UploadImg from "@/components/UploadImgEdit";
+import UploadImg from "@/components/UploadImg";
 import { getShopDetail, editBaseImgInfo } from "@/api/shop";
 import { deepClone } from "@/utils";
 
@@ -403,12 +399,7 @@ export default {
         if (code === 200) {
           await this.getDetail();
           this._loadingCancel();
-          ELEMENT.MessageBox({
-            message: "修改成功",
-            type: "success",
-            duration: 5 * 1000,
-            customClass: "el-message-box-suc"
-          });
+          this.msgSuccess("修改成功");
         } else {
           this._loadingCancel();
         }

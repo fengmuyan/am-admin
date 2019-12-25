@@ -51,7 +51,7 @@
               ></el-input>
             </el-form-item>
             <el-form-item label="企业营业执照" prop="business_license" class="file-item" ref="addItemBL">
-              <upload-img :limit="1" @add-item="addItemBL"></upload-img>
+              <upload-img @add-item="addItemBL"></upload-img>
             </el-form-item>
             <el-form-item label="法人姓名" prop="name">
               <el-input v-model="realAuthFrom.name" placeholder="填写企业名称" maxlength="30" clearable></el-input>
@@ -66,10 +66,10 @@
               <el-input v-model="realAuthFrom.IDCode" placeholder="法人证件号码" maxlength="25" clearable></el-input>
             </el-form-item>
             <el-form-item label="法人证件正面" prop="fr_cert_zm" class="file-item" ref="addItemFZ">
-              <upload-img :limit="1" @add-item="addItemFZ"></upload-img>
+              <upload-img @add-item="addItemFZ"></upload-img>
             </el-form-item>
             <el-form-item label="法人证件反面" prop="fr_cert_fm" class="file-item" ref="addItemFF">
-              <upload-img :limit="1" @add-item="addItemFF"></upload-img>
+              <upload-img @add-item="addItemFF"></upload-img>
             </el-form-item>
             <el-button class="submit-btn" :loading="loading" @click="toSuccess('realAuthFrom')">提 交</el-button>
           </el-form>

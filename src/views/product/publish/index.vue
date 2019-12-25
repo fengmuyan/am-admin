@@ -159,13 +159,15 @@
             <div class="b-t-g m-b-20">
               <div class="img-wrap">
                 <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
-                  <upload-img :limit="1" @add-item="addItemFir" v-model="uploadForm.img_one"></upload-img>
+                  <upload-img @add-item="addItemFir" ref="imgItemFir"></upload-img>
                 </el-form-item>
-                <el-form-item label="商品图：" prop="img_two">
-                  <upload-img :limit="3" @add-item="addItemCenter" v-model="uploadForm.img_two"></upload-img>
+                <el-form-item label="商品图：" prop="img_two" class="imgs-item">
+                  <upload-img ref="imgItemSec"></upload-img>
+                  <upload-img ref="imgItemThree"></upload-img>
+                  <upload-img ref="imgItemFour"></upload-img>
                 </el-form-item>
                 <el-form-item label="商品底图：" prop="img_five">
-                  <upload-img :limit="1" @add-item="addItemLast" v-model="uploadForm.img_five"></upload-img>
+                  <upload-img ref="imgItemFive"></upload-img>
                 </el-form-item>
               </div>
               <p class="tip-info">* 图片小于3MB通用格式。 * 图片建议上传750*750更好的展示效果。 * 商品图最多可传3张。</p>
@@ -293,7 +295,7 @@
 import DynamicForm from "@/components/DynamicForm";
 import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
-import UploadVideo from "@/components/UploadVideoEdit";
+import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
 import {
   getProCate,
@@ -499,16 +501,6 @@ export default {
     addItemFir(val) {
       this.uploadForm.img_one = val[0];
       this.$refs["uploadElement"].clearValidate();
-    },
-
-    /* 拼装提交数据 */
-    addItemLast(val) {
-      this.uploadForm.img_five = val[0];
-    },
-
-    /* 拼装提交数据 */
-    addItemCenter(val) {
-      this.uploadForm.imgCenter = val;
     },
 
     /* 拼装提交数据 */
@@ -765,11 +757,13 @@ export default {
       formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);
-      formData.append("img_one", this.uploadForm.img_one);
-      formData.append("img_two", this.uploadForm.imgCenter[0]);
-      formData.append("img_three", this.uploadForm.imgCenter[1]);
-      formData.append("img_four", this.uploadForm.imgCenter[2]);
-      formData.append("img_five", this.uploadForm.img_five);
+
+      formData.append("img_one", this.$refs.imgItemFir.fileList[0]);
+      formData.append("img_two", this.$refs.imgItemSec.fileList[0]);
+      formData.append("img_three", this.$refs.imgItemThree.fileList[0]);
+      formData.append("img_four", this.$refs.imgItemFour.fileList[0]);
+      formData.append("img_five", this.$refs.imgItemFive.fileList[0]);
+
       formData.append("proportion", this.uploadForm.proportion);
       formData.append("master_video", this.uploadForm.master_video);
       formData.append("baby_video", this.uploadForm.baby_video);
