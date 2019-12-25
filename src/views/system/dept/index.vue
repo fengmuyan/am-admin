@@ -153,7 +153,6 @@ import {
 } from "@/api/system/dept";
 
 export default {
-  components: { Treeselect },
   data() {
     return {
       // 遮罩层

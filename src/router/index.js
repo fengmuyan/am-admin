@@ -113,43 +113,22 @@ export const constantRoutes = [
   }
 ]
 
-export const realAuthRoutes = [
-  {
-    path: '/account',
-    component: Layout,
-    name: "收款账户",
-    alwaysShow: true,
-    meta: {
-      icon: "money",
-      title: "收款账户"
-    },
-    children: [
-      {
-        path: 'list',
-        component: () => import('@/views/account/list/index'),
-        name: '渠道列表',
-        meta: { title: '渠道列表', icon: 'list' }
-      }
-    ]
-  }
-]
-
 export const accountRoutes = [
   {
     path: '/account',
     component: Layout,
-    name: "收款账户",
+    name: "账户管理",
     alwaysShow: true,
     meta: {
       icon: "money",
-      title: "收款账户"
+      title: "账户管理"
     },
     children: [
       {
         path: 'list',
         component: () => import('@/views/account/list/index'),
-        name: '渠道列表',
-        meta: { title: '渠道列表', icon: 'list' }
+        name: '收款账户',
+        meta: { title: '收款账户', icon: 'list' }
       }
     ]
   }

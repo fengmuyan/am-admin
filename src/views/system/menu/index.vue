@@ -216,7 +216,7 @@ import {
 import IconSelect from "@/components/IconSelect";
 
 export default {
-  components: { Treeselect, IconSelect },
+  components: { IconSelect },
   data() {
     return {
       // 遮罩层
