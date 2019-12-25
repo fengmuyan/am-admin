@@ -58,7 +58,6 @@
             v-model="accountForm.accountname"
             placeholder="请输入收款户名"
             clearable
-            size="small"
             style="width: 300px"
           />
         </el-form-item>
@@ -68,7 +67,6 @@
             placeholder="请输入银行账号"
             clearable
             maxlength="19"
-            size="small"
             style="width: 300px"
           />
         </el-form-item>
@@ -78,7 +76,6 @@
             placeholder="请输入银行预留手机号"
             clearable
             maxlength="11"
-            size="small"
             style="width: 300px"
           />
         </el-form-item>
@@ -103,7 +100,6 @@
             v-model="accountForm.bankno"
             placeholder="由开户行带出"
             disabled
-            size="small"
             style="width: 300px"
           />
         </el-form-item>

@@ -92,6 +92,10 @@
   }
 }
 
+.el-loading-mask{
+  z-index: 8;
+}
+
 .table-p {
   min-height: 700px;
   padding: 12px;
@@ -611,6 +615,10 @@
         color: #fff;
         cursor: pointer;
       }
+      .submit-btn2{
+        @extend .submit-btn;
+        line-height: 30px;
+      }
     }
     .pwFrom {
       .submit-btn {
@@ -650,7 +658,7 @@
       }
       .submit-btn {
         margin-top: 40px;
-        line-height: 35px;
+        line-height: 30px;
         margin-bottom: 60px;
         margin-left: 110px;
       }
@@ -742,6 +750,10 @@
       }
     }
   }
+}
+
+.real-authorize{
+  @extend .register;
 }
 
 .account{

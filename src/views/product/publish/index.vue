@@ -1,5 +1,9 @@
 <template>
-  <div class="pro-publish app-container">
+  <div
+    class="pro-publish app-container"
+    v-loading="loadingAll"
+    element-loading-text="可能需要一段时间，请耐心等候！"
+  >
     <div v-if="!haveCateData" class="block top-select">
       <el-form ref="cateForm" :inline="true" :model="cateForm" label-width="100px">
         <el-form-item
@@ -280,7 +284,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <el-button type="primary" @click="formdataSubVerify" :loading="loading">发布提交</el-button>
+      <el-button type="primary" @click="formdataSubVerify">发布提交</el-button>
     </div>
     <div v-loading="loading" class="block empty-block" v-else>请先选择一个分类。</div>
   </div>
@@ -339,6 +343,7 @@ export default {
       }
     };
     return {
+      loadingAll: false,
       loading: false, //
       haveCateData: false, //
       proOptions: [],
@@ -695,9 +700,9 @@ export default {
     /* 拼装提交数据 */
     async _subTableData() {
       try {
-        this.loading = true;
+        this.loadingAll = true;
         const { code, msg } = await proPublishSub(this._initFormdataSub());
-        this.loading = false;
+        this.loadingAll = false;
         if (code === 200) {
           ELEMENT.MessageBox({
             message: "商品发布成功",
@@ -710,7 +715,7 @@ export default {
           }, 1000);
         }
       } catch (err) {
-        this.loading = false;
+        this.loadingAll = false;
         console.log(err);
       }
     },

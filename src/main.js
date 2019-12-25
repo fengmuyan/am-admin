@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import 'normalize.css/normalize.css'
 import './assets/styles/element-variables.scss'
 

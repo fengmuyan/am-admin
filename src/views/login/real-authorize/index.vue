@@ -1,5 +1,5 @@
 <template>
-  <div class="register">
+  <div class="real-authorize">
     <div class="header-top">
       <div class="center-wrap">
         <h2>

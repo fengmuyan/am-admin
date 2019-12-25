@@ -96,7 +96,7 @@
                   ></el-input>
                 </el-form-item>
               </div>
-              <el-button class="submit-btn" :loading="loading" @click="toRealAuthFrom('pwFrom')">下一步</el-button>
+              <el-button class="submit-btn2" :loading="loading" @click="toRealAuthFrom('pwFrom')">下一步</el-button>
             </el-form>
           </div>
           <div v-if="actItem === 2" class="block codeForm infoForm">

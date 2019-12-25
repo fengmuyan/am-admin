@@ -233,6 +233,7 @@ export default {
       });
     },
     handleClick() {
+      this.queryForm.pageNum = 1;
       this.getList();
     },
     handleSent(item) {
