@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import echartTheme from '@/utils/echart.js'
 import resize from './mixins/resize'
 
 export default {
@@ -40,7 +41,7 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
+      this.chart = echarts.init(this.$el, echartTheme)
       this.chart.setOption({
         tooltip: {
           trigger: 'item',

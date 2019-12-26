@@ -63,13 +63,13 @@ export default {
       this.chart.setOption({
         xAxis: {
           data: [
-            "12-01",
-            "12-02",
-            "12-03",
-            "12-04",
-            "12-05",
-            "12-06",
-            "今日"
+            "周一",
+            "周二",
+            "周三",
+            "周四",
+            "周五",
+            "周六",
+            "周日"
           ],
           boundaryGap: false,
           axisTick: {
