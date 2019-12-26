@@ -142,14 +142,6 @@ export default {
 <style lang="scss" scoped>
 .header-search {
   font-size: 0 !important;
-
-  .search-icon {
-    cursor: pointer;
-    font-size: 18px;
-    vertical-align: middle;
-    color: #fff;
-  }
-
   .header-search-select {
     font-size: 18px;
     transition: width 0.2s;
@@ -166,7 +158,7 @@ export default {
       padding-left: 5px;
       padding-right: 0;
       box-shadow: none !important;
-      border-bottom: 1px solid #d9d9d9;
+      border: 1px solid #d9d9d9;
       vertical-align: middle;
       border-radius:5px; 
     }

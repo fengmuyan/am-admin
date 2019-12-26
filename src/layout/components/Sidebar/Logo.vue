@@ -28,8 +28,8 @@ export default {
   },
   data() {
     return {
-      title: "",
-      logo: ""
+      title: "商户管理平台",
+      logo: require('@/assets/image/logo.png')
     };
   }
 };
@@ -50,18 +50,17 @@ export default {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: #367fa9;
-  font-size: 30px;
-  text-align: center;
+  background: #626788;
   overflow: hidden;
+  padding-left: 12px;
 
   & .sidebar-logo-link {
     height: 100%;
     width: 100%;
 
     & .sidebar-logo {
-      width: 32px;
-      height: 32px;
+      width: 33px;
+      height: 33px;
       vertical-align: middle;
       margin-right: 12px;
     }
@@ -72,7 +71,7 @@ export default {
       color: #fff;
       font-weight: normal;
       line-height: 50px;
-      font-size: 24px;
+      font-size: 16px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
       vertical-align: middle;
     }

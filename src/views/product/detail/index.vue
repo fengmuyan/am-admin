@@ -351,19 +351,19 @@ export default {
       cmdtclassname: "", //页面显示的商品类目
       producode: "", //商品编码（修改需要提交）
       uid: "", //商品uid（修改需要提交）
-      storeInfo: {},
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
       saleData: [], //销售属性原始数据
       saleDataInit: [], //销售属性处理后的数据（供动态表单使用）
       cmdtProductPrices: [], //动态表格原始数据
       itemIdArr: [], //处理后的销售属性（供动态表格使用）
-      tableArr: [], //
+      tableArr: [], // 处理数据增加itemId（供动态表格使用）
       tableIsShow: false, //动态表格显示与否开关
       homePageClasses: [], // 产品展示分类关联数组
       productImgs: [], //关联图片数组（用于图片提交）
       productVideos: [], //关联视频数组（用于视频提交）
       state: "", //上架状态初始值（判断哪些状态显示）
+      storeInfo: {}, //地址信息
       cateForm: {
         cateData: "",
         cateInputArr: []
@@ -471,7 +471,7 @@ export default {
         deliverymode: [
           { required: true, message: "请输入发货方式", trigger: "blur" }
         ]
-      } //服务表单验证
+      } //物流信息表单验证
     };
   },
   async created() {

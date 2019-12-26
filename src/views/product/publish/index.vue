@@ -44,7 +44,7 @@
     <div v-if="haveCateData">
       <div class="block">
         <h4>当前类目：{{cateDataText}}</h4>
-        <el-button @click="switchCate">切换类目</el-button>
+        <el-button @click="haveCateData = false">切换类目</el-button>
       </div>
       <div class="block">
         <h4>自然属性</h4>
@@ -324,8 +324,8 @@ export default {
     Editor
   },
   data() {
-    let patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-    let validateNetWeight = (rule, value, callback) => {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    const validateNetWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else {
@@ -335,7 +335,7 @@ export default {
         callback();
       }
     };
-    let validateGrossWeight = (rule, value, callback) => {
+    const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
       } else if (!(value > this.valuationForm.netweight)) {
@@ -345,9 +345,11 @@ export default {
       }
     };
     return {
-      loadingAll: false,
+      loadingAll: false,//
       loading: false, //
       haveCateData: false, //
+      homePageClasses: [],//分类类目数组
+      cateDataText: "", //显示的分类类目
       proOptions: [],
       proOptionsInit: [],
       naturalData: [],
@@ -356,28 +358,26 @@ export default {
       saleDataInit: [],
       itemIdArr: [],
       tableArr: [],
-      tableIsShow: false,
-      homePageClasses: [],
-      cateDataText: "",
-      cversion: "",
-      storeInfo: {},
+      tableIsShow: false,  
+      cversion: "", //版本号商品提交发布使用
+      storeInfo: {}, //地址信息
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
         grossweight: "",
         netweight: "",
         weightunit: "公斤"
-      },
+      }, //商品类目表单
       postSaleForm: {
         invoice: "0",
         state: "3",
         publishtime: "",
         ticketType: ["1"]
-      },
+      }, //销售属性中计价表单
       cateForm: {
         cateData: "",
         cateInputArr: []
-      },
+      }, //物流信息模块
       uploadForm: {
         img_one: "",
         img_two: "",
@@ -392,20 +392,20 @@ export default {
         webDesc: "",
         phoneDesc: "",
         imgCenter: []
-      },
+      }, //上传表单
       titleForm: {
         produname: "",
         title: "",
         homepageclass: "10000004"
-      },
+      }, //自然属性中的标题表单
       payForm: {
         paymethod: "1",
         stockmethod: "1"
-      },
+      }, //支付信息表单
       logisticsForm: {
         deliverymode: "1",
         issupsubstitute: false
-      },
+      }, //物流信息表单
       valuationRules: {
         isdiscount: [
           { required: true, message: "请输入折扣方式", trigger: "blur" }
@@ -424,7 +424,7 @@ export default {
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
         ]
-      },
+      }, //销售属性中计价表单验证
       postSaleFormRules: {
         state: [{ required: true, message: "请输入上架状态", trigger: "blur" }],
         publishtime: [
@@ -436,7 +436,7 @@ export default {
         ticketType: [
           { required: true, message: "请至少选择一项", trigger: "change" }
         ]
-      },
+      }, //物流表单验证
       uploadFormRules: {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
@@ -447,7 +447,7 @@ export default {
         phoneDesc: [
           { required: true, message: "请输入手机端描述", trigger: "blur" }
         ]
-      },
+      }, //上传表单验证
       titleFormRules: {
         produname: [
           { required: true, message: "请输入商品名称", trigger: "blur" }
@@ -456,7 +456,7 @@ export default {
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ]
-      },
+      }, //自然属性中的标题表单验证
       payFormRules: {
         paymethod: [
           { required: true, message: "请输入付款方式", trigger: "blur" }
@@ -464,91 +464,45 @@ export default {
         stockmethod: [
           { required: true, message: "请输入库存计数方式", trigger: "blur" }
         ]
-      },
+      }, //支付信息表单验证
       logisticsFormRules: {
         deliverymode: [
           { required: true, message: "请输入发货方式", trigger: "blur" }
         ]
-      }
+      } //物流信息表单验证
     };
   },
-  async created() {
-    try {
-      const [
-        {
-          data: {
-            cmdtClassTree: { children }
-          },
-          code: code1
-        },
-        {
-          data: { homePageClasses },
-          code: code2
-        }
-      ] = await Promise.all([getProCate({}), getHomePageClass()]);
-      if (code1 === 200) {
-        this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
-      }
-      if (code2 === 200) {
-        this.homePageClasses = homePageClasses;
-      }
-    } catch (err) {
-      console.log(err);
-    }
+  created() {
+    this.getHomePageClass();
   },
   methods: {
-    /* 拼装提交数据 */
-    addItemFir(val) {
-      this.uploadForm.img_one = val[0];
-      this.$refs["uploadElement"].clearValidate();
-    },
-
-    /* 拼装提交数据 */
-    addVideoFir(val) {
-      this.uploadForm.master_video = val.video;
-      this.uploadForm.zduration = val.duration ? val.duration : 0;
-    },
-
-    /* 拼装提交数据 */
-    addVideoSec(val) {
-      this.uploadForm.baby_video = val.video;
-      this.uploadForm.fduration = val.duration ? val.duration : 0;
-    },
-
-    /* 拼装提交数据 */
-    webEditor() {
-      this.$refs["webDesc"].clearValidate();
-    },
-
-    /* 拼装提交数据 */
-    phoneEditor() {
-      this.$refs["phoneDesc"].clearValidate();
-    },
-
-    /* 拼装提交数据 */
-    switchCate() {
-      this.haveCateData = false;
-    },
-
-    /* 处理成动态表格数据 */
-    tableShow(val) {
-      if (val === true) {
-        this.tableIsShow = false;
-        const data = deepClone(this.saleDataInit).filter(
-          item => item.type === "1"
-        );
-        this.tableArr = InitTableData(deInitFormData(data));
-        this.itemIdArr = setRowSpan(sortTableArr(toCombination(this.tableArr)));
-        this.$nextTick(() => {
-          this.tableIsShow = true;
-        });
-      } else {
-        this.tableData = [];
-        this.tableIsShow = false;
+    /* 获取类目列表和产品分类*/
+    async getHomePageClass() {
+      try {
+        const [
+          {
+            data: {
+              cmdtClassTree: { children }
+            },
+            code: code1
+          },
+          {
+            data: { homePageClasses },
+            code: code2
+          }
+        ] = await Promise.all([getProCate({}), getHomePageClass()]);
+        if (code1 === 200) {
+          this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
+        }
+        if (code2 === 200) {
+          this.homePageClasses = homePageClasses;
+        }
+      } catch (err) {
+        console.log(err);
       }
     },
 
-    /* 拼装提交数据 */
+    /* 类目搜索过滤 */
     dataFilter(node, keyword) {
       if (
         node.data.enlabel.includes(keyword) ||
@@ -561,13 +515,13 @@ export default {
       }
     },
 
-    /* 拼装提交数据 */
+    /* 选择项有便签项的显示标签项 */
     cateChange(val) {
       this.cateForm.cateInputArr = [];
       this._selectCode(this.proOptionsInit, val);
     },
 
-    /* 拼装提交数据 */
+    /* 选择类目后提交数据返回商品初始数据 */
     proPublish(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -604,7 +558,53 @@ export default {
       });
     },
 
-    /* 拼装提交数据 */
+    /* 添加商品主图 */
+    addItemFir(val) {
+      this.uploadForm.img_one = val[0];
+      this.$refs["uploadElement"].clearValidate();
+    },
+
+    /* 添加商品主视频*/
+    addVideoFir(val) {
+      this.uploadForm.master_video = val.video;
+      this.uploadForm.zduration = val.duration ? val.duration : 0;
+    },
+
+    /* 添加商品详情页视频 */
+    addVideoSec(val) {
+      this.uploadForm.baby_video = val.video;
+      this.uploadForm.fduration = val.duration ? val.duration : 0;
+    },
+
+    /* 电脑端富文本输入清除验证 */
+    webEditor() {
+      this.$refs["webDesc"].clearValidate();
+    },
+
+    /* 手机端富文本输入清除验证 */
+    phoneEditor() {
+      this.$refs["phoneDesc"].clearValidate();
+    },
+
+    /* 处理成动态表格数据 */
+    tableShow(val) {
+      if (val === true) {
+        this.tableIsShow = false;
+        const data = deepClone(this.saleDataInit).filter(
+          item => item.type === "1"
+        );
+        this.tableArr = InitTableData(deInitFormData(data));
+        this.itemIdArr = setRowSpan(sortTableArr(toCombination(this.tableArr)));
+        this.$nextTick(() => {
+          this.tableIsShow = true;
+        });
+      } else {
+        this.tableData = [];
+        this.tableIsShow = false;
+      }
+    },
+
+    /* 商品发布前的验证 */
     formdataSubVerify() {
       const p1 = new Promise((resolve, reject) => {
         this.$refs["titleForm"].validate(valid => {
@@ -689,7 +689,7 @@ export default {
         });
     },
 
-    /* 拼装提交数据 */
+    /* 商品发布验证完成后提交 */
     async _subTableData() {
       try {
         this.loadingAll = true;
@@ -712,7 +712,7 @@ export default {
       }
     },
 
-    /* 拼装提交数据 */
+    /* 拼装商品发布提交数据 */
     _initFormdataSub() {
       const tags = this.cateForm.cateInputArr.reduce((pre, item) => {
         Object.assign(pre, { [item.label]: item.inputVal });
@@ -790,7 +790,7 @@ export default {
       return formData;
     },
 
-    /* 拼装提交数据 */
+    /* 递归查找标签项赋值便签表单，做验证使用 */
     _selectCode(arr, val) {
       for (let i = 0; i < arr.length; i++) {
         if (arr[i].value === val && arr[i].tagArr) {
@@ -803,19 +803,7 @@ export default {
       }
     },
 
-    /* 拼装提交数据 */
-    _delEmptyVal(arr) {
-      return arr.map(item => {
-        if (item.children && item.children.length === 0) {
-          return Object.assign(item, { children: null });
-        } else {
-          this._delEmptyVal(item.children);
-          return item;
-        }
-      });
-    },
-
-    /* 拼装提交数据 */
+    /* 递归查找类目中的标签项添加标签数组 */
     _initDataArr(arr) {
       return arr.map(item => {
         const idx =
@@ -833,6 +821,18 @@ export default {
           return Object.assign(item, { tagArr, children: null });
         } else {
           this._initDataArr(item.children);
+          return item;
+        }
+      });
+    },
+
+    /* children数组为空赋值null*/
+    _delEmptyVal(arr) {
+      return arr.map(item => {
+        if (item.children && item.children.length === 0) {
+          return Object.assign(item, { children: null });
+        } else {
+          this._delEmptyVal(item.children);
           return item;
         }
       });

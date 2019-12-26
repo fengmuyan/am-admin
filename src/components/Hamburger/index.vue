@@ -44,9 +44,4 @@ export default {
   flex-direction: row;
   align-items: center;
 }
-.el-icon-s-fold,
-.el-icon-s-unfold {
-  color: #fff;
-  font-size: 22px;
-}
 </style>
