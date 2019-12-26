@@ -179,7 +179,20 @@ export const dynamicRoutes = [
         meta: { title: '调整折扣', icon: '' }
       }
     ]
-  }
+  },
+  {
+    path: '/cash',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'withdrawal/:code',
+        component: () => import('@/views/account/verify-withdrawal/index'),
+        name: '余额提现',
+        meta: { title: '余额提现', icon: '' }
+      }
+    ]
+  },
 ]
 
 export default new VueRouter({

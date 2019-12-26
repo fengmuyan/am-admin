@@ -3,16 +3,43 @@
     <div class="table-p">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
         <el-table-column label="通道编号" prop="channelcode" width="100" />
-        <el-table-column label="通道名称" prop="channelname" width="180" />
-        <el-table-column label="账户余额" prop="channelname" width="180" />
+        <el-table-column label="通道名称" prop="channelname" :show-overflow-tooltip="true" width="180" />
+        <el-table-column label="收款户名" prop="accountname" width="220" />
+        <el-table-column label="银行账号" prop="bankaccount" width="220" />
+        <el-table-column label="开户行名称" prop="bankname" width="220" />
+        <el-table-column label="开户行行号" prop="bankno" width="150" />
+        <el-table-column label="预留手机号" prop="mobilephone" width="150" />
+        <el-table-column label="注册类型" prop="registertype" width="100">
+          <template slot-scope="scope">{{registertypeArr[Number(scope.row.registertype)]}}</template>
+        </el-table-column>
+        <el-table-column label="开通状态" prop="merstate" width="150">
+          <template
+            slot-scope="scope"
+          >{{scope.row.merstate === null?"未开户":merstateArr[Number(scope.row.merstate)]}}</template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
               size="mini"
               type="text"
+              v-if="isShowBtn('add',scope.row.merstate)"
               icon="el-icon-plus"
               @click="handleAdd(scope.row)"
-            >余额提现</el-button>
+            >开通账户</el-button>
+            <el-button
+              v-if="isShowBtn('edit',scope.row.merstate)"
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleEdit(scope.row)"
+            >修改</el-button>
+            <el-button
+              v-if="isShowBtn('verify',scope.row.merstate)"
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleVerify(scope.row)"
+            >验证</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -287,15 +314,12 @@ export default {
       });
       this.createOpen = true;
     },
-
     cancel() {
       this.createOpen = false;
     },
-
     cancelVerify() {
       this.verifyOpen = false;
     },
-
     async getList() {
       this.bankArr = bankArr;
       this.loading = true;
@@ -310,13 +334,11 @@ export default {
         console.log(err);
       }
     },
-
     bankChange(val) {
       this.accountForm.bankno = this.bankArr.find(item => {
         return item.bank === val;
       }).bankNum;
     },
-
     createAccount(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -342,7 +364,6 @@ export default {
         }
       });
     },
-
     handleEdit(item) {
       Object.assign(this.accountForm, {
         channelcode: item.channelcode,
@@ -355,7 +376,6 @@ export default {
       this.registertype = item.cardtype;
       this.createOpen = true;
     },
-
     async handleVerify(item) {
       Object.assign(this.accountFormData, {
         channelcode: item.channelcode,
@@ -369,7 +389,6 @@ export default {
       Object.assign(this.verifyForm, { vercode: "", amount: "" });
       this.verifyOpen = true;
     },
-
     async verifyConfirm(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {

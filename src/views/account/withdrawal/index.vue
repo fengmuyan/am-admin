@@ -2,15 +2,16 @@
   <div class="account app-container">
     <div class="table-p">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
-        <el-table-column label="通道编号" prop="channelcode" width="100" />
-        <el-table-column label="通道名称" prop="channelname" width="180" />
+        <el-table-column label="通道编号" prop="channelcode" />
+        <el-table-column label="收款账户" prop="channelname" />
+        <el-table-column label="账户余额" prop="channelname" />
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
               size="mini"
               type="text"
               icon="el-icon-edit"
-              @click="handleVerify(scope.row)"
+              @click="handleWithdrawal(scope.row)"
             >余额提现</el-button>
           </template>
         </el-table-column>
@@ -31,12 +32,16 @@ export default {
   data() {
     return {
       loading: false,
-      passList: []
+      passList: [{}]
     };
   },
   created() {},
   methods: {
-    handleVerify(item) {}
+    handleWithdrawal(item) {
+      this.$router.push({
+        path: `/cash/withdrawal/53635`
+      });
+    }
   }
 };
 </script>

@@ -3,22 +3,22 @@
 </template>
 
 <script>
-import resize from './mixins/resize'
+import resize from "./mixins/resize";
 
 export default {
   mixins: [resize],
   props: {
     className: {
       type: String,
-      default: 'chart'
+      default: "chart"
     },
     width: {
       type: String,
-      default: '100%'
+      default: "100%"
     },
     height: {
       type: String,
-      default: '350px'
+      default: "350px"
     },
     autoResize: {
       type: Boolean,
@@ -32,37 +32,45 @@ export default {
   data() {
     return {
       chart: null
-    }
+    };
   },
   watch: {
     chartData: {
       deep: true,
       handler(val) {
-        this.setOptions(val)
+        this.setOptions(val);
       }
     }
   },
   mounted() {
     this.$nextTick(() => {
-      this.initChart()
-    })
+      this.initChart();
+    });
   },
   beforeDestroy() {
     if (!this.chart) {
-      return
+      return;
     }
-    this.chart.dispose()
-    this.chart = null
+    this.chart.dispose();
+    this.chart = null;
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
-      this.setOptions(this.chartData)
+      this.chart = echarts.init(this.$el, "macarons");
+      this.setOptions(this.chartData);
     },
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: [
+            "12-01",
+            "12-02",
+            "12-03",
+            "12-04",
+            "12-05",
+            "12-06",
+            "今日"
+          ],
           boundaryGap: false,
           axisTick: {
             show: false
@@ -76,9 +84,9 @@ export default {
           containLabel: true
         },
         tooltip: {
-          trigger: 'axis',
+          trigger: "axis",
           axisPointer: {
-            type: 'cross'
+            type: "cross"
           },
           padding: [5, 10]
         },
@@ -88,46 +96,49 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ["上周数据", "本周数据"]
         },
-        series: [{
-          name: 'expected', itemStyle: {
-            normal: {
-              color: '#FF005A',
-              lineStyle: {
-                color: '#FF005A',
-                width: 2
+        series: [
+          {
+            name: "上周数据",
+            itemStyle: {
+              normal: {
+                color: "#FF005A",
+                lineStyle: {
+                  color: "#FF005A",
+                  width: 2
+                }
               }
-            }
+            },
+            smooth: true,
+            type: "line",
+            data: expectedData,
+            animationDuration: 2800,
+            animationEasing: "cubicInOut"
           },
-          smooth: true,
-          type: 'line',
-          data: expectedData,
-          animationDuration: 2800,
-          animationEasing: 'cubicInOut'
-        },
-        {
-          name: 'actual',
-          smooth: true,
-          type: 'line',
-          itemStyle: {
-            normal: {
-              color: '#3888fa',
-              lineStyle: {
-                color: '#3888fa',
-                width: 2
-              },
-              areaStyle: {
-                color: '#f3f8ff'
+          {
+            name: "本周数据",
+            smooth: true,
+            type: "line",
+            itemStyle: {
+              normal: {
+                color: "#3888fa",
+                lineStyle: {
+                  color: "#3888fa",
+                  width: 2
+                },
+                areaStyle: {
+                  color: "#f3f8ff"
+                }
               }
-            }
-          },
-          data: actualData,
-          animationDuration: 2800,
-          animationEasing: 'quadraticOut'
-        }]
-      })
+            },
+            data: actualData,
+            animationDuration: 2800,
+            animationEasing: "quadraticOut"
+          }
+        ]
+      });
     }
   }
-}
+};
 </script>
