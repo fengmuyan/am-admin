@@ -9,14 +9,17 @@
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <div>当日信用额度占比</div>
+          <referer-chart />
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="8">
+        <div class="chart-wrapper">
           <pie-chart />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <div>总体信用额度使用率</div>
-          <pie-chart />
+          <pie-chart2 />
         </div>
       </el-col>
     </el-row>
@@ -27,6 +30,8 @@
 import PanelGroup from "./dashboard/PanelGroup";
 import LineChart from "./dashboard/LineChart";
 import PieChart from "./dashboard/PieChart";
+import PieChart2 from "./dashboard/PieChart2";
+import RefererChart from "./dashboard/RefererChart";
 
 const lineChartData = {
   newVisitis: {
@@ -52,7 +57,9 @@ export default {
   components: {
     PanelGroup,
     LineChart,
-    PieChart
+    PieChart,
+    PieChart2,
+    RefererChart
   },
   data() {
     return {

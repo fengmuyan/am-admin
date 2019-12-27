@@ -49,9 +49,6 @@
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="goAuthorize">前往授权</el-button>
         </el-col>
-        <el-col :span="1.5">
-          <el-button type="warning" icon="el-icon-download" size="mini">导出</el-button>
-        </el-col>
       </el-row>
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">

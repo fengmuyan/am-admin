@@ -33,7 +33,7 @@
           </tr>
         </tbody>
       </table>
-      <p class="tip-info-table">* 表格中的内容都为必填项，现价、原价和库存为非负整数或保留两位小数。</p>
+      <p class="tip-info-table">* 表格中的内容都为必填项，现价、原价为非负整数或保留两位小数。 *库存必须为整数。</p>
     </div>
   </div>
 </template>
@@ -119,7 +119,7 @@ export default {
     _validat(validateType, item, val) {
       if (validateType === "num") {
         const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-        if (!patter.test(val)) {
+        if (val === "" || !patter.test(val)) {
           item.validate = true;
           this.allRight = false;
         } else {
@@ -127,6 +127,14 @@ export default {
         }
       } else if (validateType === "text") {
         if (val === "") {
+          item.validate = true;
+          this.allRight = false;
+        } else {
+          item.validate = false;
+        }
+      } else if (validateType === "integer") {
+        const patter = /^\+?[1-9]\d*$/;
+        if (val === "" || !patter.test(val)) {
           item.validate = true;
           this.allRight = false;
         } else {
@@ -170,7 +178,7 @@ export default {
         }
       }
     }
-    .tip-info-table{
+    .tip-info-table {
       color: #ccc;
       font-size: 14px;
       height: 20px;

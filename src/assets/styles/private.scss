@@ -216,7 +216,7 @@
   .el-select {
     .el-input--small {
       .el-input__icon {
-        line-height: 37px;
+        line-height: 42px;
       }
     }
   }
@@ -1414,7 +1414,7 @@
             color: black;
           }
           p {
-            line-height: 44px;
+            line-height: 22px;
             color: #999999;
           }
         }
@@ -1429,6 +1429,7 @@
           border-right: 1px solid #ececec;
           padding-right: 25px;
           max-width: 600px;
+          min-width: 300px;
           height: 85%;
           h4 {
             height: 50px;
@@ -1498,5 +1499,10 @@
         font-size: 18px;
       }
     }
+  }
+  .tip{
+    color: #ccc;
+    font-size: 14px;
+    height: 25px;
   }
 }

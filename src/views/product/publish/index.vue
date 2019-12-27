@@ -680,7 +680,7 @@ export default {
           this._subTableData();
         })
         .catch(() => {
-          this.$confirm("您有必填项未填写或格式不正确，请检查。", "系统提示", {
+          this.$confirm("必填项未填写或格式不正确，请检查。", "系统提示", {
             confirmButtonText: "确认",
             cancelButtonText: "取消",
             type: "warning",
@@ -703,7 +703,7 @@ export default {
             customClass: "el-message-box-suc"
           });
           setTimeout(() => {
-            this.$router.go(-1);
+            this.$router.push({path:"/product/on-shelf"})
           }, 1000);
         }
       } catch (err) {

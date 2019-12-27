@@ -85,30 +85,36 @@
     <div class="table-p">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="全部订单" name="-1"></el-tab-pane>
-        <el-tab-pane label="待买家称重" name="10"></el-tab-pane>
-        <el-tab-pane label="待买家付款" name="0"></el-tab-pane>
-        <el-tab-pane label="代发货" name="1"></el-tab-pane>
+        <el-tab-pane label="待称重" name="10"></el-tab-pane>
+        <el-tab-pane label="待付款" name="0"></el-tab-pane>
+        <el-tab-pane label="待发货" name="1"></el-tab-pane>
         <el-tab-pane label="已发货" name="2"></el-tab-pane>
-        <el-tab-pane label="已成功订单" name="4"></el-tab-pane>
-        <el-tab-pane label="已取消订单" name="5"></el-tab-pane>
+        <el-tab-pane label="已成功" name="4"></el-tab-pane>
+        <el-tab-pane label="已取消" name="5"></el-tab-pane>
       </el-tabs>
       <el-table style="width: 100%" v-loading="loading" :data="orderList">
         <el-table-column label="订单号" prop="orderno" width="200" />
-        <el-table-column label="创建时间" prop="createtime" width="180" />
-        <el-table-column label="订单金额" prop="orderamount" />
+        <el-table-column label="创建时间" sortable prop="createtime" width="180" />
+        <el-table-column label="订单金额" sortable prop="orderamount" />
         <el-table-column label="用户编号" prop="usercode" />
         <el-table-column label="应收款" prop="needprice" />
         <el-table-column label="实收款" prop="realprice" />
+        <el-table-column label="发货类型" prop="delivertype">
+          <template slot-scope="scope">{{scope.row.delivertype | inDelivertype }}</template>
+        </el-table-column>
+        <el-table-column label="发票类型" prop="invocetype">
+          <template slot-scope="scope">{{scope.row.invocetype | initInvocetype }}</template>
+        </el-table-column>
         <el-table-column label="支付状态" prop="paystate">
           <template slot-scope="scope">{{scope.row.paystate | initPaystate }}</template>
         </el-table-column>
-        <el-table-column label="交易状态" prop="tradestate">
-          <template slot-scope="scope">{{scope.row.tradestate | initTradestate}}</template>
-        </el-table-column>
-        <el-table-column label="订单状态" prop="orderstate" width="120">
+        <el-table-column label="订单状态" prop="orderstate">
           <template slot-scope="scope">{{scope.row.orderstate | initOrderstate}}</template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="交易状态" prop="tradestate" width="150">
+          <template slot-scope="scope">{{scope.row.tradestate | initTradestate}}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="180">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -161,17 +167,18 @@ export default {
   filters: {
     initTradestate(val) {
       const arr = [
-        "待买家付款",
-        "待卖家发货",
-        "卖家已发货",
+        "待付款",
+        "待发货",
+        "已发货",
         "物流派件中",
         "交易成功",
         "交易关闭",
-        "待买家称重",
         "",
         "",
         "",
-        "待买家称重"
+        "",
+        "待称重",
+        "已称重，待付款"
       ];
       return arr[val];
     },
@@ -185,6 +192,14 @@ export default {
       } else if (val === "N") {
         return "删除";
       }
+    },
+    inDelivertype(val) {
+      const arr = ["自提", "代发"];
+      return arr[val];
+    },
+    initInvocetype(val) {
+      const arr = ["不开发票", "开发票"];
+      return arr[val];
     }
   },
   created() {

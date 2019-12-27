@@ -26,3 +26,12 @@ export function getOrderDetail(data) {
     data
   })
 }
+
+// 商品称重
+export function orderWeight(data) {
+  return request({
+    url: '/god/order/weigh',
+    method: 'post',
+    data
+  })
+}

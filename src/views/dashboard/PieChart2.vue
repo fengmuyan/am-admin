@@ -44,7 +44,7 @@ export default {
       this.chart = echarts.init(this.$el, echartTheme);
       this.chart.setOption({
         title: {
-          text: "当日信用额度占比",
+          text: "总体信用额度使用率"
         },
         tooltip: {
           trigger: "item",
@@ -57,14 +57,14 @@ export default {
         },
         series: [
           {
-            name: "WEEKLY WRITE ARTICLES",
+            name: "",
             type: "pie",
             roseType: "radius",
             radius: [15, 95],
             center: ["50%", "38%"],
             data: [
-              { value: 320, name: "信用额度付款" },
-              { value: 240, name: "资金付款" }
+              { value: 220, name: "信用额度付款" },
+              { value: 85, name: "资金付款" }
             ],
             animationEasing: "cubicInOut",
             animationDuration: 2600

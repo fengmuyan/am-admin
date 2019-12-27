@@ -44,30 +44,46 @@ export default {
       this.chart = echarts.init(this.$el, echartTheme);
       this.chart.setOption({
         title: {
-          text: "当日信用额度占比",
+          text: "当日订单状态",
+          x: "center"
         },
         tooltip: {
           trigger: "item",
           formatter: "{a} <br/>{b} : {c} ({d}%)"
         },
         legend: {
-          left: "center",
-          bottom: "30",
-          data: ["信用额度付款", "资金付款"]
+          orient: "vertical",
+          left: "left",
+          data: [
+            "待称重",
+            "待付款",
+            "待商家发货",
+            "已发货",
+            "已完成",
+            "已取消"
+          ]
         },
         series: [
           {
-            name: "WEEKLY WRITE ARTICLES",
+            name: "订单状态",
             type: "pie",
-            roseType: "radius",
-            radius: [15, 95],
-            center: ["50%", "38%"],
+            radius: "55%",
+            center: ["50%", "60%"],
             data: [
-              { value: 320, name: "信用额度付款" },
-              { value: 240, name: "资金付款" }
+              { value: 335, name: "待称重" },
+              { value: 310, name: "待付款" },
+              { value: 234, name: "待商家发货" },
+              { value: 135, name: "已发货" },
+              { value: 1548, name: "已完成" },
+              { value: 233, name: "已取消" },
             ],
-            animationEasing: "cubicInOut",
-            animationDuration: 2600
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
           }
         ]
       });

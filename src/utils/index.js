@@ -351,7 +351,7 @@ export function toCombination(sourceList) {
   const input = [
     { key: "prices", name: "现价", values: "", unit: "元", validate: false, validateType: "num" },
     { key: "originalprice", name: "原价", values: "", unit: "元", validate: false, validateType: "num" },
-    { key: "stockNums", name: "库存", values: "", unit: "", validate: false, validateType: "num" },
+    { key: "stockNums", name: "库存", values: "", unit: "", validate: false, validateType: "integer" },
     { key: "title", name: "标题", values: "", unit: "", validate: false, validateType: "text" },
     { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" }]
   sourceList.forEach(function (n) {
@@ -542,7 +542,7 @@ export function initTableInputData(serverData, timeIdArr, originalData) {
       input: [
         { key: "prices", name: "现价", values: data.totalprice, unit: "元", validate: false, validateType: "num" },
         { key: "originalprice", name: "原价", values: data.originalprice, unit: "元", validate: false, validateType: "num" },
-        { key: "stockNums", name: "库存", values: data.stocknums, unit: "", validate: false, validateType: "num" },
+        { key: "stockNums", name: "库存", values: data.stocknums, unit: "", validate: false, validateType: "integer" },
         { key: "title", name: "标题", values: data.title, unit: "", validate: false, validateType: "text" },
         { key: "feature", name: "特色描述", values: data.feature, validate: false, validateType: "text" }
       ],
