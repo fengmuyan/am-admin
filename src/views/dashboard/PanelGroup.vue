@@ -20,7 +20,7 @@
       <div class="card-panel card-panel03" @click="handleSetLineChartData('purchases')">
         <div class="card-panel-description">
           <div class="card-panel-text">信用额度付款</div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="9280.89" decimals="2" :duration="2000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -28,7 +28,20 @@
       <div class="card-panel card-panel04" @click="handleSetLineChartData('shoppings')">
         <div class="card-panel-description">
           <div class="card-panel-text">资金付款</div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <el-popover popper-class="popover-p" placement="bottom-start" title="付款明细" width="200" trigger="hover">
+            <div class="popover-content">
+              <p>订单付款金额：<span>895.00</span> 。</p>
+              <p>还款金额：<span>235.00</span> 。</p>
+            </div>
+            <count-to
+              slot="reference"
+              :start-val="0"
+              :end-val="1360.23"
+              decimals="2"
+              :duration="2000"
+              class="card-panel-num"
+            />
+          </el-popover>
         </div>
       </div>
     </el-col>
@@ -49,59 +62,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.panel-group {
-  margin-top: 18px;
-
-  .card-panel-col {
-    margin-bottom: 32px;
-  }
-
-  .card-panel {
-    height: 150px;
-    cursor: pointer;
-    font-size: 12px;
-    position: relative;
-    overflow: hidden;
-    color: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-    background: url("../../assets/image/bg01.png") center center no-repeat;
-    padding-left: 20px;
-    background-size: cover;
-
-    .card-panel-description {
-      margin: 26px;
-      margin-left: 0px;
-
-      .card-panel-text {
-        line-height: 20px;
-        font-size: 19px;
-        margin-bottom: 15px;
-      }
-
-      .card-panel-num {
-        font-size: 38px;
-        font-weight: 600;
-      }
-    }
-  }
-
-  .card-panel02 {
-    background: url("../../assets/image/bg02.png") center center no-repeat;
-    background-size: cover;
-  }
-
-  .card-panel03 {
-    background: url("../../assets/image/bg03.png") center center no-repeat;
-    background-size: cover;
-  }
-
-  .card-panel04 {
-    background: url("../../assets/image/bg04.png") center center no-repeat;
-    background-size: cover;
-  }
-}
-</style>

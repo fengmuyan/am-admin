@@ -36,7 +36,7 @@ import RefererChart from "./dashboard/RefererChart";
 const lineChartData = {
   newVisitis: {
     expectedData: [12, 36, 14, 24, 26, 58, 32],
-    actualData: [14, 20, 35, 22]
+    actualData: [14, 20, 35, 22,52]
   },
   messages: {
     expectedData: [11, 21, 12, 19, 22, 42, 26],

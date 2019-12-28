@@ -96,6 +96,24 @@
   z-index: 8;
 }
 
+.popover-p{
+  width: 230px !important;
+  .el-popover__title{
+    font-size: 19px;
+    line-height: 1.5;
+  }
+  .popover-content{
+    p {
+      font-size: 17px;
+      line-height: 15px;
+      span{
+        color: #ff0000;
+        font-size: 19px;
+      }
+    }
+  }
+}
+
 .table-p {
   min-height: 700px;
   padding: 12px;
@@ -1295,9 +1313,6 @@
           .imgIcon5 {
             background-image: url(../image/step5.png);
           }
-          .imgIcon6 {
-            background-image: url(../image/step6.png);
-          }
           
           .imgIcon1-ac {
             background-image: url(../image/step1-ac.png);
@@ -1316,6 +1331,9 @@
           }
           .imgIcon6-ac {
             background-image: url(../image/step6-ac.png);
+          }
+          .imgIcon7-ac {
+            background-image: url(../image/step7-ac.png);
           }
           .iconTitle {
             font-size: 14px;

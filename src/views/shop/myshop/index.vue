@@ -90,7 +90,7 @@
                 type="textarea"
                 v-model="baseForm.shopprofile"
                 placeholder="请输入店铺简介"
-                maxlength="200"
+                maxlength="150"
                 show-word-limit
                 style="width:400px"
               ></el-input>

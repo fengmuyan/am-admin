@@ -61,7 +61,7 @@
               <el-option label="支付完成" value="1" />
             </el-select>
           </el-form-item>
-          <el-form-item label="成交时间">
+          <el-form-item label="下单时间">
             <el-date-picker
               v-model="dateRange"
               size="small"
@@ -89,8 +89,9 @@
         <el-tab-pane label="待付款" name="0"></el-tab-pane>
         <el-tab-pane label="待发货" name="1"></el-tab-pane>
         <el-tab-pane label="已发货" name="2"></el-tab-pane>
-        <el-tab-pane label="已成功" name="4"></el-tab-pane>
+        <el-tab-pane label="已完成" name="4"></el-tab-pane>
         <el-tab-pane label="已关闭" name="5"></el-tab-pane>
+        <el-tab-pane label="已失效" name="6"></el-tab-pane>
       </el-tabs>
       <el-table style="width: 100%" v-loading="loading" :data="orderList">
         <el-table-column label="订单号" prop="orderno" width="200" />
@@ -173,7 +174,7 @@ export default {
         "物流派件中",
         "已完成",
         "已关闭",
-        "",
+        "已失效",
         "",
         "",
         "",

@@ -3,10 +3,10 @@
     <div class="table-p">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
         <el-table-column label="通道编号" prop="channelcode" width="100" />
-        <el-table-column label="通道名称" prop="channelname" :show-overflow-tooltip="true" width="180" />
-        <el-table-column label="收款户名" prop="accountname" width="220" />
-        <el-table-column label="银行账号" prop="bankaccount" width="220" />
-        <el-table-column label="开户行名称" prop="bankname" width="220" />
+        <el-table-column label="通道名称" prop="channelname" :show-overflow-tooltip="true"/>
+        <el-table-column label="收款户名" prop="accountname" />
+        <el-table-column label="银行账号" prop="bankaccount" />
+        <el-table-column label="开户行名称" prop="bankname" width="150"/>
         <el-table-column label="开户行行号" prop="bankno" width="150" />
         <el-table-column label="预留手机号" prop="mobilephone" width="150" />
         <el-table-column label="注册类型" prop="registertype" width="100">
@@ -17,7 +17,7 @@
             slot-scope="scope"
           >{{scope.row.merstate === null?"未开户":merstateArr[Number(scope.row.merstate)]}}</template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="250">
           <template slot-scope="scope">
             <el-button
               size="mini"

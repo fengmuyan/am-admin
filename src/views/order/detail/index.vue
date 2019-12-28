@@ -12,7 +12,7 @@
             <p class="iconTitle active">买家下单</p>
             <p class="date">{{createtime}}</p>
           </li>
-          <ul class="f-l" v-if="!ac5">
+          <ul class="f-l" v-if="!ac5 && !ac6">
             <li class="line" v-if="ordertype===1">
               <div class="imgLine"></div>
             </li>
@@ -54,7 +54,7 @@
               <p class="date" v-if="ac4">{{finaltime}}</p>
             </li>
           </ul>
-          <ul class="f-l" v-else>
+          <ul class="f-l" v-if="ac5">
             <li class="line" v-if="ordertype===1 && weighttime">
               <div class="imgLine"></div>
             </li>
@@ -70,6 +70,24 @@
               <div class="imgIcon imgIcon6-ac"></div>
               <p class="iconTitle active">已关闭</p>
               <p class="date">{{finaltime}}</p>
+            </li>
+          </ul>
+          <ul class="f-l" v-if="ac6">
+            <li class="line" v-if="ordertype===1 && weighttime">
+              <div class="imgLine"></div>
+            </li>
+            <li v-if="ordertype===1 && weighttime">
+              <div class="imgIcon imgIcon1 imgIcon1-ac"></div>
+              <p class="iconTitle active">商家称重</p>
+              <p class="date">{{weighttime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div class="imgIcon imgIcon7-ac"></div>
+              <p class="iconTitle active">已失效</p>
+              <p class="date">{{failuretime}}</p>
             </li>
           </ul>
         </ul>
@@ -331,7 +349,8 @@ export default {
       paytime: "",
       deliverytime: "",
       receivetime: "",
-      finaltime: ""
+      finaltime: "",
+      failuretime: ""
     };
   },
   watch: {
@@ -388,7 +407,7 @@ export default {
         "物流派件中",
         "已完成",
         "已关闭",
-        "",
+        "已失效",
         "",
         "",
         "",
@@ -428,6 +447,9 @@ export default {
     },
     ac5() {
       return this.tradestate === 5;
+    },
+    ac6() {
+      return this.tradestate === 6;
     }
   },
   created() {
@@ -478,7 +500,8 @@ export default {
             deliverytime,
             weighttime,
             receivetime,
-            finaltime
+            finaltime,
+            failuretime
           }
         } = await getOrderDetail({
           orderno: this.orderno
@@ -501,6 +524,7 @@ export default {
           this.weighttime = weighttime;
           this.receivetime = receivetime;
           this.finaltime = finaltime;
+          this.failuretime = failuretime;
           this.totalNum = cmdtOrderDetailRespList.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
             return pre;
@@ -560,7 +584,9 @@ export default {
         couponprice: Number(couponprice), //优惠金额
         cmdtcount: Number(cmdtcount), //数量
         unitprice: Number(cmdtprice) / Number(netweight), //单价
-        frameWeight: Number((Number(grossweight) - Number(netweight)).toFixed(2)), //框重
+        frameWeight: Number(
+          (Number(grossweight) - Number(netweight)).toFixed(2)
+        ), //框重
         weighedGw: "", //称重后毛重
         weighedNw: "", //称重后净重（毛重-框重）
         weighedCp: "", //称重后商品价格（净重*单价）

@@ -106,3 +106,57 @@
     }
   }
 }
+
+.panel-group {
+  margin-top: 18px;
+
+  .card-panel-col {
+    margin-bottom: 32px;
+  }
+
+  .card-panel {
+    height: 150px;
+    cursor: pointer;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    background: url("../../assets/image/bg01.png") center center no-repeat;
+    padding-left: 20px;
+    background-size: cover;
+
+    .card-panel-description {
+      margin: 26px;
+      margin-left: 0px;
+
+      .card-panel-text {
+        line-height: 20px;
+        font-size: 19px;
+        margin-bottom: 15px;
+      }
+
+      .card-panel-num {
+        font-size: 38px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .card-panel02 {
+    background: url("../../assets/image/bg02.png") center center no-repeat;
+    background-size: cover;
+  }
+
+  .card-panel03 {
+    background: url("../../assets/image/bg03.png") center center no-repeat;
+    background-size: cover;
+  }
+
+  .card-panel04 {
+    background: url("../../assets/image/bg04.png") center center no-repeat;
+    background-size: cover;
+  }
+}
