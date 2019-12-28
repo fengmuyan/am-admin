@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import echartTheme from "@/utils/echart.js";
+
 import resize from "./mixins/resize";
 
 export default {
@@ -62,15 +64,7 @@ export default {
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: [
-            "周一",
-            "周二",
-            "周三",
-            "周四",
-            "周五",
-            "周六",
-            "周日"
-          ],
+          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
           boundaryGap: false,
           axisTick: {
             show: false
@@ -80,8 +74,12 @@ export default {
           left: 10,
           right: 10,
           bottom: 20,
-          top: 30,
+          top: 50,
           containLabel: true
+        },
+        title: {
+          left: "left",
+          text: "今日新订单",
         },
         tooltip: {
           trigger: "axis",
