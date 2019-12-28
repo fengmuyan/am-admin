@@ -57,10 +57,10 @@ export default {
           data: [
             "待称重",
             "待付款",
-            "待商家发货",
+            "待发货",
             "已发货",
             "已完成",
-            "已取消"
+            "已关闭"
           ]
         },
         series: [
@@ -72,10 +72,10 @@ export default {
             data: [
               { value: 335, name: "待称重" },
               { value: 310, name: "待付款" },
-              { value: 234, name: "待商家发货" },
+              { value: 234, name: "待发货" },
               { value: 135, name: "已发货" },
               { value: 1548, name: "已完成" },
-              { value: 233, name: "已取消" },
+              { value: 233, name: "已关闭" },
             ],
             itemStyle: {
               emphasis: {

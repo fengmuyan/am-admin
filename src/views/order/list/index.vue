@@ -90,12 +90,12 @@
         <el-tab-pane label="待发货" name="1"></el-tab-pane>
         <el-tab-pane label="已发货" name="2"></el-tab-pane>
         <el-tab-pane label="已成功" name="4"></el-tab-pane>
-        <el-tab-pane label="已取消" name="5"></el-tab-pane>
+        <el-tab-pane label="已关闭" name="5"></el-tab-pane>
       </el-tabs>
       <el-table style="width: 100%" v-loading="loading" :data="orderList">
         <el-table-column label="订单号" prop="orderno" width="200" />
-        <el-table-column label="创建时间" sortable prop="createtime" width="180" />
-        <el-table-column label="订单金额" sortable prop="orderamount" />
+        <el-table-column label="创建时间" sortable prop="createtime" width="150" />
+        <el-table-column label="订单金额" sortable prop="orderamount" width="130"/>
         <el-table-column label="用户编号" prop="usercode" />
         <el-table-column label="应收款" prop="needprice" />
         <el-table-column label="实收款" prop="realprice" />
@@ -171,8 +171,8 @@ export default {
         "待发货",
         "已发货",
         "物流派件中",
-        "交易成功",
-        "交易关闭",
+        "已完成",
+        "已关闭",
         "",
         "",
         "",

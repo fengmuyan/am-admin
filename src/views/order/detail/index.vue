@@ -12,57 +12,66 @@
             <p class="iconTitle active">买家下单</p>
             <p class="date">{{createtime}}</p>
           </li>
-          <li class="line" v-if="ordertype===1">
-            <div class="imgLine"></div>
-          </li>
-          <li v-if="ordertype===1">
-            <div :class="['imgIcon', 'imgIcon1',ac12411?'imgIcon1-ac':'']"></div>
-            <p :class="['iconTitle',ac12411?'active':'']">商家称重</p>
-            <p class="date" v-if="ac12411">{{weighttime}}</p>
-          </li>
-          <li class="line">
-            <div class="imgLine gryLine"></div>
-          </li>
-          <li>
-            <div :class="['imgIcon', 'imgIcon2',ac124?'imgIcon2-ac':'']"></div>
-            <p :class="['iconTitle',ac124?'active':'']">买家付款</p>
-            <p class="date" v-if="ac124">{{paytime}}</p>
-          </li>
-          <li class="line">
-            <div class="imgLine gryLine"></div>
-          </li>
-          <li>
-            <div :class="['imgIcon', 'imgIcon3',ac24?'imgIcon3-ac':'']"></div>
-            <p :class="['iconTitle',ac24?'active':'']">商家发货</p>
-            <p class="date" v-if="ac24">{{failuretime}}</p>
-          </li>
-          <li class="line">
-            <div class="imgLine gryLine"></div>
-          </li>
-          <li>
-            <div :class="['imgIcon', 'imgIcon4',ac4?'imgIcon4-ac':'']"></div>
-            <p :class="['iconTitle',ac4?'active':'']">买家确认收货</p>
-            <p class="date" v-if="ac4"></p>
-          </li>
-          <li class="line">
-            <div class="imgLine gryLine"></div>
-          </li>
-          <li>
-            <div :class="['imgIcon', 'imgIcon5',ac4?'imgIcon5-ac':'']"></div>
-            <p :class="['iconTitle',ac4?'active':'']">完成</p>
-            <p class="date" v-if="ac4"></p>
-          </li>
-          <li class="line" v-if="tradestate === 5">
-            <div class="imgLine gryLine"></div>
-          </li>
-          <li v-if="tradestate === 5">
-            <div class="imgIcon imgIcon6"></div>
-            <p class="iconTitle">已取消</p>
-            <p class="date">
-              2018-03-04
-              12:23:54
-            </p>
-          </li>
+          <ul class="f-l" v-if="!ac5">
+            <li class="line" v-if="ordertype===1">
+              <div class="imgLine"></div>
+            </li>
+            <li v-if="ordertype===1">
+              <div :class="['imgIcon', 'imgIcon1',ac12411?'imgIcon1-ac':'']"></div>
+              <p :class="['iconTitle',ac12411?'active':'']">商家称重</p>
+              <p class="date" v-if="ac12411">{{weighttime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div :class="['imgIcon', 'imgIcon2',ac124?'imgIcon2-ac':'']"></div>
+              <p :class="['iconTitle',ac124?'active':'']">买家付款</p>
+              <p class="date" v-if="ac124">{{paytime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div :class="['imgIcon', 'imgIcon3',ac24?'imgIcon3-ac':'']"></div>
+              <p :class="['iconTitle',ac24?'active':'']">商家发货</p>
+              <p class="date" v-if="ac24">{{deliverytime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div :class="['imgIcon', 'imgIcon4',ac4?'imgIcon4-ac':'']"></div>
+              <p :class="['iconTitle',ac4?'active':'']">买家确认收货</p>
+              <p class="date" v-if="ac4">{{receivetime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div :class="['imgIcon', 'imgIcon5',ac4?'imgIcon5-ac':'']"></div>
+              <p :class="['iconTitle',ac4?'active':'']">完成</p>
+              <p class="date" v-if="ac4">{{finaltime}}</p>
+            </li>
+          </ul>
+          <ul class="f-l" v-else>
+            <li class="line" v-if="ordertype===1 && weighttime">
+              <div class="imgLine"></div>
+            </li>
+            <li v-if="ordertype===1 && weighttime">
+              <div class="imgIcon imgIcon1 imgIcon1-ac"></div>
+              <p class="iconTitle active">商家称重</p>
+              <p class="date">{{weighttime}}</p>
+            </li>
+            <li class="line">
+              <div class="imgLine gryLine"></div>
+            </li>
+            <li>
+              <div class="imgIcon imgIcon6-ac"></div>
+              <p class="iconTitle active">已关闭</p>
+              <p class="date">{{finaltime}}</p>
+            </li>
+          </ul>
         </ul>
       </div>
       <div class="goodsList">
@@ -318,9 +327,11 @@ export default {
       deliveryAddress: null,
       invoceInfo: null,
       createtime: "",
-      weighttime: "2019-12-28 14:29:14",
+      weighttime: "",
       paytime: "",
-      failuretime: ""
+      deliverytime: "",
+      receivetime: "",
+      finaltime: ""
     };
   },
   watch: {
@@ -346,7 +357,7 @@ export default {
         });
       }
       if ((val && patter.test(val), val > frameWeight)) {
-        const weighedNw = Number(val) - frameWeight;
+        const weighedNw = (Number(val) - frameWeight).toFixed(2);
         const weighedCp = ((Number(val) - frameWeight) * unitprice).toFixed(2);
         const weighedCtp = (
           (weighedCp * discount).toFixed(2) * cmdtcount -
@@ -414,6 +425,9 @@ export default {
     },
     ac10() {
       return this.tradestate === 10;
+    },
+    ac5() {
+      return this.tradestate === 5;
     }
   },
   created() {
@@ -461,7 +475,10 @@ export default {
             orderInvoceResp: invoceInfo,
             createtime,
             paytime,
-            failuretime
+            deliverytime,
+            weighttime,
+            receivetime,
+            finaltime
           }
         } = await getOrderDetail({
           orderno: this.orderno
@@ -480,7 +497,10 @@ export default {
           this.invoceInfo = invoceInfo;
           this.createtime = createtime;
           this.paytime = paytime;
-          this.failuretime = failuretime;
+          this.deliverytime = deliverytime;
+          this.weighttime = weighttime;
+          this.receivetime = receivetime;
+          this.finaltime = finaltime;
           this.totalNum = cmdtOrderDetailRespList.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
             return pre;
@@ -540,7 +560,7 @@ export default {
         couponprice: Number(couponprice), //优惠金额
         cmdtcount: Number(cmdtcount), //数量
         unitprice: Number(cmdtprice) / Number(netweight), //单价
-        frameWeight: Number(grossweight) - Number(netweight), //框重
+        frameWeight: Number((Number(grossweight) - Number(netweight)).toFixed(2)), //框重
         weighedGw: "", //称重后毛重
         weighedNw: "", //称重后净重（毛重-框重）
         weighedCp: "", //称重后商品价格（净重*单价）

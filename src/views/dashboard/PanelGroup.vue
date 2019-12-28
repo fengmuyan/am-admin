@@ -72,14 +72,6 @@ export default {
     padding-left: 20px;
     background-size: cover;
 
-    .card-panel-icon-wrapper {
-      float: left;
-      margin: 14px 0 0 14px;
-      padding: 16px;
-      transition: all 0.38s ease-out;
-      border-radius: 6px;
-    }
-
     .card-panel-description {
       margin: 26px;
       margin-left: 0px;
@@ -110,19 +102,6 @@ export default {
   .card-panel04 {
     background: url("../../assets/image/bg04.png") center center no-repeat;
     background-size: cover;
-  }
-}
-
-@media (max-width: 550px) {
-  .card-panel-description {
-    display: none;
-  }
-
-  .card-panel-icon-wrapper {
-    float: none !important;
-    width: 100%;
-    height: 100%;
-    margin: 0 !important;
   }
 }
 </style>

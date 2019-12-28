@@ -27,16 +27,12 @@ service.interceptors.request.use(
 service.interceptors.response.use(res => {
   const code = res.data.code
   if (code === 401) {
-    ELEMENT.MessageBox(
-      '登录状态已过期，您可以继续留在该页面，或重新登录',
-      '系统提示',
-      {
-        confirmButtonText: '重新登录',
-        cancelButtonText: '取消',
-        type: 'warning',
-        customClass: 'el-message-box-wran'
-      }
-    ).then(() => {
+    ELEMENT.MessageBox({
+      message: '登录状态已过期。',
+      type: 'error',
+      duration: 5 * 1000,
+      customClass: 'el-message-box-err'
+    }).then(() => {
       store.dispatch('LogOut').then(() => {
         location.reload()
       })
