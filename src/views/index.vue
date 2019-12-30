@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-editor-container">
+  <div class="dashboard-editor-container" v-if="isShow">
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
     <el-row class="line-box">
@@ -32,11 +32,12 @@ import LineChart from "./dashboard/LineChart";
 import PieChart from "./dashboard/PieChart";
 import PieChart2 from "./dashboard/PieChart2";
 import RefererChart from "./dashboard/RefererChart";
+import { getHomePageData } from "@/api/index";
 
 const lineChartData = {
   newVisitis: {
     expectedData: [12, 36, 14, 24, 26, 58, 32],
-    actualData: [14, 20, 35, 22,52]
+    actualData: [14, 20, 35, 22, 52, 0, 0]
   },
   messages: {
     expectedData: [11, 21, 12, 19, 22, 42, 26],
@@ -63,10 +64,20 @@ export default {
   },
   data() {
     return {
+      isShow: true,
       lineChartData: lineChartData.newVisitis
     };
   },
+
+  async created() {
+    this.getData()
+  },
   methods: {
+    async getData() {
+      const {code} = await getHomePageData();
+      if(code === 200){}
+    },
+
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type];
     }

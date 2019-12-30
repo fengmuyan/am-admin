@@ -4,13 +4,11 @@ import Layout from '@/layout/index'
 
 const permission = {
   state: {
-    routes: [],
-    addRoutes: []
+    routes: []
   },
   mutations: {
     SET_ROUTES: (state, routes) => {
-      state.addRoutes = routes
-      state.routes = [...constantRoutes, ...routes]
+      state.routes = routes
     }
   },
   actions: {
@@ -20,22 +18,25 @@ const permission = {
         if (getters.roles.includes('admin')) {
           getRouters().then(res => {
             const accessedRoutes = filterAsyncRouter(res.data)
-            commit('SET_ROUTES', [...accessedRoutes, ...dynamicRoutes])
-            resolve([...accessedRoutes, ...dynamicRoutes])
+            const routes = [...constantRoutes, ...accessedRoutes, ...dynamicRoutes]
+            commit('SET_ROUTES', routes)
+            resolve(routes)
           })
         } else {
           if (Number(getters.isReal) !== 3) {
-            commit('SET_ROUTES', [])
-            resolve([])
+            commit('SET_ROUTES', constantRoutes)
+            resolve(constantRoutes)
           } else {
             if (getters.isOpenAccount !== true) {
-              commit('SET_ROUTES', accountRoutes)
-              resolve(accountRoutes)
+              const routes = [...constantRoutes, ...accountRoutes]
+              commit('SET_ROUTES', routes)
+              resolve(routes)
             } else {
               getRouters().then(res => {
                 const accessedRoutes = filterAsyncRouter(res.data)
-                commit('SET_ROUTES', [...accessedRoutes, ...dynamicRoutes])
-                resolve([...accessedRoutes, ...dynamicRoutes])
+                const routes = [...constantRoutes, ...accessedRoutes, ...dynamicRoutes]
+                commit('SET_ROUTES', routes)
+                resolve(routes)
               })
             }
           }

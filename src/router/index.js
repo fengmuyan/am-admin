@@ -17,7 +17,7 @@ import Layout from '@/layout'
     roles: ['admin','editor']    // 设置该路由进入的权限，支持多个权限叠加
     title: 'title'               // 设置该路由在侧边栏和面包屑中展示的名字
     icon: 'svg-name'             // 设置该路由的图标，对应路径src/icons/svg
-    breadcrumb: false            // 如果设置为false，则不会在breadcrumb面包屑中显示
+    breadcrumb: false            // 如果设置为false，则不会在面包屑中显示
     affix: true                  // if set true, the tag will affix in the tags-view
     noCache: true                // if set true, the page will no be cached(default is false)
     activeMenu: '/example/list'  // if set path, the sidebar will highlight the path you set
@@ -97,19 +97,6 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  },
-  {
-    path: '/dict',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: 'type/data/:dictId(\\d+)',
-        component: () => import('@/views/system/dict/data'),
-        name: '字典数据',
-        meta: { title: '字典数据', icon: '' }
-      }
-    ]
   }
 ]
 
@@ -135,6 +122,19 @@ export const accountRoutes = [
 ]
 
 export const dynamicRoutes = [
+  {
+    path: '/dict',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'type/data/:dictId(\\d+)',
+        component: () => import('@/views/system/dict/data'),
+        name: '字典数据',
+        meta: { title: '字典数据', icon: '' }
+      }
+    ]
+  },
   {
     path: '/publish',
     component: Layout,

@@ -70,12 +70,12 @@ export default {
             radius: "55%",
             center: ["50%", "60%"],
             data: [
-              { value: 335, name: "待称重" },
-              { value: 310, name: "待付款" },
-              { value: 234, name: "待发货" },
-              { value: 135, name: "已发货" },
-              { value: 1548, name: "已完成" },
-              { value: 233, name: "已关闭" },
+              { value: 0, name: "待称重" },
+              { value: 0, name: "待付款" },
+              { value: 6, name: "待发货" },
+              { value: 5, name: "已发货" },
+              { value: 0, name: "已完成" },
+              { value: 2, name: "已关闭" },
             ],
             itemStyle: {
               emphasis: {

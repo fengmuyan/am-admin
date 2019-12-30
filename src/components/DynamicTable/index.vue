@@ -1,15 +1,11 @@
 <template>
   <div class="box-wrap">
-    <!-- <el-button @click="inputAllAc">{{!inputAll?'批量填充':'取消批量填充'}}</el-button> -->
     <div class="table-box">
       <table border="1" cellpadding="0" cellspacing="0">
         <thead>
           <tr>
             <th v-for="(item,index) in tableArr" :key="index">{{item.name}}</th>
-            <th v-for="(item,index) in thInputData" :width="`${item.width}`">
-              <el-input v-if="inputAll" v-model="item.values" :placeholder="`${item.name}`"></el-input>
-              <span v-else>{{`${item.name}`}}</span>
-            </th>
+            <th v-for="(item,index) in thInputData" :width="item.width">{{item.name}}</th>
           </tr>
         </thead>
         <tbody>
@@ -43,9 +39,13 @@ import { deepClone } from "@/utils";
 export default {
   data() {
     return {
-      inputAll: false,
-      thInputData: [],
-      lock: true,
+      thInputData: [
+        { name: "现价", values: "", unit: "元", width: 110 },
+        { name: "原价", values: "", unit: "元", width: 110 },
+        { name: "库存", values: "", unit: "", width: 110 },
+        { name: "标题", values: "", unit: "", width: 400 },
+        { name: "特色描述", values: "", unit: "", width: 320 }
+      ],
       allRight: false
     };
   },
@@ -59,40 +59,12 @@ export default {
       required: true
     }
   },
-  watch: {
-    thInputData: {
-      deep: true,
-      handler(val) {
-        if (!this.lock) {
-          this.itemIdArr.map((item, index) => {
-            item.input.map((v, i) => {
-              v.values = this.thInputData[i].values;
-            });
-          });
-        }
-      }
-    }
-  },
-  created() {
-    this.thInputData = [
-      { name: "现价", values: "", unit: "元", width: 110 },
-      { name: "原价", values: "", unit: "元", width: 110 },
-      { name: "库存", values: "", unit: "", width: 110 },
-      { name: "标题", values: "", unit: "", width: 400 },
-      { name: "特色描述", values: "", unit: "", width: 320 }
-    ];
-  },
   methods: {
     getItemName(index, rangeArr) {
       const itemName = this.tableArr[index].values.find(
         j => j.itemId === rangeArr[index]
       );
       return itemName.value;
-    },
-
-    inputAllAc() {
-      this.lock = false;
-      this.inputAll = !this.inputAll;
     },
 
     validatInit(fn) {
