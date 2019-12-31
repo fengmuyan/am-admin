@@ -61,7 +61,7 @@ export default {
       this.chart = echarts.init(this.$el, "macarons");
       this.setOptions(this.chartData);
     },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ preWeek, curWeek, title } = {}) {
       this.chart.setOption({
         xAxis: {
           data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
@@ -79,7 +79,7 @@ export default {
         },
         title: {
           left: "left",
-          text: "今日新订单",
+          text: title
         },
         tooltip: {
           trigger: "axis",
@@ -110,7 +110,7 @@ export default {
             },
             smooth: true,
             type: "line",
-            data: expectedData,
+            data: preWeek,
             animationDuration: 2800,
             animationEasing: "cubicInOut"
           },
@@ -130,7 +130,7 @@ export default {
                 }
               }
             },
-            data: actualData,
+            data: curWeek,
             animationDuration: 2800,
             animationEasing: "quadraticOut"
           }

@@ -87,6 +87,3 @@ export function realNameAuth(formData) {
     data,
   })
 }
-
-
-

@@ -20,6 +20,10 @@ export default {
     height: {
       type: String,
       default: "300px"
+    },
+    itemData: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -53,21 +57,22 @@ export default {
         legend: {
           left: "center",
           bottom: "30",
-          data: ["信用额度付款", "资金付款"]
+          data: ["已使用额度", "未使用额度"]
         },
         series: [
           {
-            name: "",
+            name: "使用情况",
             type: "pie",
-            roseType: "radius",
-            radius: [15, 95],
-            center: ["50%", "38%"],
-            data: [
-              { value: 220, name: "信用额度付款" },
-              { value: 85, name: "资金付款" }
-            ],
-            animationEasing: "cubicInOut",
-            animationDuration: 2600
+            radius: [15, 85],
+            center: ["50%", "40%"],
+            data: this.itemData,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
           }
         ]
       });

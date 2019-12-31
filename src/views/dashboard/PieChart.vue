@@ -20,6 +20,10 @@ export default {
     height: {
       type: String,
       default: "300px"
+    },
+    itemData: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -44,7 +48,7 @@ export default {
       this.chart = echarts.init(this.$el, echartTheme);
       this.chart.setOption({
         title: {
-          text: "当日信用额度占比",
+          text: "当日信用额度占比"
         },
         tooltip: {
           trigger: "item",
@@ -57,17 +61,18 @@ export default {
         },
         series: [
           {
-            name: "WEEKLY WRITE ARTICLES",
+            name: "订单状态",
             type: "pie",
-            roseType: "radius",
-            radius: [15, 95],
-            center: ["50%", "38%"],
-            data: [
-              { value: 320, name: "信用额度付款" },
-              { value: 240, name: "资金付款" }
-            ],
-            animationEasing: "cubicInOut",
-            animationDuration: 2600
+            radius: [15, 85],
+            center: ["50%", "40%"],
+            data: this.itemData,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
           }
         ]
       });

@@ -1,6 +1,6 @@
 <template>
-  <div class="dashboard-editor-container" v-if="isShow">
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+  <div class="dashboard-editor-container" v-loading="loading" v-if="isShow">
+    <panel-group :itemData="topPanelData" @handleSetLineChartData="handleSetLineChartData" />
 
     <el-row class="line-box">
       <line-chart :chart-data="lineChartData" />
@@ -9,17 +9,17 @@
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <referer-chart />
+          <referer-chart :itemData="botLeftData" />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart :itemData="botMidData" />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart2 />
+          <pie-chart2 :itemData="botRightData" />
         </div>
       </el-col>
     </el-row>
@@ -32,26 +32,8 @@ import LineChart from "./dashboard/LineChart";
 import PieChart from "./dashboard/PieChart";
 import PieChart2 from "./dashboard/PieChart2";
 import RefererChart from "./dashboard/RefererChart";
+import { mapState } from "vuex";
 import { getHomePageData } from "@/api/index";
-
-const lineChartData = {
-  newVisitis: {
-    expectedData: [12, 36, 14, 24, 26, 58, 32],
-    actualData: [14, 20, 35, 22, 52, 0, 0]
-  },
-  messages: {
-    expectedData: [11, 21, 12, 19, 22, 42, 26],
-    actualData: [12, 18, 29, 15]
-  },
-  purchases: {
-    expectedData: [2256.32, 3689.5, 895.66, 7896.32, 10110.8, 2568.3, 1528.36],
-    actualData: [1658.58, 2589.5, 788.25, 6489.32, 9856.8]
-  },
-  shoppings: {
-    expectedData: [2256.32, 3689.5, 895.66, 7896.32, 10110.8],
-    actualData: [2256.32, 3689.5, 895.66, 7896.32, 10110.8]
-  }
-};
 
 export default {
   name: "Index",
@@ -64,22 +46,137 @@ export default {
   },
   data() {
     return {
-      isShow: true,
-      lineChartData: lineChartData.newVisitis
+      loading: false,
+      isShow: false,
+      activeItem: "topFir",
+      lineChartDataAll: {
+        topFir: {
+          title: "今日新订单",
+          preWeek: [0, 0, 0, 0, 0, 0, 0],
+          curWeek: []
+        },
+        topSec: {
+          title: "付款订单数",
+          preWeek: [0, 0, 0, 0, 0, 0, 0],
+          curWeek: []
+        },
+        topThi: {
+          title: "信用额度付款",
+          preWeek: [0, 0, 0, 0, 0, 0, 0],
+          curWeek: []
+        },
+        topLast: {
+          title: "资金付款",
+          preWeek: [0, 0, 0, 0, 0, 0, 0],
+          curWeek: []
+        }
+      },
+      topPanelData: [0, 0, 0, 0, 0, 0],
+      botLeftData: [
+        { value: 0, name: "待称重", tradestate: 10 },
+        { value: 0, name: "待付款", tradestate: 0 },
+        { value: 0, name: "待发货", tradestate: 1 },
+        { value: 0, name: "已发货", tradestate: 2 },
+        { value: 0, name: "已完成", tradestate: 4 },
+        { value: 0, name: "已关闭", tradestate: 5 }
+      ],
+      botRightData: [
+        { value: 0, name: "已使用额度" },
+        { value: 0, name: "未使用额度" }
+      ],
+      botMidData: [
+        { value: 0, name: "信用额度付款" },
+        { value: 0, name: "资金付款" }
+      ]
     };
   },
 
-  async created() {
-    this.getData()
+  computed: {
+    ...mapState({
+      isReal: state => state.user.isReal,
+      isOpenAccount: state => state.user.isOpenAccount
+    }),
+    lineChartData() {
+      return this.lineChartDataAll[this.activeItem];
+    }
+  },
+
+  created() {
+    const isReal = Number(this.isReal);
+    const isOpenAccount = this.isOpenAccount;
+    if (isReal === 3 && isOpenAccount === true) {
+      this.getData();
+    }
   },
   methods: {
     async getData() {
-      const {code} = await getHomePageData();
-      if(code === 200){}
+      try {
+        this.loading = true;
+        const {
+          code,
+          data: {
+            statisticsNewOrderRespList: topLeft,
+            statisticsPayCountRespList: topMid,
+            statisticsPayMoneyRespList: topRight,
+            statisticsCreditLimitResp: botRight,
+            statisticsTodayOrderStateResp: botLeft
+          }
+        } = await getHomePageData();
+        this.loading = false;
+        if (code === 200) {
+          this.isShow = true;
+          const {
+            botRightData,
+            botMidData,
+            topPanelData,
+            lineChartDataAll: { topFir, topSec, topThi, topLast }
+          } = this;
+          if (botLeft && botLeft.length > 0) {
+            botLeft.forEach(item => {
+              const selectItem = this.botLeftData.find(v => {
+                return Number(v.tradestate) === item.tradestate;
+              });
+              if (selectItem) {
+                Object.assign(selectItem, { value: item.newcount });
+              }
+            });
+          }
+          botRightData[0].value = botRight.usedlimit;
+          botRightData[1].value = botRight.usablelimit;
+
+          this._topPanelInit(botMidData[0].value, topMid, "creditprice");
+          this._topPanelInit(botMidData[1].value, topMid, "currencyamount");
+
+          this._topPanelInit(topPanelData[0], topLeft, "newcount");
+          this._topPanelInit(topPanelData[1], topMid, "paycount");
+          this._topPanelInit(topPanelData[2], topMid, "creditprice");
+          this._topPanelInit(topPanelData[3], topRight, "totalmoney");
+          this._topPanelInit(topPanelData[4], topRight, "paymoney");
+          this._topPanelInit(topPanelData[5], topRight, "repaymoney");
+
+          this._weekDataInit(topFir, topLeft, "newcount");
+          this._weekDataInit(topSec, topMid, "paycount");
+          this._weekDataInit(topThi, topMid, "creditprice");
+          this._weekDataInit(topLast, topRight, "totalmoney");
+
+        }
+      } catch (err) {
+        this.loading = false;
+        console.log(err);
+      }
     },
 
     handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type];
+      this.activeItem = type;
+    },
+
+    _topPanelInit(operateData, httpData, httpItem) {
+      operateData = httpData[httpData.length - 1][httpItem];
+    },
+
+    _weekDataInit(operateData, httpData, httpItem) {
+      operateData.preWeek = httpData.slice(0, 7).map(item => item[httpItem]);
+      operateData.curWeek = httpData.slice(7).map(item => item[httpItem]);
     }
   }
 };

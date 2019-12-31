@@ -1,5 +1,5 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{height,width}" />
 </template>
 
 <script>
@@ -20,6 +20,10 @@ export default {
     height: {
       type: String,
       default: "300px"
+    },
+    itemData: {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -54,14 +58,7 @@ export default {
         legend: {
           orient: "vertical",
           left: "left",
-          data: [
-            "待称重",
-            "待付款",
-            "待发货",
-            "已发货",
-            "已完成",
-            "已关闭"
-          ]
+          data: ["待称重", "待付款", "待发货", "已发货", "已完成", "已关闭"]
         },
         series: [
           {
@@ -69,14 +66,7 @@ export default {
             type: "pie",
             radius: "55%",
             center: ["50%", "60%"],
-            data: [
-              { value: 0, name: "待称重" },
-              { value: 0, name: "待付款" },
-              { value: 6, name: "待发货" },
-              { value: 5, name: "已发货" },
-              { value: 0, name: "已完成" },
-              { value: 2, name: "已关闭" },
-            ],
+            data: this.itemData,
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,
