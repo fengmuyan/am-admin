@@ -475,7 +475,7 @@ export default {
     };
   },
   async created() {
-    const codeArr = this.$route.params.code.split("-");
+    const codeArr = window.atob(this.$route.params.code).split("-");
     this.producode = codeArr[0];
     this.uid = codeArr[1];
     await this.getDetailData();

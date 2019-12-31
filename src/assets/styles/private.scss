@@ -1114,6 +1114,17 @@
   }
 }
 
+.verify-withdrawal{
+  @extend .authorize;
+  .step-top{
+    width: 200px;
+    margin-left: -10px;
+    .step-title{
+      width: 204px;
+    }
+  }
+}
+
 .login{
   display: flex;
   flex-direction: row;

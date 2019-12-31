@@ -158,14 +158,16 @@ export default {
     },
     handleEdit(item) {
       const { creditlimit, risklimit, uid, usercode } = item;
+      const params = window.btoa(`${uid}-${usercode}-${creditlimit}-${risklimit}`)
       this.$router.push({
-        path: `/dynamic/authorize-edit/${uid}-${usercode}-${creditlimit}-${risklimit}`
+        path: `/dynamic/authorize-edit/${params}`
       });
     },
     handleDiscount(item) {
       const { uid, discount, usercode } = item;
+      const params = window.btoa(`${uid}-${usercode}-${discount}`)
       this.$router.push({
-        path: `/dynamic/discount/${uid}-${usercode}-${discount}`
+        path: `/dynamic/discount/${params}`
       });
     },
     _initParams(obj) {

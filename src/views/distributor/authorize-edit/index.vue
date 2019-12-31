@@ -128,7 +128,7 @@ export default {
     }
   },
   created() {
-    const codeArr = this.$route.params.code.split("-");
+    const codeArr = window.atob(this.$route.params.code).split("-");
     this.uid = codeArr[0];
     this.usercode = codeArr[1];
     this.fourForm.creditlimit = codeArr[2];

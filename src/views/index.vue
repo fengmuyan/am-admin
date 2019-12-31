@@ -106,6 +106,8 @@ export default {
     const isOpenAccount = this.isOpenAccount;
     if (isReal === 3 && isOpenAccount === true) {
       this.getData();
+    } else {
+      this.isShow = true;
     }
   },
   methods: {
@@ -119,7 +121,7 @@ export default {
             statisticsPayCountRespList: topMid,
             statisticsPayMoneyRespList: topRight,
             statisticsCreditLimitResp: botRight,
-            statisticsTodayOrderStateResp: botLeft
+            statisticsTodayOrderStateRespList: botLeft
           }
         } = await getHomePageData();
         this.loading = false;
@@ -141,9 +143,10 @@ export default {
               }
             });
           }
-          botRightData[0].value = botRight.usedlimit;
-          botRightData[1].value = botRight.usablelimit;
-
+          if (botRight) {
+            botRightData[0].value = botRight.usedlimit;
+            botRightData[1].value = botRight.usablelimit;
+          }
           this._topPanelInit(botMidData[0].value, topMid, "creditprice");
           this._topPanelInit(botMidData[1].value, topMid, "currencyamount");
 
@@ -158,7 +161,6 @@ export default {
           this._weekDataInit(topSec, topMid, "paycount");
           this._weekDataInit(topThi, topMid, "creditprice");
           this._weekDataInit(topLast, topRight, "totalmoney");
-
         }
       } catch (err) {
         this.loading = false;

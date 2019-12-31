@@ -137,8 +137,10 @@ export default {
     },
 
     handleEdit(item) {
+      const { producode, uid } = item;
+      const params = window.btoa(`${item.producode}-${item.uid}`)
       this.$router.push({
-        path: `/publish/detail/${item.producode}-${item.uid}`
+        path: `/publish/detail/${params}`
       });
     },
 

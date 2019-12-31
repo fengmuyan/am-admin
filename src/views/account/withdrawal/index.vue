@@ -2,9 +2,12 @@
   <div class="account app-container">
     <div class="table-p">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
-        <el-table-column label="通道编号" prop="channelcode" />
-        <el-table-column label="收款账户" prop="channelname" />
-        <el-table-column label="账户余额" prop="channelname" />
+        <el-table-column label="通道名称" prop="channelname" />
+        <el-table-column label="账户余额" prop="accountamount" />
+        <el-table-column label="可用金额" prop="usableamount" />
+        <el-table-column label="冻结金额" prop="usableamount" />
+        <el-table-column label="累计提现" prop="totalcash" />
+        <el-table-column label="累计收入" prop="totalincome" />
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -20,14 +23,7 @@
   </div>
 </template>
 <script>
-import bankArr from "@/utils/bank";
-import geCode from "vue-gecode";
-import {
-  getAccountPass,
-  createAccount,
-  bindCardConfirm,
-  resentCode
-} from "@/api/account";
+import { withdrawalAccountList as list } from "@/api/account";
 export default {
   data() {
     return {
@@ -35,12 +31,39 @@ export default {
       passList: [{}]
     };
   },
-  created() {},
+  created() {
+    this.getList();
+  },
   methods: {
+    async getList() {
+      try {
+        this.loading = true;
+        const { code, data } = await list();
+        this.loading = false;
+        if (code === 200) {
+          this.passList = data;
+        }
+      } catch (err) {
+        this.loading = false;
+        console.log(err);
+      }
+    },
+
     handleWithdrawal(item) {
-      this.$router.push({
-        path: `/cash/withdrawal/53635`
-      });
+      const { uid, usercode, usableamount } = item;
+      const params = window.btoa(`${uid}-${usercode}-${usableamount}`)
+      if (Number(usableamount) > 0) {
+       this.$router.push({
+          path: `/cash/withdrawal/${params}`
+        });
+      } else {
+         ELEMENT.MessageBox({
+          message: "可用余额为0不能提现",
+          type: "error",
+          duration: 5 * 1000,
+          customClass: "el-message-box-err"
+        });
+      }
     }
   }
 };

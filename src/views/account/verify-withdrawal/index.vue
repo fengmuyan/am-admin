@@ -1,5 +1,5 @@
 <template>
-  <div class="discount">
+  <div class="verify-withdrawal">
     <div class="step-wrap">
       <div class="step-top">
         <div class="step-icon">
@@ -26,9 +26,12 @@
       </div>
       <div v-if="actItem === 1" class="last-form">
         <el-form :model="fourForm" :rules="fourFormRules" ref="fourForm">
-          <el-form-item prop="discount">
-            <el-input v-model="fourForm.discount" placeholder="输入提现金额"></el-input>
-            <span class="tip">* 金额为大于0且最多两位小数，金额不能大于现有余额。</span>
+          <el-form-item prop="mobilephone">
+            <el-input v-model="fourForm.mobilephone" placeholder="输入银行预留手机号"></el-input>
+          </el-form-item>
+          <el-form-item prop="amount">
+            <el-input v-model="fourForm.amount" placeholder="输入提现金额"></el-input>
+            <span class="tip">* 金额为大于0且最多两位小数，金额不能大于可用余额。</span>
           </el-form-item>
           <el-button class="submit-btn" @click="confirmDiscount('fourForm')">确认</el-button>
         </el-form>
@@ -41,28 +44,40 @@
 import geCode from "vue-gecode";
 import { mapGetters } from "vuex";
 import {
-  sendSmsCode,
-  checkMerSmsCode
-} from "@/api/distributor";
+  withdrawalAccountList as list,
+  withdrawalCode as code,
+  withdrawalCheckCode as checckCode,
+  withdrawal
+} from "@/api/account";
 export default {
   components: {
     geCode
   },
   data() {
-    const patter = /^(1|([1-9]\d{0,1})|100)$/;
-    const validateDis = (rule, value, callback) => {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    const validateTel = (rule, value, callback) => {
       if (value === "") {
-        callback(new Error("请输入折扣率"));
+        callback(new Error("请输入手机号"));
       } else {
-        if (!patter.test(value)) {
-          callback(new Error("1-100之间整数！"));
+        if (!/^1[345678]\d{9}$/.test(value)) {
+          callback(new Error("请输入正确的手机号"));
+        }
+        callback();
+      }
+    }; //验证手机号格式
+    const validateAmount = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入提现金额"));
+      } else {
+        if (!patter.test(value) || value == 0 || value > this.usableamount) {
+          callback(new Error("必须大于零小于账户余额且至多保留两位小数！"));
         } else {
           callback();
         }
       }
     };
     return {
-      actItem: 0, //当前进行的step
+      actItem: 1, //当前进行的step
       loading: false, //下一步按钮loading
       configSelf: {
         startText: "获取验证码",
@@ -71,7 +86,7 @@ export default {
         tickTime: 1, //步值
         todo: async () => {
           try {
-            const { code } = await sendSmsCode();
+            const { code } = await code();
             if (code === 200) {
               return true;
             } else {
@@ -90,13 +105,19 @@ export default {
       firFormRules: {
         smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
-      fourForm: { discount: "" },
+      fourForm: { amount: "", mobilephone: "" },
       fourFormRules: {
-        discount: [{ validator: validateDis, required: true, trigger: "blur" }]
+        amount: [
+          { required: true, validator: validateAmount, trigger: "blur" }
+        ],
+        mobilephone: [
+          { required: true, validator: validateTel, trigger: "blur" }
+        ]
       },
       sessionFir: "",
       uid: "",
-      usercode: ""
+      usercode: "",
+      usableamount: ""
     };
   },
   computed: {
@@ -110,10 +131,10 @@ export default {
     }
   },
   created() {
-    const codeArr = this.$route.params.code.split("-");
+    const codeArr = window.atob(this.$route.params.code).split("-");
     this.uid = codeArr[0];
     this.usercode = codeArr[1];
-    this.fourForm.discount = Number(codeArr[2]) * 100;
+    this.usableamount = codeArr[2];
   },
   methods: {
     toConfirmInfo(formName) {
@@ -124,7 +145,7 @@ export default {
             const {
               code,
               data: { session }
-            } = await checkMerSmsCode(this.firForm);
+            } = await checkCode(this.firForm);
             this.loading = false;
             if (code === 200) {
               this.actItem = 1;
@@ -145,7 +166,7 @@ export default {
           this.loading = true;
           try {
             const { uid, usercode, sessionFir: sessionid } = this;
-            const { code, data } = await updateDiscount({
+            const { code } = await withdrawal({
               sessionid,
               uid,
               usercode,
@@ -153,7 +174,8 @@ export default {
             });
             this.loading = false;
             if (code === 200) {
-              
+              this.msgSuccess("提现成功");
+              this.$router.push("/account/list");
             }
           } catch (err) {
             this.loading = false;
