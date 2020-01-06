@@ -30,7 +30,7 @@
             <el-input v-model="fourForm.mobilephone" placeholder="输入银行预留手机号"></el-input>
           </el-form-item>
           <el-form-item prop="amount">
-            <el-input v-model="fourForm.amount" placeholder="输入提现金额"></el-input>
+            <el-input v-model="fourForm.amount" :placeholder="`最多可提现 ${usableamount}`"></el-input>
             <span class="tip">* 金额为大于0且最多两位小数，金额不能大于可用余额。</span>
           </el-form-item>
           <el-button class="submit-btn" @click="confirmDiscount('fourForm')">确认</el-button>
@@ -45,8 +45,8 @@ import geCode from "vue-gecode";
 import { mapGetters } from "vuex";
 import {
   withdrawalAccountList as list,
-  withdrawalCode as code,
-  withdrawalCheckCode as checckCode,
+  withdrawalCode as sentCode,
+  withdrawalCheckCode as checkCode,
   withdrawal
 } from "@/api/account";
 export default {
@@ -77,7 +77,7 @@ export default {
       }
     };
     return {
-      actItem: 1, //当前进行的step
+      actItem: 0, //当前进行的step
       loading: false, //下一步按钮loading
       configSelf: {
         startText: "获取验证码",
@@ -86,7 +86,7 @@ export default {
         tickTime: 1, //步值
         todo: async () => {
           try {
-            const { code } = await code();
+            const { code } = await sentCode();
             if (code === 200) {
               return true;
             } else {
@@ -108,10 +108,10 @@ export default {
       fourForm: { amount: "", mobilephone: "" },
       fourFormRules: {
         amount: [
-          { required: true, validator: validateAmount, trigger: "blur" }
+          { required: true, validator: validateAmount, trigger: ["blur","change"] }
         ],
         mobilephone: [
-          { required: true, validator: validateTel, trigger: "blur" }
+          { required: true, validator: validateTel, trigger: ["blur","change"] }
         ]
       },
       sessionFir: "",
@@ -175,7 +175,7 @@ export default {
             this.loading = false;
             if (code === 200) {
               this.msgSuccess("提现成功");
-              this.$router.push("/account/list");
+              this.$router.push("/account/withdrawal");
             }
           } catch (err) {
             this.loading = false;

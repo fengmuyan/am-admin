@@ -1,11 +1,9 @@
 <template>
   <div class="dashboard-editor-container" v-loading="loading" v-if="isShow">
     <panel-group :itemData="topPanelData" @handleSetLineChartData="handleSetLineChartData" />
-
     <el-row class="line-box">
       <line-chart :chart-data="lineChartData" />
     </el-row>
-
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
@@ -32,6 +30,7 @@ import LineChart from "./dashboard/LineChart";
 import PieChart from "./dashboard/PieChart";
 import PieChart2 from "./dashboard/PieChart2";
 import RefererChart from "./dashboard/RefererChart";
+
 import { mapState } from "vuex";
 import { getHomePageData } from "@/api/index";
 
@@ -117,10 +116,8 @@ export default {
         const {
           code,
           data: {
-            statisticsNewOrderRespList: topLeft,
-            statisticsPayCountRespList: topMid,
-            statisticsPayMoneyRespList: topRight,
             statisticsCreditLimitResp: botRight,
+            statisticsOrderDataRespList: topLine,
             statisticsTodayOrderStateRespList: botLeft
           }
         } = await getHomePageData();
@@ -134,33 +131,31 @@ export default {
             lineChartDataAll: { topFir, topSec, topThi, topLast }
           } = this;
           if (botLeft && botLeft.length > 0) {
-            botLeft.forEach(item => {
-              const selectItem = this.botLeftData.find(v => {
-                return Number(v.tradestate) === item.tradestate;
-              });
-              if (selectItem) {
-                Object.assign(selectItem, { value: item.newcount });
-              }
+            this.botLeftData = botLeft.map(item => {
+              return {
+                value: item.newcount,
+                name: this._tradestateInit(item.tradestate)
+              };
             });
           }
           if (botRight) {
             botRightData[0].value = botRight.usedlimit;
             botRightData[1].value = botRight.usablelimit;
           }
-          this._topPanelInit(botMidData[0].value, topMid, "creditprice");
-          this._topPanelInit(botMidData[1].value, topMid, "currencyamount");
+          this._topPanelInit(botMidData[0].value, topLine, "creditprice");
+          this._topPanelInit(botMidData[1].value, topLine, "currencyamount");
 
-          this._topPanelInit(topPanelData[0], topLeft, "newcount");
-          this._topPanelInit(topPanelData[1], topMid, "paycount");
-          this._topPanelInit(topPanelData[2], topMid, "creditprice");
-          this._topPanelInit(topPanelData[3], topRight, "totalmoney");
-          this._topPanelInit(topPanelData[4], topRight, "paymoney");
-          this._topPanelInit(topPanelData[5], topRight, "repaymoney");
+          this._topPanelInit(topPanelData[0], topLine, "ordercount");
+          this._topPanelInit(topPanelData[1], topLine, "paycount");
+          this._topPanelInit(topPanelData[2], topLine, "creditprice");
+          this._topPanelInit(topPanelData[3], topLine, "totalmoney");
+          this._topPanelInit(topPanelData[4], topLine, "paymoney");
+          this._topPanelInit(topPanelData[5], topLine, "repaymoney");
 
-          this._weekDataInit(topFir, topLeft, "newcount");
-          this._weekDataInit(topSec, topMid, "paycount");
-          this._weekDataInit(topThi, topMid, "creditprice");
-          this._weekDataInit(topLast, topRight, "totalmoney");
+          this._weekDataInit(topFir, topLine, "ordercount");
+          this._weekDataInit(topSec, topLine, "paycount");
+          this._weekDataInit(topThi, topLine, "creditprice");
+          this._weekDataInit(topLast, topLine, "totalmoney");
         }
       } catch (err) {
         this.loading = false;
@@ -179,6 +174,23 @@ export default {
     _weekDataInit(operateData, httpData, httpItem) {
       operateData.preWeek = httpData.slice(0, 7).map(item => item[httpItem]);
       operateData.curWeek = httpData.slice(7).map(item => item[httpItem]);
+    },
+
+    _tradestateInit(val) {
+      const arr = [
+        "待付款",
+        "待发货",
+        "已发货",
+        "",
+        "已完成",
+        "已关闭",
+        "",
+        "",
+        "",
+        "",
+        "待称重"
+      ];
+      return arr[val];
     }
   }
 };
