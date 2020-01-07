@@ -111,12 +111,25 @@ export default {
     }
   },
   created() {
-    const codeArr = window.atob(this.$route.params.code).split("-");
-    this.uid = codeArr[0];
-    this.usercode = codeArr[1];
-    this.fourForm.discount = Number(codeArr[2]) * 100;
+    this.initParams();
   },
   methods: {
+    initParams() {
+      try {
+        const codeArr = window.atob(this.$route.params.code).split("-");
+        this.uid = codeArr[0];
+        this.usercode = codeArr[1];
+        this.fourForm.discount = Number(codeArr[2]) * 100;
+      } catch (err) {
+        ELEMENT.MessageBox({
+          message: "参数错误，请检查。",
+          type: "error",
+          duration: 5 * 1000,
+          customClass: "el-message-box-err"
+        });
+        console.log(err);
+      }
+    },
     toConfirmInfo(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {

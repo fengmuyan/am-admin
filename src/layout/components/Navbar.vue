@@ -21,7 +21,7 @@
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
           <img :src="avatar" class="user-avatar" />
-          <span class="user-name">{{name}}</span>
+          <span :class="{'user-name':true,'user-name-len':name.length>10}">{{name}}</span>
           <i class="el-icon-caret-bottom" />
         </div>
 
@@ -54,14 +54,7 @@ export default {
     Search
   },
   computed: {
-    ...mapGetters([
-      "sidebar",
-      "avatar",
-      "device",
-      "roles",
-      "isReal",
-      "name"
-    ]),
+    ...mapGetters(["sidebar", "avatar", "device", "roles", "isReal", "name"]),
     setting: {
       get() {
         return this.$store.state.settings.showSettings;

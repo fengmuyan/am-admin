@@ -14,12 +14,12 @@
       :before-upload="quillImgBefore"
       accept=".jpg, .jpeg, .png, .gif"
     ></el-upload>
-    
 
     <!-- 富文本组件 -->
     <quill-editor
       class="editor"
       v-model="content"
+      v-loading="loading"
       :ref="`quillEditor${moduleNum}`"
       :options="editorOption"
       @blur="onEditorBlur($event)"
@@ -73,6 +73,7 @@ export default {
   components: { quillEditor },
   data() {
     return {
+      loading: false,
       content: this.value,
       uploadImgUrl: "",
       editorOption: {},
@@ -94,7 +95,9 @@ export default {
           handlers: {
             image: function(value) {
               if (value) {
-                document.querySelector(`#quillupload${_this.moduleNum} input`).click()
+                document
+                  .querySelector(`#quillupload${_this.moduleNum} input`)
+                  .click();
               } else {
                 this.quill.format("image", false);
               }
@@ -125,6 +128,7 @@ export default {
     quillImgBefore(file) {
       let fileType = file.type;
       if (fileType === "image/jpeg" || fileType === "image/png") {
+        this.loading = true;
         return true;
       } else {
         this.$message.error("请插入图片类型文件(jpg/jpeg/png)");
@@ -133,6 +137,7 @@ export default {
     },
 
     quillImgSuccess(res, file) {
+      this.loading = false;
       let quill = this.$refs[`quillEditor${this.moduleNum}`].quill;
       if (res.code === 200) {
         let length = quill.getSelection() ? quill.getSelection().index : 0;
@@ -144,6 +149,7 @@ export default {
     },
 
     uploadError() {
+      this.loading = false;
       this.$message.error("图片插入失败");
     }
   }

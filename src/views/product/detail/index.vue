@@ -475,12 +475,19 @@ export default {
     };
   },
   async created() {
-    const codeArr = window.atob(this.$route.params.code).split("-");
-    this.producode = codeArr[0];
-    this.uid = codeArr[1];
+    this.initParams();
     await this.getDetailData();
   },
   methods: {
+    initParams() {
+      try {
+        const codeArr = window.atob(this.$route.params.code).split("-");
+        this.producode = codeArr[0];
+        this.uid = codeArr[1];
+      } catch (err) {
+        console.log(err);
+      }
+    },
     /* 删除图片匹配去掉productImgs中uid */
     delImgItem(uid) {
       const idx = this.productImgs.findIndex(item => {

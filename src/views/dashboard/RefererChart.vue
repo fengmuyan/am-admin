@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import echartTheme from "@/utils/echart.js";
+import echartTheme from "@/utils/echart2.js";
 import resize from "./mixins/resize";
 
 export default {

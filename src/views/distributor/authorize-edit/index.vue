@@ -61,7 +61,11 @@ export default {
         if (!patter.test(value)) {
           callback(new Error("必须非负整数或至多保留两位小数！"));
         } else {
-          callback();
+          if (value < this.usedlimit) {
+            callback(new Error(`授权额度不能小于已使用额度（已使用：${this.usedlimit}）。`));
+          } else {
+            callback();
+          }
         }
       }
     };
@@ -114,7 +118,8 @@ export default {
       },
       sessionFir: "",
       uid: "",
-      usercode: ""
+      usercode: "",
+      usedlimit: ""
     };
   },
   computed: {
@@ -128,13 +133,28 @@ export default {
     }
   },
   created() {
-    const codeArr = window.atob(this.$route.params.code).split("-");
-    this.uid = codeArr[0];
-    this.usercode = codeArr[1];
-    this.fourForm.creditlimit = codeArr[2];
-    this.fourForm.risklimit = codeArr[3];
+    this.initParams();
   },
   methods: {
+    initParams() {
+      try {
+        const codeArr = window.atob(this.$route.params.code).split("-");
+        this.uid = codeArr[0];
+        this.usercode = codeArr[1];
+        this.fourForm.creditlimit = codeArr[2];
+        this.fourForm.risklimit = codeArr[3];
+        this.usedlimit = codeArr[4];
+      } catch (err) {
+        ELEMENT.MessageBox({
+          message: "参数错误，请检查。",
+          type: "error",
+          duration: 5 * 1000,
+          customClass: "el-message-box-err"
+        });
+        console.log(err);
+      }
+    },
+
     toConfirmInfo(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {

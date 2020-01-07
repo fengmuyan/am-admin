@@ -202,7 +202,7 @@
           </span>
         </div>
         <el-form-item label="称重后毛重：" prop="weighedGw">
-          <el-input v-model="weightForm.weighedGw" placeholder="请输入毛重" />
+          <el-input maxlength="6" v-model="weightForm.weighedGw" placeholder="请输入毛重" />
         </el-form-item>
         <el-form-item label="称重后净重：" prop="weighedNw">
           <el-input v-model="weightForm.weighedNw" disabled placeholder="由计算得出" />
@@ -214,7 +214,7 @@
           <el-input v-model="weightForm.weighedCtp" disabled placeholder="由计算得出" />
         </el-form-item>
         <el-form-item label="微调后价格：" prop="adjustedprice">
-          <el-input v-model="weightForm.adjustedprice" placeholder="微调后价格" />
+          <el-input maxlength="6" v-model="weightForm.adjustedprice" placeholder="微调后价格" />
           <div class="tip">* 可以根据称重后用户价格微调取整，上下浮动不超于10。</div>
         </el-form-item>
       </el-form>

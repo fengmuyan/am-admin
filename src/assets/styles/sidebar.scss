@@ -331,10 +331,13 @@
           margin-left: 5px;
           font-size: 18px;
           display: inline-block;
-          width: 90px;
+          width: 55px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+        .user-name-len{
+          width: 90px;
         }
       }
     }

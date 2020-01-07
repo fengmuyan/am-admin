@@ -133,7 +133,7 @@ export default {
           if (botLeft && botLeft.length > 0) {
             this.botLeftData = botLeft.map(item => {
               return {
-                value: item.newcount,
+                value: item.count,
                 name: this._tradestateInit(item.tradestate)
               };
             });
@@ -142,15 +142,15 @@ export default {
             botRightData[0].value = botRight.usedlimit;
             botRightData[1].value = botRight.usablelimit;
           }
-          this._topPanelInit(botMidData[0].value, topLine, "creditprice");
-          this._topPanelInit(botMidData[1].value, topLine, "currencyamount");
+          this._botCircleInit(botMidData[0].value, topLine, "creditprice");
+          this._botCircleInit(botMidData[1].value, topLine, "currencyamount");
 
-          this._topPanelInit(topPanelData[0], topLine, "ordercount");
-          this._topPanelInit(topPanelData[1], topLine, "paycount");
-          this._topPanelInit(topPanelData[2], topLine, "creditprice");
-          this._topPanelInit(topPanelData[3], topLine, "totalmoney");
-          this._topPanelInit(topPanelData[4], topLine, "paymoney");
-          this._topPanelInit(topPanelData[5], topLine, "repaymoney");
+          this._topPanelInit(topPanelData, 0, topLine, "ordercount");
+          this._topPanelInit(topPanelData, 1, topLine, "paycount");
+          this._topPanelInit(topPanelData, 2, topLine, "creditprice");
+          this._topPanelInit(topPanelData, 3, topLine, "totalmoney");
+          this._topPanelInit(topPanelData, 4, topLine, "paymoney");
+          this._topPanelInit(topPanelData, 5, topLine, "repaymoney");
 
           this._weekDataInit(topFir, topLine, "ordercount");
           this._weekDataInit(topSec, topLine, "paycount");
@@ -167,7 +167,11 @@ export default {
       this.activeItem = type;
     },
 
-    _topPanelInit(operateData, httpData, httpItem) {
+    _topPanelInit(operateData, index, httpData, httpItem) {
+      operateData[index] = httpData[httpData.length - 1][httpItem];
+    },
+
+    _botCircleInit(operateData, httpData, httpItem) {
       operateData = httpData[httpData.length - 1][httpItem];
     },
 
