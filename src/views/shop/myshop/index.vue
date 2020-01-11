@@ -118,7 +118,7 @@
               <el-form-item label="店铺图片1：" prop="img_one" ref="uploadElement">
                 <upload-img
                   @add-item="addItemFir"
-                  @del-item="delImgItem"
+                  @del-item="delItemFir"
                   :file="[imgForm.img_one]"
                   ref="imgItemOne"
                   v-model="imgForm.img_one"
@@ -232,16 +232,6 @@ export default {
     this.provideArr = City.provide;
   },
   methods: {
-    /* 删除图片匹配去掉productImgs中uid */
-    delImgItem(uid) {
-      const idx = this.productImgs.findIndex(item => {
-        return item.uid === uid;
-      });
-      if (idx !== -1) {
-        this.productImgs.splice(idx, 1);
-      }
-    },
-
     async getDetail() {
       try {
         const {
@@ -301,9 +291,24 @@ export default {
       this.cityArr = City.getCity(this.baseForm.province);
     },
 
+    /* 删除图片匹配去掉productImgs中uid */
+    delImgItem(uid) {
+      const idx = this.productImgs.findIndex(item => {
+        return item.uid === uid;
+      });
+      if (idx !== -1) {
+        this.productImgs.splice(idx, 1);
+      }
+    },
+
     addItemFir(val) {
       this.imgForm.img_one = val[0];
       this.$refs["uploadElement"].clearValidate();
+    },
+
+    delItemFir(val) {
+      this.imgForm.img_one = null;
+      this.delImgItem(val)
     },
 
     upload(file) {

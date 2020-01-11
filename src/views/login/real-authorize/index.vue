@@ -51,7 +51,7 @@
               ></el-input>
             </el-form-item>
             <el-form-item label="企业营业执照" prop="business_license" class="file-item" ref="addItemBL">
-              <upload-img @add-item="addItemBL"></upload-img>
+              <upload-img @add-item="addItemBL" @del-item="delItemBL"></upload-img>
             </el-form-item>
             <el-form-item label="法人姓名" prop="name">
               <el-input v-model="realAuthFrom.name" placeholder="填写企业名称" maxlength="30" clearable></el-input>
@@ -62,14 +62,14 @@
                 <el-radio label="1">护照</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="法人证件号码" prop="IDCode">
+            <el-form-item label="法人证件号码" prop="IDCode" :rules="idCodeInit">
               <el-input v-model="realAuthFrom.IDCode" placeholder="法人证件号码" maxlength="25" clearable></el-input>
             </el-form-item>
             <el-form-item label="法人证件正面" prop="fr_cert_zm" class="file-item" ref="addItemFZ">
-              <upload-img @add-item="addItemFZ"></upload-img>
+              <upload-img @add-item="addItemFZ" @del-item="delItemFZ"></upload-img>
             </el-form-item>
             <el-form-item label="法人证件反面" prop="fr_cert_fm" class="file-item" ref="addItemFF">
-              <upload-img @add-item="addItemFF"></upload-img>
+              <upload-img @add-item="addItemFF" @del-item="delItemFF"></upload-img>
             </el-form-item>
             <el-button class="submit-btn" :loading="loading" @click="toSuccess('realAuthFrom')">提 交</el-button>
           </el-form>
@@ -121,9 +121,6 @@ export default {
         IDType: [
           { required: true, message: "请输入证件类型", trigger: "blur" }
         ],
-        IDCode: [
-          { required: true, message: "请输入证件号码", trigger: "blur" }
-        ],
         company: [
           { required: true, message: "请输入企业名称", trigger: "blur" }
         ],
@@ -152,9 +149,33 @@ export default {
       } //公司信息验证
     };
   },
+  computed: {
+    idCodeInit() {
+      const type = this.realAuthFrom.IDType;
+      if (Number(type) === 0) {
+        const IdCardNumberReg = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/;
+        return [
+          { required: true, message: `请输入身份证号码`, trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              if (!IdCardNumberReg.test(value)) {
+                callback(new Error("请输入正确格式的身份证号码！"));
+              } else {
+                callback();
+              }
+            },
+            trigger: ["change", "blur"]
+          }
+        ];
+      } else if (Number(type) === 1) {
+        return [{ required: true, message: `请输入护照号码`, trigger: "blur" }];
+      }
+    }
+  },
   methods: {
     /* 提交公司信息认证 */
     toSuccess(form) {
+      console.log(this.realAuthFrom);
       this.$refs[form].validate(async valid => {
         if (valid) {
           this.loading = true;
@@ -167,11 +188,17 @@ export default {
           formData.append("companyNo", this.realAuthFrom.companyNo);
           formData.append("contactsPhone", this.realAuthFrom.contactsPhone);
           formData.append("contactsAddress", this.realAuthFrom.contactsAddress);
+          formData.append(
+            "business_license",
+            this.realAuthFrom.business_license
+          );
+          formData.append("fr_cert_zm", this.realAuthFrom.fr_cert_zm);
+          formData.append("fr_cert_fm", this.realAuthFrom.fr_cert_fm);
           try {
             const { code, msg } = await realNameAuth(formData);
             this.loading = false;
             if (code === 200) {
-              this.msgSuccess("认证成功，请等候实名信息审核。");
+              this.msgSuccess("提交成功，请等候实名信息审核。");
               setTimeout(() => {
                 this.$store.dispatch("GetInfo").then(res => {
                   this.$router.push({ path: "/" });
@@ -204,6 +231,21 @@ export default {
     addItemFF(val) {
       this.realAuthFrom.fr_cert_fm = val[0];
       this.$refs["addItemFF"].clearValidate();
+    },
+
+    /* 企业营业执照上传更新form数据*/
+    delItemBL(val) {
+      this.realAuthFrom.business_license = null;
+    },
+
+    /* 法人身份证正面上传更新form数据*/
+    delItemFZ(val) {
+      this.realAuthFrom.fr_cert_zm = null;
+    },
+
+    /* 法人身份证反面上传更新form数据*/
+    delItemFF(val) {
+      this.realAuthFrom.fr_cert_fm = null;
     }
   }
 };

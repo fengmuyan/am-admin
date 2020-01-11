@@ -815,7 +815,6 @@
       margin-bottom: 20px;
     }
   }
-
   .base-info {
     height: 800px;
     .el-form {
@@ -949,6 +948,13 @@
         }
       }
     }
+  }
+}
+
+.set-reply{
+  @extend .my-shop;
+  .base-info{
+    height: 500px;
   }
 }
 
@@ -1469,6 +1475,9 @@
             height: 25px;
             line-height: 25px;
             font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             b {
               float: left;
               width: 68px;

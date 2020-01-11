@@ -63,7 +63,20 @@
           </el-form-item>
           <el-form-item label="下单时间">
             <el-date-picker
-              v-model="dateRange"
+              v-model="createDateRange"
+              size="small"
+              style="width: 380px"
+              type="datetimerange"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="支付时间">
+            <el-date-picker
+              v-model="payDateRange"
               size="small"
               style="width: 380px"
               type="datetimerange"
@@ -95,8 +108,8 @@
       </el-tabs>
       <el-table style="width: 100%" v-loading="loading" :data="orderList">
         <el-table-column label="订单号" prop="orderno" width="200" />
-        <el-table-column label="创建时间" sortable prop="createtime" width="150" />
-        <el-table-column label="订单金额" sortable prop="orderamount" width="130"/>
+        <el-table-column label="创建时间" sortable prop="createtime" width="160" />
+        <el-table-column label="订单金额" sortable prop="orderamount" width="130" />
         <el-table-column label="用户编号" prop="usercode" />
         <el-table-column label="应收款" prop="needprice" />
         <el-table-column label="实收款" prop="realprice" />
@@ -152,7 +165,8 @@ export default {
       activeName: "-1",
       orderList: [],
       total: 0,
-      dateRange: [],
+      payDateRange: [],
+      createDateRange: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
@@ -232,13 +246,14 @@ export default {
       this.getList();
     },
     resetQuery() {
-      this.dateRange = [];
+      this.createDateRange = [];
+      this.payDateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
     },
     handleDetail(item) {
       this.$router.push({
-        path: `/orderDetail/detail/${item.orderno}`
+        path: `/order-detail/detail/${item.orderno}`
       });
     },
     handleClick() {
@@ -268,11 +283,13 @@ export default {
       });
     },
     _initParams(obj) {
-      const { dateRange, activeName } = this;
+      const { activeName, payDateRange, createDateRange } = this;
       Object.assign(obj, {
         tradestate: activeName === "-1" ? null : activeName,
-        paytimestart: dateRange.length > 0 ? dateRange[0] : null,
-        paytimeend: dateRange.length > 0 ? dateRange[1] : null
+        paytimestart: payDateRange.length > 0 ? payDateRange[0] : null,
+        paytimeend: payDateRange.length > 0 ? payDateRange[1] : null,
+        createtimestart: createDateRange.length > 0 ? createDateRange[0] : null,
+        createtimeend: createDateRange.length > 0 ? createDateRange[1] : null
       });
       return obj;
     }

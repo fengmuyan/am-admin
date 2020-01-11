@@ -159,7 +159,7 @@
             <div class="b-t-g m-b-20">
               <div class="img-wrap">
                 <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
-                  <upload-img @add-item="addItemFir" ref="imgItemFir"></upload-img>
+                  <upload-img @add-item="addItemFir" @del-item="delItemFir" ref="imgItemFir"></upload-img>
                 </el-form-item>
                 <el-form-item label="商品图：" prop="img_two" class="imgs-item">
                   <upload-img ref="imgItemSec"></upload-img>
@@ -379,11 +379,11 @@ export default {
         cateInputArr: []
       }, //物流信息模块
       uploadForm: {
-        img_one: "",
-        img_two: "",
-        img_three: "",
-        img_four: "",
-        img_five: "",
+        img_one: null,
+        img_two: null,
+        img_three: null,
+        img_four: null,
+        img_five: null,
         master_video: "",
         baby_video: "",
         zduration: "0",
@@ -562,6 +562,11 @@ export default {
     addItemFir(val) {
       this.uploadForm.img_one = val[0];
       this.$refs["uploadElement"].clearValidate();
+    },
+
+    /* 添加商品主图 */
+    delItemFir(val) {
+      this.uploadForm.img_one = null;
     },
 
     /* 添加商品主视频*/

@@ -58,7 +58,15 @@ export default {
         legend: {
           orient: "vertical",
           left: "left",
-          data: ["待称重", "待付款", "待发货", "已发货", "已完成", "已关闭"]
+          data: [
+            "待称重",
+            "待付款",
+            "待发货",
+            "已发货",
+            "已完成",
+            "已关闭",
+            "已失效"
+          ]
         },
         series: [
           {

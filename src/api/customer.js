@@ -8,5 +8,19 @@ export function getCustomer() {
   })
 }
 
+// 回复信息获取
+export function getReplyList() {
+  return request({
+    url: '/neatim/rebotreply',
+    method: 'get'
+  })
+}
 
-
+// 回复信息设置
+export function setReply(data) {
+  return request({
+    url: '/neatim/editRebotreply',
+    method: 'post',
+    data
+  })
+}

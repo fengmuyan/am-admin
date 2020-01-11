@@ -77,7 +77,8 @@ export default {
         { value: 0, name: "待发货", tradestate: 1 },
         { value: 0, name: "已发货", tradestate: 2 },
         { value: 0, name: "已完成", tradestate: 4 },
-        { value: 0, name: "已关闭", tradestate: 5 }
+        { value: 0, name: "已关闭", tradestate: 5 },
+        { value: 0, name: "已失效", tradestate: 6 }
       ],
       botRightData: [
         { value: 0, name: "已使用额度" },
@@ -188,7 +189,7 @@ export default {
         "",
         "已完成",
         "已关闭",
-        "",
+        "已失效",
         "",
         "",
         "",

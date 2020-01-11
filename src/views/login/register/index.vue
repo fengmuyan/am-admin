@@ -96,7 +96,11 @@
                   ></el-input>
                 </el-form-item>
               </div>
-              <el-button class="submit-btn2" :loading="loading" @click="toRealAuthFrom('pwFrom')">下一步</el-button>
+              <el-button
+                class="submit-btn2"
+                :loading="loading"
+                @click="toRealAuthFrom('pwFrom')"
+              >下一步</el-button>
             </el-form>
           </div>
           <div v-if="actItem === 2" class="block codeForm infoForm">
@@ -150,7 +154,7 @@
                 class="file-item"
                 ref="addItemBL"
               >
-                <upload-img @add-item="addItemBL"></upload-img>
+                <upload-img @add-item="addItemBL" @del-item="delItemBL"></upload-img>
               </el-form-item>
               <el-form-item label="法人姓名" prop="name">
                 <el-input v-model="realAuthFrom.name" placeholder="填写企业名称" maxlength="30" clearable></el-input>
@@ -161,7 +165,7 @@
                   <el-radio label="1">护照</el-radio>
                 </el-radio-group>
               </el-form-item>
-              <el-form-item label="法人证件号码" prop="IDCode">
+              <el-form-item label="法人证件号码" prop="IDCode" :rules="idCodeInit">
                 <el-input
                   v-model="realAuthFrom.IDCode"
                   placeholder="法人证件号码"
@@ -170,10 +174,10 @@
                 ></el-input>
               </el-form-item>
               <el-form-item label="法人证件正面" prop="fr_cert_zm" class="file-item" ref="addItemFZ">
-                <upload-img @add-item="addItemFZ"></upload-img>
+                <upload-img @add-item="addItemFZ" @del-item="delItemFZ"></upload-img>
               </el-form-item>
               <el-form-item label="法人证件反面" prop="fr_cert_fm" class="file-item" ref="addItemFF">
-                <upload-img @add-item="addItemFF"></upload-img>
+                <upload-img @add-item="addItemFF" @del-item="delItemFF"></upload-img>
               </el-form-item>
               <el-button
                 class="submit-btn"
@@ -213,8 +217,6 @@ export default {
     UploadImg
   },
   data() {
-    const IdCardNumberReg = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/;
-    const PassportNumberReg = /^1[45][0-9]{7}$|(^[P|p|S|s]\d{7}$)|(^[S|s|G|g|E|e]\d{8}$)|(^[Gg|Tt|Ss|Ll|Qq|Dd|Aa|Ff]\d{8}$)|(^[H|h|M|m]\d{8,10}$)/;
     const validateTel = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入手机号"));
@@ -276,13 +278,13 @@ export default {
         name: "", // 姓名/法人姓名
         IDType: "0", // 0身份证 1护照
         IDCode: "", // 证件号码/法人证件号码
-        fr_cert_zm: "", //法人证件正面,
-        fr_cert_fm: "", //法人证件反面
+        fr_cert_zm: null, //法人证件正面,
+        fr_cert_fm: null, //法人证件反面
         company: "", //企业名称
         companyNo: "", // 企业社会统一信用代码
         contactsPhone: "", //联系人电话
         contactsAddress: "", // 企业地址
-        business_license: "" //营业执照
+        business_license: null //营业执照
       }, //公司信息对应表单
       config: {
         startText: "获取验证码",
@@ -337,9 +339,6 @@ export default {
         IDType: [
           { required: true, message: "请输入证件类型", trigger: "blur" }
         ],
-        IDCode: [
-          { required: true, message: "请输入证件号码", trigger: "blur" }
-        ],
         company: [
           { required: true, message: "请输入企业名称", trigger: "blur" }
         ],
@@ -371,6 +370,29 @@ export default {
       secSession: "", //下一步标识
       captchaTip: false //滑动验证el验证
     };
+  },
+  computed: {
+    idCodeInit() {
+      const type = this.realAuthFrom.IDType;
+      if (Number(type) === 0) {
+        const IdCardNumberReg = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/;
+        return [
+          { required: true, message: `请输入身份证号码`, trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              if (!IdCardNumberReg.test(value)) {
+                callback(new Error("请输入正确格式的身份证号码！"));
+              } else {
+                callback();
+              }
+            },
+            trigger: ["change", "blur"]
+          }
+        ];
+      } else if (Number(type) === 1) {
+        return [{ required: true, message: `请输入护照号码`, trigger: "blur" }];
+      }
+    }
   },
   mounted() {
     if (typeof window.TencentCaptcha !== "function") {
@@ -535,6 +557,21 @@ export default {
     addItemFF(val) {
       this.realAuthFrom.fr_cert_fm = val[0];
       this.$refs["addItemFF"].clearValidate();
+    },
+
+    /* 企业营业执照上传更新form数据*/
+    delItemBL(val) {
+      this.realAuthFrom.business_license = null;
+    },
+
+    /* 法人身份证正面上传更新form数据*/
+    delItemFZ(val) {
+      this.realAuthFrom.fr_cert_zm = null;
+    },
+
+    /* 法人身份证反面上传更新form数据*/
+    delItemFF(val) {
+      this.realAuthFrom.fr_cert_fm = null;
     }
   }
 };

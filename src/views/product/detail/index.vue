@@ -110,8 +110,13 @@
           >
             <div v-loading="loadingUploadImg" class="b-t-g img-loading-box">
               <div v-if="imgBoxShow">
-                <el-form-item label="商品主图：" prop="img_one">
-                  <upload-img @del-item="delImgItem" :file="[uploadForm.img_one]" ref="imgItemFir"></upload-img>
+                <el-form-item label="商品主图：" prop="img_one" ref="uploadElement">
+                  <upload-img
+                    @add-item="addItemFir"
+                    @del-item="delItemFir"
+                    :file="[uploadForm.img_one]"
+                    ref="imgItemFir"
+                  ></upload-img>
                 </el-form-item>
                 <el-form-item label="商品图：" prop="img_two" class="imgs-item">
                   <upload-img @del-item="delImgItem" :file="[uploadForm.img_two]" ref="imgItemSec"></upload-img>
@@ -132,7 +137,7 @@
                     :file="[uploadForm.img_five]"
                     ref="imgItemFive"
                   ></upload-img>
-                  <el-button size="mini" class="f-r" type="primary" @click="editProImg">修改商品图片</el-button>
+                  <el-button size="mini" class="f-r" type="primary" @click="editProImgV">修改商品图片</el-button>
                 </el-form-item>
               </div>
             </div>
@@ -443,9 +448,6 @@ export default {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
         ],
-        webDesc: [
-          { required: true, message: "请输入电脑端描述", trigger: "blur" }
-        ],
         phoneDesc: [
           { required: true, message: "请输入手机端描述", trigger: "blur" }
         ]
@@ -488,6 +490,18 @@ export default {
         console.log(err);
       }
     },
+
+    /* 添加商品主图 */
+    addItemFir(val) {
+      this.uploadForm.img_one = val[0];
+      this.$refs["uploadElement"].clearValidate();
+    },
+
+    delItemFir(val) {
+      this.uploadForm.img_one = null;
+      this.delImgItem(val);
+    },
+
     /* 删除图片匹配去掉productImgs中uid */
     delImgItem(uid) {
       const idx = this.productImgs.findIndex(item => {
@@ -727,7 +741,15 @@ export default {
     },
 
     /* 商品图片提交验证 */
-    editProImgV() {},
+    editProImgV() {
+      new Promise((resolve, reject) => {
+        this.$refs["uploadForm"].validate(valid => {
+          if (valid) resolve();
+        });
+      }).then(() => {
+        this.editProImg();
+      });
+    },
 
     /* 商品图片formData组装 */
     editProImg() {

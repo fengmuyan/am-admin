@@ -149,7 +149,7 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/orderDetail',
+    path: '/order-detail',
     component: Layout,
     hidden: true,
     children: [
