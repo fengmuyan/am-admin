@@ -82,6 +82,22 @@
               >{{item.hname}}</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="是否代卖：" prop="isAgent">
+            <el-radio-group v-model="titleForm.isAgent">
+              <el-radio label="Y">是</el-radio>
+              <el-radio label="N">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="titleForm.isAgent==='Y'" label="代卖商户：" prop="pmercode">
+            <el-select v-model="titleForm.pmercode" placeholder="请选择代卖商户" class="w-400">
+              <el-option
+                v-for="item in pmercodeList"
+                :key="item.pmercode"
+                :label="item.name"
+                :value="item.pmercode">
+              </el-option>
+            </el-select>
+          </el-form-item>
         </el-form>
         <dynamic-form v-model="naturalDataInit" ref="dynamicFormNatural"></dynamic-form>
       </div>
@@ -301,7 +317,8 @@ import {
   getProCate,
   getProData,
   getHomePageClass,
-  proPublishSub
+  proPublishSub,
+  getSupplierList
 } from "@/api/product";
 import {
   initFormData,
@@ -361,6 +378,7 @@ export default {
       tableIsShow: false,  
       cversion: "", //版本号商品提交发布使用
       storeInfo: {}, //地址信息
+      pmercodeList: [],
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
@@ -394,6 +412,8 @@ export default {
         imgCenter: []
       }, //上传表单
       titleForm: {
+        isAgent: "N",
+        pmercode: "",
         produname: "",
         title: "",
         homepageclass: "10000004"
@@ -455,7 +475,10 @@ export default {
         title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
-        ]
+        ],
+        pmercode: [
+          { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }
+        ],
       }, //自然属性中的标题表单验证
       payFormRules: {
         paymethod: [
@@ -489,13 +512,20 @@ export default {
           {
             data: { homePageClasses },
             code: code2
+          },
+          {
+            data: { pmercodes },
+            code: code3
           }
-        ] = await Promise.all([getProCate({}), getHomePageClass()]);
+        ] = await Promise.all([getProCate({}), getHomePageClass(), getSupplierList()]);
         if (code1 === 200) {
           this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
         }
         if (code2 === 200) {
           this.homePageClasses = homePageClasses;
+        }
+        if (code3 === 200) {
+          this.pmercodeList = pmercodes;
         }
       } catch (err) {
         console.log(err);
@@ -739,6 +769,9 @@ export default {
       formData.append("cversion", this.cversion);
       formData.append("produname", this.titleForm.produname);
       formData.append("title", this.titleForm.title);
+      formData.append("isAgent", this.titleForm.isAgent);
+      formData.append("pmercode", this.titleForm.pmercode);
+
       formData.append(
         "naturepro",
         JSON.stringify({ naturepro: deInitFormData(naturalDataInit) })

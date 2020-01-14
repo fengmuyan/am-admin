@@ -74,6 +74,15 @@ export function proPublishDel(formData) {
   })
 }
 
+//获得大供应商列表
+export function getSupplierList(data = {}) {
+  return request({
+    url: '/god/publish/getPmercodeList',
+    method: 'post',
+    data,
+  })
+}
+
 
 
 

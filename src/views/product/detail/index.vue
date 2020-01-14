@@ -43,6 +43,22 @@
               >{{item.hname}}</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="是否代卖：" prop="isAgent">
+            <el-radio-group v-model="titleForm.isAgent">
+              <el-radio label="Y">是</el-radio>
+              <el-radio label="N">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="titleForm.isAgent==='Y'" label="代卖商户：" prop="pmercode">
+            <el-select v-model="titleForm.pmercode" placeholder="请选择代卖商户" class="w-400">
+              <el-option
+                v-for="item in pmercodeList"
+                :key="item.pmercode"
+                :label="item.name"
+                :value="item.pmercode">
+              </el-option>
+            </el-select>
+          </el-form-item>
         </el-form>
         <dynamic-form v-model="naturalDataInit" ref="dynamicFormNatural"></dynamic-form>
       </div>
@@ -295,7 +311,8 @@ import {
   getProData,
   getHomePageClass,
   getProDetail,
-  proPublishSubEdit
+  proPublishSubEdit,
+  getSupplierList
 } from "@/api/product";
 import {
   initFormData,
@@ -356,6 +373,7 @@ export default {
       cmdtclassname: "", //页面显示的商品类目
       producode: "", //商品编码（修改需要提交）
       uid: "", //商品uid（修改需要提交）
+      pmercodeList: [], //大供应商列表
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
       saleData: [], //销售属性原始数据
@@ -401,6 +419,8 @@ export default {
         phoneDesc: ""
       }, //上传表单
       titleForm: {
+        isAgent: "",
+        pmercode: "",
         produname: "",
         title: "",
         homepageclass: ""
@@ -459,6 +479,9 @@ export default {
         title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
+        ],
+        pmercode: [
+          { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }
         ]
       }, //自然属性中的标题表单验证
       payFormRules: {
@@ -548,113 +571,121 @@ export default {
     async getDetailData() {
       try {
         const { producode, uid } = this;
-        const [
-          {
-            code: code1,
-            data: {
-              cmdtProduct: {
-                cmdtclassname,
-                produname,
-                title,
-                homepageclass,
-                pricetype,
-                weightunit,
-                grossweight,
-                netweight,
-                isdiscount,
-                naturepro,
-                salepro,
-                invoice,
-                state,
-                publishtime,
-                paymethod,
-                stockmethod,
-                issupsubstitute,
-                deliverymode,
-                shippingcity: city,
-                shippingprovince: province,
-                shoplocation: address
-              },
-              cmdtProductDescriptions,
-              cmdtProductImages,
-              cmdtProductPrices,
-              productVideos
+        const { code: code3, data:{ pmercodes } } = await getSupplierList();
+        if(code3 === 200){
+          this.pmercodeList = pmercodes;
+          const [
+            {
+              code: code1,
+              data: {
+                cmdtProduct: {
+                  cmdtclassname,
+                  produname,
+                  title,
+                  homepageclass,
+                  pricetype,
+                  weightunit,
+                  grossweight,
+                  netweight,
+                  isdiscount,
+                  naturepro,
+                  salepro,
+                  invoice,
+                  state,
+                  publishtime,
+                  paymethod,
+                  stockmethod,
+                  issupsubstitute,
+                  deliverymode,
+                  isagent,
+                  pmercode,
+                  shippingcity: city,
+                  shippingprovince: province,
+                  shoplocation: address
+                },
+                cmdtProductDescriptions,
+                cmdtProductImages,
+                cmdtProductPrices,
+                productVideos
+              }
+            },
+            {
+              data: { homePageClasses },
+              code: code2
             }
-          },
-          {
-            data: { homePageClasses },
-            code: code2
+          ] = await Promise.all([
+            getProDetail({ producode, uid }),
+            getHomePageClass()
+          ]);
+          if (code1 === 200) {
+            this.cmdtclassname = cmdtclassname;
+            this.titleForm.produname = produname;
+            this.titleForm.title = title;
+            this.titleForm.homepageclass = homepageclass;
+            this.titleForm.isAgent = isagent;
+            this.titleForm.pmercode = pmercode;
+            this.valuationForm.pricetype = String(pricetype);
+            this.valuationForm.weightunit = weightunit;
+            this.valuationForm.grossweight = grossweight;
+            this.valuationForm.netweight = netweight;
+            this.valuationForm.isdiscount = String(isdiscount);
+            this.naturalData = JSON.parse(naturepro).naturepro;
+            this.naturalDataInit = initFormData(deepClone(this.naturalData));
+            this.saleData = JSON.parse(salepro).salepro;
+            this.saleDataInit = initFormData(deepClone(this.saleData));
+            this.cmdtProductPrices = cmdtProductPrices;
+            this.tableShow(true);
+            this.postSaleForm.state = String(state);
+            this.postSaleForm.publishtime = publishtime;
+            Object.assign(this.postSaleForm, initInvoice(invoice));
+            this.payForm.paymethod = String(paymethod);
+            this.payForm.stockmethod = String(stockmethod);
+            this.logisticsForm.issupsubstitute =
+              issupsubstitute === "Y" ? true : false;
+            this.logisticsForm.deliverymode = String(deliverymode);
+            this.uploadForm.webDesc = cmdtProductDescriptions.find(
+              item => item.xtype === 2
+            ).xdesc;
+            this.uploadForm.phoneDesc = cmdtProductDescriptions.find(
+              item => item.xtype === 1
+            ).xdesc;
+            const imgData = cmdtProductImages.map(item => {
+              return Object.assign(item, { url: item.image });
+            });
+            const imgOne = imgData.find(item => item.serial === 1);
+            const imgTwo = imgData.find(item => item.serial === 2);
+            const imgThree = imgData.find(item => item.serial === 3);
+            const imgFour = imgData.find(item => item.serial === 4);
+            const imgFive = imgData.find(item => item.serial === 5);
+            this.uploadForm.img_one = imgOne ? imgOne : null;
+            this.uploadForm.img_two = imgTwo ? imgTwo : null;
+            this.uploadForm.img_three = imgThree ? imgThree : null;
+            this.uploadForm.img_four = imgFour ? imgFour : null;
+            this.uploadForm.img_five = imgFive ? imgFive : null;
+            const masterVideo = productVideos.find(item => item.serial === 1);
+            const babyVideo = productVideos.find(item => item.serial === 2);
+            this.uploadForm.master_video = masterVideo ? masterVideo : null;
+            this.uploadForm.baby_video = babyVideo ? babyVideo : null;
+            this.uploadForm.proportion = masterVideo
+              ? String(masterVideo.proportion)
+              : "";
+            this.productImgs = cmdtProductImages.map(item => {
+              return { serial: item.serial, uid: item.uid };
+            });
+            this.productVideos = productVideos.map(item => {
+              return { serial: item.serial, uid: item.uid };
+            });
+            this.state = String(state);
+            this.storeInfo = {
+              province,
+              city,
+              address
+            };
+            this._loadingCancel();
           }
-        ] = await Promise.all([
-          getProDetail({ producode, uid }),
-          getHomePageClass()
-        ]);
-        if (code1 === 200) {
-          this.cmdtclassname = cmdtclassname;
-          this.titleForm.produname = produname;
-          this.titleForm.title = title;
-          this.titleForm.homepageclass = homepageclass;
-          this.valuationForm.pricetype = String(pricetype);
-          this.valuationForm.weightunit = weightunit;
-          this.valuationForm.grossweight = grossweight;
-          this.valuationForm.netweight = netweight;
-          this.valuationForm.isdiscount = String(isdiscount);
-          this.naturalData = JSON.parse(naturepro).naturepro;
-          this.naturalDataInit = initFormData(deepClone(this.naturalData));
-          this.saleData = JSON.parse(salepro).salepro;
-          this.saleDataInit = initFormData(deepClone(this.saleData));
-          this.cmdtProductPrices = cmdtProductPrices;
-          this.tableShow(true);
-          this.postSaleForm.state = String(state);
-          this.postSaleForm.publishtime = publishtime;
-          Object.assign(this.postSaleForm, initInvoice(invoice));
-          this.payForm.paymethod = String(paymethod);
-          this.payForm.stockmethod = String(stockmethod);
-          this.logisticsForm.issupsubstitute =
-            issupsubstitute === "Y" ? true : false;
-          this.logisticsForm.deliverymode = String(deliverymode);
-          this.uploadForm.webDesc = cmdtProductDescriptions.find(
-            item => item.xtype === 2
-          ).xdesc;
-          this.uploadForm.phoneDesc = cmdtProductDescriptions.find(
-            item => item.xtype === 1
-          ).xdesc;
-          const imgData = cmdtProductImages.map(item => {
-            return Object.assign(item, { url: item.image });
-          });
-          const imgOne = imgData.find(item => item.serial === 1);
-          const imgTwo = imgData.find(item => item.serial === 2);
-          const imgThree = imgData.find(item => item.serial === 3);
-          const imgFour = imgData.find(item => item.serial === 4);
-          const imgFive = imgData.find(item => item.serial === 5);
-          this.uploadForm.img_one = imgOne ? imgOne : null;
-          this.uploadForm.img_two = imgTwo ? imgTwo : null;
-          this.uploadForm.img_three = imgThree ? imgThree : null;
-          this.uploadForm.img_four = imgFour ? imgFour : null;
-          this.uploadForm.img_five = imgFive ? imgFive : null;
-          const masterVideo = productVideos.find(item => item.serial === 1);
-          const babyVideo = productVideos.find(item => item.serial === 2);
-          this.uploadForm.master_video = masterVideo ? masterVideo : null;
-          this.uploadForm.baby_video = babyVideo ? babyVideo : null;
-          this.uploadForm.proportion = masterVideo
-            ? String(masterVideo.proportion)
-            : "";
-          this.productImgs = cmdtProductImages.map(item => {
-            return { serial: item.serial, uid: item.uid };
-          });
-          this.productVideos = productVideos.map(item => {
-            return { serial: item.serial, uid: item.uid };
-          });
-          this.state = String(state);
-          this.storeInfo = {
-            province,
-            city,
-            address
-          };
-          this._loadingCancel();
-        }
-        if (code2 === 200) {
-          this.homePageClasses = homePageClasses;
+          if (code2 === 200) {
+            this.homePageClasses = homePageClasses;
+          }
         }
       } catch (err) {
         console.log(err);
@@ -710,6 +741,8 @@ export default {
       formData.append("produname", this.titleForm.produname);
       formData.append("title", this.titleForm.title);
       formData.append("homepageclass", this.titleForm.homepageclass);
+      formData.append("isAgent", this.titleForm.isAgent);
+      formData.append("pmercode", this.titleForm.pmercode);
       formData.append(
         "naturepro",
         JSON.stringify({ naturepro: deInitFormData(this.naturalDataInit) })
