@@ -101,7 +101,7 @@
               </div>
               <div class="content">
                 <h4>{{scope.row.title}}</h4>
-                <p>{{scope.row.standards}}</p>
+                <p>{{scope.row.standards.substring(0,scope.row.standards.length-1)}}。</p>
               </div>
             </template>
           </el-table-column>
@@ -167,7 +167,7 @@
             </p>
             <p>
               <b>运费（快递）：</b>
-              <span>+￥{{carriage}}</span>
+              <span>￥{{carriage}}</span>
             </p>
             <p>
               <b>应付总价：</b>
@@ -219,8 +219,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitWeightForm('weightForm')">确 定</el-button>
         <el-button @click="openWeight = false">取 消</el-button>
+        <el-button type="primary" @click="submitWeightForm('weightForm')">确 定</el-button>
       </div>
     </el-dialog>
   </div>

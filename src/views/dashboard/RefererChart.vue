@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import echartTheme from "@/utils/echart2.js";
+import echartTheme from "@/utils/echart.js";
 import resize from "./mixins/resize";
 
 export default {
@@ -19,7 +19,7 @@ export default {
     },
     height: {
       type: String,
-      default: "300px"
+      default: "290px"
     },
     itemData: {
       type: Array,
@@ -72,8 +72,8 @@ export default {
           {
             name: "订单状态",
             type: "pie",
-            radius: "55%",
-            center: ["50%", "60%"],
+            radius: [10, 75],
+            center: ["58%", "57%"],
             data: this.itemData,
             itemStyle: {
               emphasis: {

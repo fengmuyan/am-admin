@@ -2,22 +2,22 @@
   <div class="account app-container">
     <div class="table-p">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
-        <el-table-column label="通道编号" prop="channelcode" width="100" />
-        <el-table-column label="通道名称" prop="channelname" :show-overflow-tooltip="true"/>
-        <el-table-column label="收款户名" prop="accountname" />
-        <el-table-column label="银行账号" prop="bankaccount" />
-        <el-table-column label="开户行名称" prop="bankname" width="150"/>
-        <el-table-column label="开户行行号" prop="bankno" width="150" />
-        <el-table-column label="预留手机号" prop="mobilephone" width="150" />
-        <el-table-column label="注册类型" prop="registertype" width="100">
+        <el-table-column label="通道编号" prop="channelcode" width="70" />
+        <el-table-column label="通道名称" prop="channelname" show-overflow-tooltip />
+        <el-table-column label="收款户名" prop="accountname" show-overflow-tooltip/>
+        <el-table-column label="银行账号" prop="bankaccount" show-overflow-tooltip/>
+        <el-table-column label="开户行名称" prop="bankname" show-overflow-tooltip/>
+        <el-table-column label="开户行行号" prop="bankno" show-overflow-tooltip/>
+        <el-table-column label="预留手机号" prop="mobilephone" width="100"/>
+        <el-table-column label="注册类型" prop="registertype" width="70">
           <template slot-scope="scope">{{registertypeArr[Number(scope.row.registertype)]}}</template>
         </el-table-column>
-        <el-table-column label="开通状态" prop="merstate" width="150">
+        <el-table-column label="开通状态" prop="merstate" width="70">
           <template
             slot-scope="scope"
           >{{scope.row.merstate === null?"未开户":merstateArr[Number(scope.row.merstate)]}}</template>
         </el-table-column>
-        <el-table-column label="操作" width="250">
+        <el-table-column label="操作" width="160">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -116,8 +116,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createAccount('accountForm')">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="createAccount('accountForm')">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -148,8 +148,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="verifyConfirm('verifyForm')">确 定</el-button>
         <el-button @click="cancelVerify">取 消</el-button>
+        <el-button type="primary" @click="verifyConfirm('verifyForm')">确 定</el-button>
       </div>
     </el-dialog>
   </div>

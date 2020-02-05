@@ -37,7 +37,7 @@
           <el-input v-model="item.inputVal" class="w-400"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button @click="proPublish('cateForm')">确认提交</el-button>
+          <el-button @click="proPublish('cateForm')">确 定</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -82,7 +82,7 @@
               >{{item.hname}}</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="是否代卖：" prop="isAgent">
+          <el-form-item label="代卖商品：" prop="isAgent">
             <el-radio-group v-model="titleForm.isAgent">
               <el-radio label="Y">是</el-radio>
               <el-radio label="N">否</el-radio>
@@ -117,13 +117,13 @@
             </el-radio-group>
           </el-form-item>
           <div v-if="valuationForm.pricetype === '2'">
-            <el-form-item label="重量单位" prop="weightunit">
+            <el-form-item label="重量单位：" prop="weightunit">
               <el-radio-group v-model="valuationForm.weightunit">
                 <el-radio label="公斤">公斤</el-radio>
                 <el-radio label="斤">斤</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="净重" prop="netweight">
+            <el-form-item label="净重：" prop="netweight">
               <el-input
                 v-model="valuationForm.netweight"
                 maxlength="8"
@@ -132,7 +132,7 @@
                 clearable
               ></el-input>
             </el-form-item>
-            <el-form-item label="毛重" prop="grossweight">
+            <el-form-item label="毛重：" prop="grossweight">
               <el-input
                 v-model="valuationForm.grossweight"
                 maxlength="8"
@@ -302,7 +302,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <el-button type="primary" @click="formdataSubVerify">发布提交</el-button>
+      <el-button type="primary" @click="formdataSubVerify">发布商品</el-button>
     </div>
     <div v-loading="loading" class="block empty-block" v-else>请先选择一个分类。</div>
   </div>
@@ -475,6 +475,9 @@ export default {
         title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
+        ],
+        isAgent: [
+          { required: true, message: "请选择", trigger: "blur" }
         ],
         pmercode: [
           { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }

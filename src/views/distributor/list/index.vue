@@ -63,22 +63,22 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="distributorList">
-        <el-table-column label="经销商名称" prop="username" width="180" />
-        <el-table-column label="信用额度" prop="creditlimit" />
-        <el-table-column label="已用额度" prop="usedlimit" />
-        <el-table-column label="可用额度" prop="usablelimit" />
-        <el-table-column label="风控额度" prop="risklimit" />
-        <el-table-column label="平台总使用额度" prop="sumlimit" width="160" />
-        <el-table-column label="风控状态">
+        <el-table-column label="经销商名称" prop="username" show-overflow-tooltip/>
+        <el-table-column label="已用额度" prop="usedlimit" width="90"/>
+        <el-table-column label="授权额度" prop="creditlimit" width="90"/>
+        <el-table-column label="可用额度" prop="usablelimit" width="90"/>
+        <el-table-column label="风控额度" prop="risklimit" width="90"/>
+        <el-table-column label="平台总使用额度" prop="sumlimit" width="100" />
+        <el-table-column label="风控状态" width="80">
           <template
             slot-scope="scope"
           >{{Number(scope.row.sumlimit)>Number(scope.row.risklimit)?'风控超额':'正常'}}</template>
         </el-table-column>
-        <el-table-column label="信用额度最新使用时间" prop="latestusedtime" width="180" />
-        <el-table-column label="授权额度最新更改时间" prop="latestmodifytime" width="180" />
-        <el-table-column label="授权额度初始创建时间" prop="initcreatetime" width="180" />
-        <el-table-column label="折扣" prop="vodiscount"></el-table-column>
-        <el-table-column label="操作" width="160">
+        <el-table-column label="信用额度最新使用时间" prop="latestusedtime" width="150" />
+        <el-table-column label="授权额度最新更改时间" prop="latestmodifytime" width="150" />
+        <el-table-column label="授权额度初始创建时间" prop="initcreatetime" width="150" />
+        <el-table-column label="折扣" prop="vodiscount" width="60"/>
+        <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">授权</el-button>
             <el-button

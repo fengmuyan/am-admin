@@ -480,6 +480,9 @@ export default {
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ],
+        isAgent: [
+          { required: true, message: "请选择", trigger: "blur" }
+        ],
         pmercode: [
           { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }
         ]

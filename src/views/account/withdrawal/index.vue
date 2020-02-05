@@ -8,7 +8,7 @@
         <el-table-column label="冻结金额" prop="usableamount" />
         <el-table-column label="累计提现" prop="totalcash" />
         <el-table-column label="累计收入" prop="totalincome" />
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="120">
           <template slot-scope="scope">
             <el-button
               size="mini"

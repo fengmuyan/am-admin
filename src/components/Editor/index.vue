@@ -160,7 +160,6 @@ export default {
 .editor {
   line-height: normal !important;
   height: 500px;
-  width: 1150px;
 }
 .el-upload {
   display: none;

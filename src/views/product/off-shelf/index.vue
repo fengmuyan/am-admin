@@ -52,15 +52,14 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="productList">
-        <el-table-column label="商品编码" prop="ccode" />
-        <el-table-column label="商品类目" prop="cmdtclassname" />
-        <el-table-column label="商品名称" prop="title" />
-        <el-table-column label="付款方式" prop="voPaymethod" />
-        <el-table-column label="付款方式" prop="voPaymethod" />
-        <el-table-column label="库存计数" prop="voStockmethod" />
-        <el-table-column label="上架状态" prop="vostate" />
-        <el-table-column label="上架时间" prop="publishtime" />
-        <el-table-column label="操作" width="240">
+        <el-table-column label="商品编码" prop="ccode" width="90" />
+        <el-table-column label="商品类目" prop="cmdtclassname" show-overflow-tooltip />
+        <el-table-column label="商品标题" prop="title" show-overflow-tooltip />
+        <el-table-column label="付款方式" prop="voPaymethod" width="90" />
+        <el-table-column label="库存计数" prop="voStockmethod" width="90" />
+        <el-table-column label="上架状态" prop="vostate" width="70" />
+        <el-table-column label="上架时间" prop="publishtime" width="150" />
+        <el-table-column label="操作" width="220px">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
             <el-button
@@ -142,7 +141,7 @@ export default {
 
     handleEdit(item) {
       const { producode, uid } = item;
-      const params = window.btoa(`${item.producode}-${item.uid}`)
+      const params = window.btoa(`${item.producode}-${item.uid}`);
       this.$router.push({
         path: `/publish/detail/${params}`
       });

@@ -204,20 +204,21 @@ export default {
 <style lang="scss" scoped>
 .dashboard-editor-container {
   padding: 25px 40px;
+  padding-top: 15px;
   background-color: rgb(240, 242, 245);
   position: relative;
 
   .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
-    margin-bottom: 32px;
+    margin-bottom: 25px;
     border-radius: 8px;
     box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
   }
   .line-box {
     background: #fff;
     padding: 16px 16px 0;
-    margin-bottom: 32px;
+    margin-bottom: 25px;
     border-radius: 8px;
     box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
   }

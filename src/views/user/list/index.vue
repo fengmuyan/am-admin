@@ -7,11 +7,11 @@
         </el-col>
       </el-row>
       <el-table v-loading="loading" :data="userList">
-        <el-table-column label="用户编号" prop="userId" width="120" />
+        <el-table-column label="用户编号" prop="userId" width="80" />
         <el-table-column label="用户名称" prop="userName" />
         <el-table-column label="用户昵称" prop="nickName" />
-        <el-table-column label="角色" prop="roleNames" width="300" />
-        <el-table-column label="状态" prop="status">
+        <el-table-column label="角色" prop="roleNames"/>
+        <el-table-column label="状态" prop="status" width="80">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.status"
@@ -24,7 +24,7 @@
         <el-table-column
           label="操作"
           align="center"
-          width="400"
+          width="200"
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
@@ -82,8 +82,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('userForm')">确 定</el-button>
         <el-button @click="open = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('userForm')">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -95,13 +95,13 @@
         label-width="110px"
       >
         <el-form-item label="用户名称" prop="userName">
-          <el-input v-model="userEditForm.userName" disabled placeholder="请输入用户名称" />
+          <el-input v-model="userEditForm.userName" style="width:320px" disabled placeholder="请输入用户名称" />
         </el-form-item>
         <el-form-item label="用户昵称" prop="nickName">
-          <el-input v-model="userEditForm.nickName" placeholder="请输入用户名称" />
+          <el-input v-model="userEditForm.nickName" style="width:320px" placeholder="请输入用户名称" />
         </el-form-item>
         <el-form-item label="用户状态" prop="status">
-          <el-select v-model="userEditForm.status" style="width:340px" placeholder="请选择">
+          <el-select v-model="userEditForm.status" style="width:320px" placeholder="请选择">
             <el-option
               v-for="item in statusOptions"
               :key="item.status"
@@ -111,7 +111,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="用户角色" prop="roleIds">
-          <el-select v-model="userEditForm.roleIds" multiple style="width:340px" placeholder="请选择">
+          <el-select v-model="userEditForm.roleIds" multiple style="width:320px" placeholder="请选择">
             <el-option
               v-for="item in roleOptions"
               :key="item.roleId"
@@ -122,8 +122,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('userEditForm')">确 定</el-button>
         <el-button @click="openEdit = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('userEditForm')">确 定</el-button>
       </div>
     </el-dialog>
   </div>

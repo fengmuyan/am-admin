@@ -63,6 +63,7 @@
       border-color: $light-blue;
       color: $light-blue;
       margin-right: 65px;
+      margin-left: 8px;
     }
     .el-button--primary{
       background-color: $light-blue;
@@ -111,6 +112,9 @@
         font-size: 19px;
       }
     }
+    p.total{
+      margin-top: 25px;
+    }
   }
 }
 
@@ -124,8 +128,20 @@
   background: #fff;
   border-radius: 6px;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  .el-button{
+    margin-left: 0;
+  }
+  .el-button--mini {
+    padding: 7px 5px;
+  }
+  .export-btn{
+    position: absolute;
+    right: 35px;
+    top: 13px;
+  }
   .el-tabs{
-    padding: 0 20px;
+    padding: 0 15px;
     .el-tabs__header{
       margin-bottom: 22px;
     }
@@ -135,9 +151,6 @@
     .el-tabs__active-bar{
       height: 3px;
     }
-  }
-  .el-button--mini {
-    padding: 7px 8px;
   }
   .icon-wrap {
     padding-right: 5px;
@@ -186,6 +199,10 @@
     text-align: center;
     padding: 8px 0;
     cursor: pointer;
+    .cell{
+      padding-left: 3px;
+      padding-right: 3px;
+    }
   }
   .el-table__header {
     th {
@@ -889,8 +906,8 @@
         .city-item{
           position: absolute;
           top: 0;
-          left: 210px;
-          .el-select--medium{
+          left: 320px;
+          .el-form-item__content,.el-select--medium{
             margin-left: 0 !important;
           }
         }

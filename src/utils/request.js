@@ -13,7 +13,7 @@ service.interceptors.request.use(
       config.headers['Authorization'] = 'Bearer ' + getToken()
     }
     if (config.data && config.data.$_isFormData === true) {
-      config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      config.headers['Content-Type'] = 'multipart/form-data';
       config.data = config.data.formData
     }
     return config

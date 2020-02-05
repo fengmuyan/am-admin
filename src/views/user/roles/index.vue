@@ -7,7 +7,7 @@
         </el-col>
       </el-row>
       <el-table v-loading="loading" :data="roleList">
-        <el-table-column label="角色编号" prop="roleId" width="120" />
+        <el-table-column label="角色编号" prop="roleId" width="100" />
         <el-table-column label="角色名称" prop="roleName" />
         <el-table-column label="权限标识" prop="roleKey" />
         <el-table-column label="排序" prop="roleSort" />
@@ -24,7 +24,7 @@
         <el-table-column
           label="操作"
           align="center"
-          width="400"
+          width="250"
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
@@ -53,8 +53,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm('roleForm')">确 定</el-button>
         <el-button @click="open = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('roleForm')">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -80,8 +80,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitFormEdit('roleEditform')">确 定</el-button>
         <el-button @click="openEdit = false">取 消</el-button>
+        <el-button type="primary" @click="submitFormEdit('roleEditform')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
