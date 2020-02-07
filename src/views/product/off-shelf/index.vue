@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-collapse-transition>
-      <div class="form-p" v-show="formShow">
+      <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
         <el-form :model="queryForm" ref="queryForm" :inline="true">
           <el-form-item label="模糊搜索" prop="conditionParameter">
             <el-input
@@ -33,7 +33,7 @@
       </div>
     </el-collapse-transition>
 
-    <div class="table-p">
+    <div class="table-p" :style="{ 'min-height': minHeight }">
       <el-row :gutter="10" class="mb10 f-l">
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">发布商品</el-button>
@@ -42,7 +42,8 @@
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">
           <div class="icon-box icon-box-f" @click="formShow = !formShow">
-            <i class="el-icon-zoom-in"></i>
+            <i class="el-icon-zoom-in" v-show="!formShow"></i>
+            <i class="el-icon-zoom-out" v-if="formShow"></i>
           </div>
         </el-col>
         <el-col :span="1.5">
@@ -89,7 +90,9 @@
 </template>
 <script>
 import { getProList, proPublishSubEdit, proPublishDel } from "@/api/product";
+import minHeightMix from '@/mixins/minHeight'
 export default {
+  mixins: [minHeightMix],
   data() {
     return {
       loading: false,

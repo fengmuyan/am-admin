@@ -119,9 +119,8 @@
 }
 
 .table-p {
-  min-height: 700px;
   padding: 12px;
-  padding-bottom: 50px;
+  padding-bottom: 20px;
   margin-bottom: 10px;
   background-color: #fff;
   width: 100%;
@@ -136,8 +135,10 @@
     padding: 7px 5px;
   }
   .export-btn{
+    margin: 0 !important;
+    width: 170px !important;
     position: absolute;
-    right: 35px;
+    right: 26px;
     top: 13px;
   }
   .el-tabs{
@@ -227,6 +228,21 @@
   .el-pagination {
     text-align: right;
     margin-top: 20px;
+  }
+  .total-wrap{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    .total-data{
+      padding-left: 20px;
+      line-height: 50px;
+      color: #606266;
+      span{
+        font-size: 20px;
+        color: red;
+      }
+    }
   }
 }
 
@@ -378,8 +394,9 @@
 
 .pro-publish {
   .block {
-    border: 1px solid #ccc;
     background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
     padding: 25px;
     margin-bottom: 20px;
     h4 {
@@ -819,8 +836,9 @@
 
 .my-shop{
   .block {
-    border: 1px solid #ccc;
     background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
     padding: 25px;
     margin-bottom: 20px;
     h4 {

@@ -4,7 +4,7 @@
     v-loading="loadingAll"
     element-loading-text="可能需要一段时间，请耐心等候！"
   >
-    <div v-if="!haveCateData" class="block top-select">
+    <div v-if="!haveCateData" class="block top-select" ref="formPublic">
       <el-form ref="cateForm" :inline="true" :model="cateForm" label-width="100px">
         <el-form-item
           label="产品分类："
@@ -88,8 +88,8 @@
               <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="titleForm.isAgent==='Y'" label="代卖商户：" prop="pmercode">
-            <el-select v-model="titleForm.pmercode" placeholder="请选择代卖商户" class="w-400">
+          <el-form-item v-if="titleForm.isAgent==='Y'" label="货主：" prop="pmercode">
+            <el-select v-model="titleForm.pmercode" placeholder="请选择货主" class="w-400">
               <el-option
                 v-for="item in pmercodeList"
                 :key="item.pmercode"
@@ -304,7 +304,7 @@
       </div>
       <el-button type="primary" @click="formdataSubVerify">发布商品</el-button>
     </div>
-    <div v-loading="loading" class="block empty-block" v-else>请先选择一个分类。</div>
+    <div v-loading="loading" class="block empty-block" v-else :style="{ 'min-height': parseInt(minHeight)-143+'px' }">请先选择一个分类。</div>
   </div>
 </template>
 <script>
@@ -313,6 +313,7 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
 import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
+import minHeightMix from '@/mixins/minHeight'
 import {
   getProCate,
   getProData,
@@ -333,6 +334,7 @@ import {
 } from "@/utils";
 
 export default {
+  mixins: [minHeightMix],
   components: {
     DynamicForm,
     DynamicTable,

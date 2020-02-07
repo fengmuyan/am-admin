@@ -27,16 +27,25 @@ service.interceptors.request.use(
 service.interceptors.response.use(res => {
   const code = res.data.code
   if (code === 401) {
-    ELEMENT.MessageBox({
-      message: '登录状态已过期。',
-      type: 'error',
-      duration: 5 * 1000,
-      customClass: 'el-message-box-err'
-    }).then(() => {
-      store.dispatch('LogOut').then(() => {
-        location.reload()
+    if (store.getters.tipAppeared === false) {
+      store.dispatch('toggleTip', true).then(() => {
+        ELEMENT.MessageBox({
+          message: '登录状态已过期。',
+          type: 'error',
+          customClass: 'el-message-box-err',
+          closeOnClickModal: false,
+          closeOnPressEscape: false
+        }).then(() => {
+          store.dispatch('LogOut').then(() => {
+            store.dispatch('toggleTip', false)
+            location.reload()
+          })
+        })
       })
-    })
+    } else {
+      return
+    }
+
   } else if (code !== 200) {
     ELEMENT.MessageBox({
       message: res.data.msg,

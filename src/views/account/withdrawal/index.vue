@@ -1,6 +1,6 @@
 <template>
   <div class="account app-container">
-    <div class="table-p">
+    <div class="table-p" :style="{ 'min-height': minHeight }">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
         <el-table-column label="通道名称" prop="channelname" />
         <el-table-column label="账户余额" prop="accountamount" />
@@ -24,7 +24,9 @@
 </template>
 <script>
 import { withdrawalAccountList as list } from "@/api/account";
+import minHeightMix from '@/mixins/minHeight'
 export default {
+  mixins: [minHeightMix],
   data() {
     return {
       loading: false,

@@ -30,7 +30,7 @@
       <!--用户数据-->
       <el-col :span="21" :xs="24">
         <el-collapse-transition>
-          <div class="form-p" v-show="formShow">
+          <div class="form-p" v-if="formShow">
             <el-form :model="queryParams" ref="queryForm" :inline="true" label-width="68px">
               <el-form-item label="用户名称" prop="userName">
                 <el-input
@@ -132,7 +132,8 @@
           <el-row :gutter="10" class="mb10 f-r icon-wrap">
             <el-col :span="1.5">
               <div class="icon-box icon-box-f" @click="formShow = !formShow">
-                <i class="el-icon-zoom-in"></i>
+                <i class="el-icon-zoom-in" v-show="!formShow"></i>
+                <i class="el-icon-zoom-out" v-if="formShow"></i>
               </div>
             </el-col>
             <el-col :span="1.5">

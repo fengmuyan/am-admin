@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="table-p">
+    <div class="table-p" :style="{ 'min-height': minHeight }">
       <el-row :gutter="10" class="mb10 f-l">
         <el-col :span="1.5">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
@@ -95,7 +95,9 @@ import {
   godTreeselect as treeselect,
   roleMenuTreeselect
 } from "@/api/system/menu";
+import minHeightMix from '@/mixins/minHeight'
 export default {
+  mixins: [minHeightMix],
   data() {
     return {
       loading: false,

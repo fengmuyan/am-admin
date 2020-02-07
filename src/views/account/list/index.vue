@@ -1,6 +1,6 @@
 <template>
   <div class="account app-container">
-    <div class="table-p">
+    <div class="table-p" :style="{ 'min-height': minHeight }">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
         <el-table-column label="通道编号" prop="channelcode" width="70" />
         <el-table-column label="通道名称" prop="channelname" show-overflow-tooltip />
@@ -144,7 +144,7 @@
           <ge-code :config="config" ref="geCode" class="code-btn"></ge-code>
         </el-form-item>
         <el-form-item label="随机金额" prop="amount" v-if="Number(accountFormData.cardtype) === 1">
-          <el-input v-model="verifyForm.amount" placeholder="输入随机金额" style="width:300px"></el-input>
+          <el-input v-model="verifyForm.amount" placeholder="请输入绑定银行卡收到的入款金额" style="width:300px"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -157,6 +157,7 @@
 <script>
 import bankArr from "@/utils/bank";
 import geCode from "vue-gecode";
+import minHeightMix from '@/mixins/minHeight'
 import {
   getAccountPass,
   createAccount,
@@ -164,6 +165,7 @@ import {
   resentCode
 } from "@/api/account";
 export default {
+  mixins: [minHeightMix],
   components: {
     geCode
   },

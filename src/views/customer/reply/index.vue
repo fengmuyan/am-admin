@@ -1,6 +1,6 @@
 <template>
   <div class="app-container set-reply">
-    <div class="base-info block" v-loading="loading" v-if="form">
+    <div class="base-info block" v-loading="loading" v-if="form" :style="{ 'min-height': parseInt(minHeight)-10+'px'  }">
       <div>
         <h4>
           客服回复信息设置
@@ -27,7 +27,9 @@
 </template>
 <script>
 import { getReplyList, setReply } from "@/api/customer";
+import minHeightMix from '@/mixins/minHeight'
 export default {
+  mixins: [minHeightMix],
   data() {
     return {
       loading: false,

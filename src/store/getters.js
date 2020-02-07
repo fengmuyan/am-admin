@@ -13,6 +13,7 @@ const getters = {
   isReal: state => state.user.isReal,
   isOpenAccount: state => state.user.isOpenAccount,
   userNumber: state => state.user.userNumber,
+  tipAppeared: state => state.user.tipAppeared,
   permission_routes: state => state.permission.routes
 }
 export default getters
