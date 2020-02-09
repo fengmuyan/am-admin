@@ -2,22 +2,44 @@
   <div class="app-container">
     <el-collapse-transition>
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
-        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="100px">
-          <el-form-item label="经销商名称" prop="isvalid">
-            <el-select
-              v-model="queryForm.num"
-              placeholder="请选择"
+        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="80px">
+          <el-form-item label="经销商" prop="username">
+            <el-input
+              v-model="queryForm.username"
+              placeholder="请输入经销商名称"
               clearable
               size="small"
               style="width: 240px"
+            />
+          </el-form-item>
+          <el-form-item label="订单号" prop="orderno">
+            <el-input
+              v-model="queryForm.orderno"
+              placeholder="请输入订单号"
+              clearable
+              size="small"
+              style="width: 240px"
+            />
+          </el-form-item>
+          <el-form-item label="数据状态" prop="state">
+            <el-select
+              v-model="queryForm.state"
+              placeholder="请选择"
+              size="small"
+              style="width: 240px"
             >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+              <el-option label="全部" value="all" />
+              <el-option label="预警" value="warn" />
             </el-select>
+          </el-form-item>
+          <el-form-item label="超X日未还" prop="warndays" v-if="queryForm.state === 'warn'">
+            <el-input-number
+              v-model="queryForm.warndays"
+              :min="1"
+              :max="9999"
+              label="超X日未还"
+              size="small"
+            ></el-input-number>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -53,13 +75,13 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="distributorList">
-        <el-table-column label="订单号" prop="mercode" show-overflow-tooltip />
-        <el-table-column label="创建日期" sortable prop="initcreatetime" />
-        <el-table-column label="订单金额" sortable prop="creditlimit" />
+        <el-table-column label="订单号" prop="orderno" show-overflow-tooltip />
+        <el-table-column label="创建日期" sortable prop="paytime" />
+        <el-table-column label="订单金额" sortable prop="orderamount" />
         <el-table-column label="采购商" prop="username" />
-        <el-table-column label="商品数量" prop="risklimit" />
-        <el-table-column label="已还信用额" sortable prop="sumlimit" />
-        <el-table-column label="未还信用额" sortable prop="sumlimit" />
+        <el-table-column label="商品数量" prop="cmdtcount" />
+        <el-table-column label="已还信用额" sortable prop="realprice" />
+        <el-table-column label="未还信用额" sortable prop="debt" />
       </el-table>
       <pagination
         v-show="total>0"
@@ -72,58 +94,40 @@
   </div>
 </template>
 <script>
-import { list } from "@/api/distributor";
-import minHeightMix from '@/mixins/minHeight'
+import { getCreditBillDetail, handelQuotaDetailExport } from "@/api/statistics";
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
     return {
       loading: false,
+      exportLoading: false,
       formShow: true,
       distributorList: [],
       total: 0,
-      dateRange: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        num: ""
-      },
-      options: [
-        {
-          value: "",
-          label: "全部"
-        },
-        {
-          value: "1000",
-          label: "北京全球通有限公司"
-        },
-        {
-          value: "1001",
-          label: "北京航宇通达管业有限公司"
-        },
-        {
-          value: "1002",
-          label: "上海交通有限公司"
-        }
-      ]
+        state: "all",
+        username: "",
+        orderno: "",
+        warndays: "30"
+      }
     };
   },
   mounted() {
-    this.queryForm.num =
-      /* this.$route.query.code || "" */ "北京航宇通达管业有限公司";
     this.getList();
   },
   methods: {
     async getList() {
       try {
         this.loading = true;
-        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
             pageResult: { content, totalSize }
           }
-        } = await list(_initParams(queryForm));
+        } = await getCreditBillDetail(this.queryForm);
         this.loading = false;
         if (code === 200) {
           this.distributorList = content;
@@ -139,9 +143,8 @@ export default {
       this.getList();
     },
     resetQuery() {
-      this.dateRange = [];
       this.resetForm("queryForm");
-      this.queryForm.num = "";
+      this.queryForm.state = "all";
       this.handleQuery();
     },
     handleExport() {
@@ -151,16 +154,18 @@ export default {
         type: "warning",
         customClass: "el-message-box-wran"
       })
-        .then(async () => {})
+        .then(async () => {
+          this.exportLoading = true;
+          const { msg, code } = await handelQuotaDetailExport(this.queryForm);
+          if (code === 200) {
+            this.download(msg);
+            this.msgSuccess("导出成功");
+            this.exportLoading = false;
+          } else {
+            this.exportLoading = false;
+          }
+        })
         .catch(function() {});
-    },
-    _initParams(obj) {
-      const dateRange = this.dateRange;
-      Object.assign(obj, {
-        timestart: dateRange.length > 0 ? dateRange[0] : null,
-        timeend: dateRange.length > 0 ? dateRange[1] : null
-      });
-      return obj;
     }
   }
 };

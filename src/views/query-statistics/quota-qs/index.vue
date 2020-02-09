@@ -2,27 +2,15 @@
   <div class="app-container">
     <el-collapse-transition>
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
-        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="80px">
-          <el-form-item label="数据状态" prop="isvalid">
-            <el-select
-              v-model="queryForm.isvalid"
-              placeholder="请选择"
+        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="90px">
+          <el-form-item label="经销商名称" prop="username">
+            <el-input
+              v-model="queryForm.username"
+              placeholder="请输入经销商名称"
               clearable
               size="small"
               style="width: 240px"
-            >
-              <el-option label="全部" value="Y" />
-              <el-option label="预警" value="N" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="超X日未还" prop="num" v-if="queryForm.isvalid === 'N'">
-            <el-input-number
-              v-model="queryForm.num"
-              :min="1"
-              :max="9999"
-              label="超X日未还"
-              size="small"
-            ></el-input-number>
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -84,7 +72,7 @@
       <div class="total-wrap">
         <div class="total-data">
           已用额度合计：
-          <span>￥22322.06</span>
+          <span>￥{{totalusedlimit}}</span>
         </div>
         <pagination
           v-show="total>0"
@@ -98,7 +86,7 @@
   </div>
 </template>
 <script>
-import { list } from "@/api/distributor";
+import { getCreditBill, handelQuotaExport } from "@/api/statistics";
 import minHeightMix from '@/mixins/minHeight'
 export default {
   mixins: [minHeightMix],
@@ -106,14 +94,14 @@ export default {
     return {
       loading: false,
       formShow: true,
+      exportLoading: false,
       distributorList: [],
+      totalusedlimit: 0,
       total: 0,
-      dateRange: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        isvalid: "Y",
-        num: 30
+        username: ""
       }
     };
   },
@@ -124,17 +112,18 @@ export default {
     async getList() {
       try {
         this.loading = true;
-        const { _initParams, queryForm } = this;
         const {
           code,
           data: {
-            pageResult: { content, totalSize }
+            pageResult: { content, totalSize },
+            totalusedlimit
           }
-        } = await list(_initParams(queryForm));
+        } = await getCreditBill(this.queryForm);
         this.loading = false;
         if (code === 200) {
           this.distributorList = content;
           this.total = totalSize;
+          this.totalusedlimit = totalusedlimit;
         }
       } catch (err) {
         this.loading = false;
@@ -146,9 +135,7 @@ export default {
       this.getList();
     },
     resetQuery() {
-      this.dateRange = [];
       this.resetForm("queryForm");
-      this.queryForm.isvalid = "Y";
       this.handleQuery();
     },
     handleDetail() {
@@ -164,16 +151,18 @@ export default {
         type: "warning",
         customClass: "el-message-box-wran"
       })
-        .then(async () => {})
+        .then(async () => {
+          this.exportLoading = true;
+          const { msg, code } = await handelQuotaExport(this.queryForm);
+          if (code === 200) {
+            this.download(msg);
+            this.msgSuccess("导出成功");
+            this.exportLoading = false;
+          } else {
+            this.exportLoading = false;
+          }
+        })
         .catch(function() {});
-    },
-    _initParams(obj) {
-      const dateRange = this.dateRange;
-      Object.assign(obj, {
-        timestart: dateRange.length > 0 ? dateRange[0] : null,
-        timeend: dateRange.length > 0 ? dateRange[1] : null
-      });
-      return obj;
     }
   }
 };

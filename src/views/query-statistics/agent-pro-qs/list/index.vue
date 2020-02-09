@@ -4,9 +4,9 @@
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
         <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="70px">
           <div>
-            <el-form-item label="供货商" prop="orderno">
+            <el-form-item label="供货商" prop="supplier">
               <el-input
-                v-model="queryForm.orderno"
+                v-model="queryForm.supplier"
                 placeholder="请输入供货商"
                 clearable
                 size="small"
@@ -36,7 +36,6 @@
                 <el-option label="信用额度支付" value="1" />
               </el-select>
             </el-form-item>
-
             <el-form-item label="订单来源" prop="ordersource">
               <el-select
                 v-model="queryForm.ordersource"
@@ -192,7 +191,7 @@
   </div>
 </template>
 <script>
-import { getOrderList, orderExport } from "@/api/order";
+import { getAgentOrderList, handelAgentExport } from "@/api/statistics";
 import minHeightMix from '@/mixins/minHeight'
 export default {
   mixins: [minHeightMix],
@@ -210,6 +209,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         tradestate: undefined,
+        supplier: undefined,
         orderno: undefined,
         username: undefined,
         paytype: undefined,
@@ -270,7 +270,7 @@ export default {
           data: {
             pageResult: { content, totalSize }
           }
-        } = await getOrderList(_initParams(queryForm));
+        } = await getAgentOrderList(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.orderList = content;
@@ -293,7 +293,7 @@ export default {
     },
     handleDetail(item) {
       this.$router.push({
-        path: `/order-detail/detail/${item.orderno}`
+        path: `/query-statistics/agent-pro-qs/${item.orderno}`
       });
     },
     handleClick() {
@@ -310,7 +310,7 @@ export default {
       })
         .then(async () => {
           this.exportLoading = true;
-          const { msg, code } = await orderExport(_initParams(queryForm));
+          const { msg, code } = await handelAgentExport(_initParams(queryForm));
           if (code === 200) {
             this.download(msg);
             this.msgSuccess("导出成功");

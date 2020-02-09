@@ -101,7 +101,10 @@
               </div>
               <div class="content">
                 <h4>{{scope.row.title}}</h4>
-                <p><span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>{{scope.row.standards.substring(0,scope.row.standards.length-1)}}。</p>
+                <p>
+                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>
+                  {{scope.row.standards.substring(0,scope.row.standards.length-1)}}。
+                </p>
               </div>
             </template>
           </el-table-column>
@@ -114,12 +117,6 @@
             <template slot-scope="scope">
               <div class="weight-box">
                 <span>{{scope.row.tradestate | initTradestate}}</span>
-                <el-button
-                  type="text"
-                  v-if="Number(scope.row.tradestate) === 10"
-                  icon="el-icon-odometer"
-                  @click="handelWeight(scope.row)"
-                >前往称重</el-button>
               </div>
             </template>
           </el-table-column>
@@ -181,156 +178,16 @@
         </div>
       </div>
     </div>
-    <el-dialog title="商品称重" :visible.sync="openWeight" width="580px">
-      <el-form :model="weightForm" ref="weightForm" :rules="weightFormRules" label-width="140px">
-        <div class="goods-info">
-          <span>
-            商品毛重（{{weightForm.weightunit}}）：
-            <b>{{weightForm.grossweight}}</b>；
-          </span>
-          <span>
-            商品净重（{{weightForm.weightunit}}）：
-            <b>{{weightForm.netweight}}</b>；
-          </span>
-          <span>
-            商品现价：
-            <b>￥{{weightForm.cmdtprice}}</b>；
-          </span>
-          <span>
-            用户价格：
-            <b>￥{{weightForm.cmdttotalprice}}</b>；
-          </span>
-        </div>
-        <el-form-item label="称重后毛重：" prop="weighedGw">
-          <el-input maxlength="6" v-model="weightForm.weighedGw" placeholder="请输入毛重" />
-        </el-form-item>
-        <el-form-item label="称重后净重：" prop="weighedNw">
-          <el-input v-model="weightForm.weighedNw" disabled placeholder="由计算得出" />
-        </el-form-item>
-        <el-form-item label="称重后价格：" prop="weighedCp">
-          <el-input v-model="weightForm.weighedCp" disabled placeholder="由计算得出" />
-        </el-form-item>
-        <el-form-item label="称重后用户价格：" prop="weighedCtp">
-          <el-input v-model="weightForm.weighedCtp" disabled placeholder="由计算得出" />
-        </el-form-item>
-        <el-form-item label="微调后价格：" prop="adjustedprice">
-          <el-input maxlength="6" v-model="weightForm.adjustedprice" placeholder="微调后价格" />
-          <div class="tip">* 可以根据称重后用户价格微调取整，上下浮动不超于10。</div>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="openWeight = false">取 消</el-button>
-        <el-button type="primary" @click="submitWeightForm('weightForm')">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getOrderDetail, orderWeight } from "@/api/order";
+import { getAgentOrderDetail } from "@/api/statistics";
 export default {
-  name: "orderDetail",
+  name: "agentOrderDetail",
   data() {
-    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-    const patterInt = /^\+?[1-9]\d*$/;
-    const validateWeight = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("毛重不能为空！"));
-      }
-      if (!patter.test(value)) {
-        callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else if (!(value > this.weightForm.frameWeight)) {
-        callback(new Error("毛重必须大于筐重"));
-      } else {
-        callback();
-      }
-    };
-    const validateOther = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("选项不能为空！"));
-      }
-      if (!patter.test(value)) {
-        callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else {
-        callback();
-      }
-    };
-    const validateAdjust = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("调整后价格不能为空！"));
-      }
-      if (value === this.weightForm.weighedCtp) {
-        callback();
-      }
-      if (!patterInt.test(value)) {
-        callback(new Error("价格调整后必须为整数！"));
-      } else {
-        if (Math.abs(value - this.weightForm.weighedCtp) > 10) {
-          callback(new Error("上下浮动不能大于10！"));
-        }
-        callback();
-      }
-    };
     return {
-      openWeight: false,
       loading: false,
-      weightForm: {
-        uid: "",
-        orderno: "",
-        detailno: "",
-        weightunit: "", //单位
-        grossweight: "", //毛重
-        netweight: "", //净重
-        cmdtprice: "", //商品现价
-        cmdttotalprice: "", //用户价格（商品总价格）
-        discount: "", //折扣
-        couponprice: "", //优惠金额
-        cmdtcount: "", //数量
-        unitprice: "", //单价
-        frameWeight: "", //筐重
-        weighedGw: "", //称重后毛重
-        weighedNw: "", //称重后净重（毛重-筐重）
-        weighedCp: "", //称重后商品价格（净重*单价）
-        weighedCtp: "", //称重后用户价格（称重后商品价格*折扣*商品数量-优惠金额）
-        adjustedprice: ""
-      },
-      weightFormRules: {
-        weighedGw: [
-          {
-            required: true,
-            validator: validateWeight,
-            trigger: ["blur", "change"]
-          }
-        ],
-        weighedNw: [
-          {
-            required: true,
-            validator: validateOther,
-            trigger: ["blur", "change"]
-          }
-        ],
-        weighedCp: [
-          {
-            required: true,
-            validator: validateOther,
-            trigger: ["blur", "change"]
-          }
-        ],
-        weighedCtp: [
-          {
-            required: true,
-            validator: validateOther,
-            trigger: ["blur", "change"]
-          }
-        ],
-        adjustedprice: [
-          {
-            required: true,
-            validator: validateAdjust,
-            trigger: ["blur", "change"]
-          }
-        ]
-      },
       goodsList: null,
       tradestate: "",
       totalNum: "",
@@ -352,51 +209,6 @@ export default {
       finaltime: "",
       failuretime: ""
     };
-  },
-  watch: {
-    "weightForm.weighedGw"(val) {
-      const {
-        grossweight,
-        netweight,
-        cmdtprice,
-        cmdttotalprice,
-        unitprice,
-        frameWeight,
-        discount,
-        couponprice,
-        cmdtcount
-      } = this.weightForm;
-      const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-      if (Number(val) === grossweight) {
-        Object.assign(this.weightForm, {
-          weighedNw: netweight,
-          weighedCp: cmdtprice,
-          weighedCtp: cmdttotalprice,
-          adjustedprice: cmdttotalprice
-        });
-      }
-      if ((val && patter.test(val), val > frameWeight)) {
-        const weighedNw = (Number(val) - frameWeight).toFixed(2);
-        const weighedCp = ((Number(val) - frameWeight) * unitprice).toFixed(2);
-        const weighedCtp = (
-          (weighedCp * discount).toFixed(2) * cmdtcount -
-          couponprice
-        ).toFixed(2);
-        Object.assign(this.weightForm, {
-          weighedNw,
-          weighedCp,
-          weighedCtp,
-          adjustedprice: weighedCtp
-        });
-      } else {
-        Object.assign(this.weightForm, {
-          weighedNw: "",
-          weighedCp: "",
-          weighedCtp: "",
-          adjustedprice: ""
-        });
-      }
-    }
   },
   filters: {
     initTradestate(val) {
@@ -457,28 +269,6 @@ export default {
     this.getDetail();
   },
   methods: {
-    reset() {
-      Object.assign(this.weightForm, {
-        uid: "",
-        orderno: "",
-        detailno: "",
-        weightunit: "",
-        grossweight: "", //毛重
-        netweight: "", //净重
-        cmdtprice: "", //商品现价
-        cmdttotalprice: "", //用户价格（商品总价格）
-        discount: "", //折扣
-        couponprice: "", //优惠金额
-        cmdtcount: "", //数量
-        unitprice: "", //单价
-        frameWeight: "", //筐重
-        weighedGw: "", //称重后毛重
-        weighedNw: "", //称重后净重（毛重-筐重）
-        weighedCp: "", //称重后商品价格（净重*单价）
-        weighedCtp: "", //称重后用户价格（称重后商品价格*折扣*商品数量-优惠金额）
-        adjustedprice: ""
-      });
-    },
     async getDetail() {
       try {
         this.loading = true;
@@ -503,7 +293,7 @@ export default {
             finaltime,
             failuretime
           }
-        } = await getOrderDetail({
+        } = await getAgentOrderDetail({
           orderno: this.orderno
         });
         this.loading = false;
@@ -555,87 +345,6 @@ export default {
         this.loading = false;
         console.log(err);
       }
-    },
-    handelWeight(item) {
-      this.reset();
-      const {
-        uid,
-        orderno,
-        detailno,
-        weightunit,
-        grossweight,
-        netweight,
-        cmdtprice,
-        cmdttotalprice,
-        discount,
-        couponprice,
-        cmdtcount
-      } = item;
-      Object.assign(this.weightForm, {
-        uid,
-        orderno,
-        detailno,
-        weightunit,
-        grossweight: Number(grossweight), //毛重
-        netweight: Number(netweight), //净重
-        cmdtprice: Number(cmdtprice), //商品现价
-        cmdttotalprice: Number(cmdttotalprice), //用户价格（商品总价格）
-        discount: Number(discount), //折扣
-        couponprice: Number(couponprice), //优惠金额
-        cmdtcount: Number(cmdtcount), //数量
-        unitprice: Number(cmdtprice) / Number(netweight), //单价
-        frameWeight: Number(
-          (Number(grossweight) - Number(netweight)).toFixed(2)
-        ), //框重
-        weighedGw: "", //称重后毛重
-        weighedNw: "", //称重后净重（毛重-框重）
-        weighedCp: "", //称重后商品价格（净重*单价）
-        weighedCtp: "" //称重后用户价格（称重后商品价格*折扣*商品数量-优惠金额）
-      });
-      this.openWeight = true;
-      if (this.$refs["weightForm"]) {
-        this.$refs["weightForm"].resetFields();
-      }
-    },
-    submitWeightForm(formName) {
-      this.$refs[formName].validate(async valid => {
-        if (valid) {
-          try {
-            this.loading = true;
-            const {
-              uid,
-              orderno,
-              detailno,
-              weighedGw: grossweight,
-              weighedNw: netweight,
-              weighedCp: cmdtprice,
-              weighedCtp: cmdttotalprice,
-              adjustedprice
-            } = this.weightForm;
-            const { code } = await orderWeight({
-              uid,
-              orderno,
-              detailno,
-              grossweight,
-              netweight,
-              cmdtprice,
-              cmdttotalprice,
-              adjustedprice
-            });
-            this.loading = false;
-            if (code === 200) {
-              this.getDetail();
-              this.openWeight = false;
-              this.msgSuccess("称重成功");
-            }
-          } catch (err) {
-            this.loading = false;
-            console.log(err);
-          }
-        } else {
-          return false;
-        }
-      });
     }
   }
 };

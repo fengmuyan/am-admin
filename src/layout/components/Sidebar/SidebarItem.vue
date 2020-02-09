@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!item.hidden" class="menu-wrapper">
+  <div v-if="!item.hidden && !hiddenMenu.includes(item.path)" class="menu-wrapper">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
@@ -52,7 +52,11 @@ export default {
   },
   data() {
     this.onlyOneChild = null
-    return {}
+    return {
+       hiddenMenu: [
+        "agent-pro-qs/:code"
+      ]
+    }
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
