@@ -138,10 +138,10 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    handleDetail() {
+    handleDetail(item) {
       this.$router.push({
         path: "/query-statistics/quota-detail-qs",
-        query: { code: 1001 }
+        query: { username: item.username }
       });
     },
     handleExport() {

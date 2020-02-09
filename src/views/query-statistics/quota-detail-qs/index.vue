@@ -2,20 +2,11 @@
   <div class="app-container">
     <el-collapse-transition>
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
-        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="80px">
-          <el-form-item label="经销商" prop="username">
+        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="82px">
+          <el-form-item label="经销商名称" prop="username">
             <el-input
               v-model="queryForm.username"
               placeholder="请输入经销商名称"
-              clearable
-              size="small"
-              style="width: 240px"
-            />
-          </el-form-item>
-          <el-form-item label="订单号" prop="orderno">
-            <el-input
-              v-model="queryForm.orderno"
-              placeholder="请输入订单号"
               clearable
               size="small"
               style="width: 240px"
@@ -25,6 +16,7 @@
             <el-select
               v-model="queryForm.state"
               placeholder="请选择"
+              @change="stateChange"
               size="small"
               style="width: 240px"
             >
@@ -108,12 +100,17 @@ export default {
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        state: "all",
         username: "",
-        orderno: "",
-        warndays: "30"
+        state: "all",
+        warndays: undefined
       }
     };
+  },
+  created(){
+    const username = this.$route.query.username
+    if(username){
+      this.queryForm.username = username;
+    }
   },
   mounted() {
     this.getList();
@@ -145,7 +142,15 @@ export default {
     resetQuery() {
       this.resetForm("queryForm");
       this.queryForm.state = "all";
+      this.queryForm.warndays = undefined;
       this.handleQuery();
+    },
+    stateChange(val){
+      if(val === "all"){
+        this.queryForm.warndays = undefined;
+      }else if(val === "warn"){
+        this.queryForm.warndays = "30";
+      }
     },
     handleExport() {
       this.$confirm("是否确认导出所有数据项?", "警告", {
