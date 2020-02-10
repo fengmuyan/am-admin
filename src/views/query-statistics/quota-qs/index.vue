@@ -2,8 +2,8 @@
   <div class="app-container">
     <el-collapse-transition>
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
-        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="90px">
-          <el-form-item label="经销商名称" prop="username">
+        <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="80px">
+          <el-form-item label="经销商" prop="username">
             <el-input
               v-model="queryForm.username"
               placeholder="请输入经销商名称"
@@ -21,17 +21,6 @@
     </el-collapse-transition>
 
     <div class="table-p" :style="{ 'min-height': minHeight }">
-      <el-row :gutter="10" class="mb10 f-l">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-download"
-            size="mini"
-            :loading="exportLoading"
-            @click="handleExport"
-          >导出数据</el-button>
-        </el-col>
-      </el-row>
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">
           <div class="icon-box icon-box-f" @click="formShow = !formShow">
@@ -43,6 +32,16 @@
           <div class="icon-box icon-box-t" @click="handleQuery">
             <i class="el-icon-refresh"></i>
           </div>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            type="primary"
+            icon="el-icon-download"
+            size="mini"
+            :loading="exportLoading"
+            @click="handleExport"
+            style="margin-left:10px"
+          >导出数据</el-button>
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="distributorList" :default-sort ="{prop:'usedlimit',order:'descending'}">
@@ -122,8 +121,8 @@ export default {
         this.loading = false;
         if (code === 200) {
           this.distributorList = content;
-          this.total = totalSize;
           this.totalusedlimit = totalusedlimit;
+          this.total = totalSize;
         }
       } catch (err) {
         this.loading = false;
@@ -140,8 +139,8 @@ export default {
     },
     handleDetail(item) {
       this.$router.push({
-        path: "/query-statistics/quota-detail-qs",
-        query: { username: item.username }
+        name: "额度账单详情",
+        params: { usercode: item.usercode}
       });
     },
     handleExport() {

@@ -37,17 +37,6 @@
     </el-collapse-transition>
 
     <div class="table-p" :style="{ 'min-height': minHeight }">
-      <el-row :gutter="10" class="mb10 f-l">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-download"
-            size="mini"
-            :loading="exportLoading"
-            @click="handleExport"
-          >导出数据</el-button>
-        </el-col>
-      </el-row>
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">
           <div class="icon-box icon-box-f" @click="formShow = !formShow">
@@ -59,6 +48,16 @@
           <div class="icon-box icon-box-t" @click="handleQuery">
             <i class="el-icon-refresh"></i>
           </div>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            type="primary"
+            icon="el-icon-download"
+            size="mini"
+            :loading="exportLoading"
+            @click="handleExport"
+            style="margin-left:10px"
+          >导出数据</el-button>
         </el-col>
       </el-row>
       <el-table
@@ -185,7 +184,7 @@ export default {
         .catch(function() {});
     },
     _initParams(obj) {
-      const dateRange = this.dateRange;
+      const dateRange = this.dateRange || [];
       Object.assign(obj, {
         timestart: dateRange.length > 0 ? dateRange[0] : null,
         timeend: dateRange.length > 0 ? dateRange[1] : null

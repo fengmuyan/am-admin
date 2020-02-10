@@ -80,3 +80,11 @@ export function handelAgentExport(data) {
     data
   })
 }
+
+// 经销商列表
+export function getUsernameList() {
+  return request({
+    url: '/god/creditlimit/userlist',
+    method: 'get'
+  })
+}

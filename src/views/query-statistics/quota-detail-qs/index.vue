@@ -3,15 +3,17 @@
     <el-collapse-transition>
       <div class="form-p" v-if="formShow" ref="formPublic" v-resize="resize">
         <el-form :model="queryForm" ref="queryForm" :inline="true" label-width="82px">
-          <el-form-item label="经销商名称" prop="username">
-            <el-input
-              v-model="queryForm.username"
-              placeholder="请输入经销商名称"
-              clearable
-              size="small"
-              style="width: 240px"
-            />
-          </el-form-item>
+          <el-form-item label="经销商" prop="usercode">
+              <el-select
+                v-model="queryForm.usercode"
+                placeholder="请选择经销商"
+                clearable
+                size="small"
+                style="width: 240px"
+              >
+                <el-option v-for="(item, index) in usernameList" :v-key="index" :label="item.username" :value="item.usercode" />
+              </el-select>
+            </el-form-item>
           <el-form-item label="数据状态" prop="state">
             <el-select
               v-model="queryForm.state"
@@ -42,17 +44,6 @@
     </el-collapse-transition>
 
     <div class="table-p" :style="{ 'min-height': minHeight }">
-      <el-row :gutter="10" class="mb10 f-l">
-        <el-col :span="1.5">
-          <el-button
-            type="primary"
-            icon="el-icon-download"
-            size="mini"
-            :loading="exportLoading"
-            @click="handleExport"
-          >导出数据</el-button>
-        </el-col>
-      </el-row>
       <el-row :gutter="10" class="mb10 f-r icon-wrap">
         <el-col :span="1.5">
           <div class="icon-box icon-box-f" @click="formShow = !formShow">
@@ -64,6 +55,16 @@
           <div class="icon-box icon-box-t" @click="handleQuery">
             <i class="el-icon-refresh"></i>
           </div>
+        </el-col>
+        <el-col :span="1.5">
+          <el-button
+            type="primary"
+            icon="el-icon-download"
+            size="mini"
+            :loading="exportLoading"
+            @click="handleExport"
+            style="margin-left:10px"
+          >导出数据</el-button>
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="distributorList">
@@ -86,7 +87,7 @@
   </div>
 </template>
 <script>
-import { getCreditBillDetail, handelQuotaDetailExport } from "@/api/statistics";
+import { getCreditBillDetail, handelQuotaDetailExport, getUsernameList } from "@/api/statistics";
 import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
@@ -97,21 +98,29 @@ export default {
       formShow: true,
       distributorList: [],
       total: 0,
+      usernameList:[],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        username: "",
+        usercode: undefined,
         state: "all",
         warndays: undefined
       }
     };
   },
-  created(){
-    const username = this.$route.query.username
-    if(username){
-      this.queryForm.username = username;
+  async created(){
+    const { usercode } = this.$route.params;
+    if(usercode){
+      this.queryForm.usercode = usercode;
     }
+    try{
+      const { data }  = await getUsernameList();
+      this.usernameList = data;
+    } catch(err) {
+      consol.log(err)
+    }   
   },
+
   mounted() {
     this.getList();
   },
@@ -143,6 +152,7 @@ export default {
       this.resetForm("queryForm");
       this.queryForm.state = "all";
       this.queryForm.warndays = undefined;
+      this.queryForm.usercode = undefined;
       this.handleQuery();
     },
     stateChange(val){
