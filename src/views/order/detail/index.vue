@@ -101,7 +101,10 @@
               </div>
               <div class="content">
                 <h4>{{scope.row.title}}</h4>
-                <p><span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>{{scope.row.standards.substring(0,scope.row.standards.length-1)}}。</p>
+                <p>
+                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>
+                  {{scope.row.standards.substring(0,scope.row.standards.length-1)}}。
+                </p>
               </div>
             </template>
           </el-table-column>
