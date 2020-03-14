@@ -88,14 +88,14 @@
               <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="titleForm.isAgent==='Y'" label="货主：" prop="pmercode">
-            <el-select v-model="titleForm.pmercode" placeholder="请选择货主" class="w-400">
+          <el-form-item v-if="titleForm.isAgent==='Y'" label="供货商：" prop="pmercode">
+            <el-select v-model="titleForm.pmercode" placeholder="请选择供货商" class="w-400">
               <el-option
                 v-for="item in pmercodeList"
                 :key="item.pmercode"
                 :label="item.name"
-                :value="item.pmercode">
-              </el-option>
+                :value="item.pmercode"
+              ></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -111,11 +111,22 @@
           class="b-t-g m-b-20"
         >
           <el-form-item label="计价方式：" prop="pricetype">
-            <el-radio-group v-model="valuationForm.pricetype">
+            <el-radio-group v-model="valuationForm.pricetype" @change="pricetypeChange">
               <el-radio label="1">按数量</el-radio>
               <el-radio label="2">按重量</el-radio>
             </el-radio-group>
           </el-form-item>
+          <div v-if="valuationForm.pricetype === '1'">
+            <el-form-item label="规格：" prop="cmdtspecifications">
+              <el-input
+                v-model="valuationForm.cmdtspecifications"
+                maxlength="20"
+                class="w-400"
+                placeholder="请输入规格 (如：30公斤/件)"
+                clearable
+              ></el-input>
+            </el-form-item>
+          </div>
           <div v-if="valuationForm.pricetype === '2'">
             <el-form-item label="重量单位：" prop="weightunit">
               <el-radio-group v-model="valuationForm.weightunit">
@@ -204,9 +215,9 @@
             <el-form-item label="商品详情视频：" prop="baby_video">
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
-            <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
-              <editor @input="webEditor" v-model="uploadForm.webDesc" :moduleNum="2"></editor>
-            </el-form-item>
+            <!-- <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
+              <editor v-model="uploadForm.webDesc" :moduleNum="2"></editor>
+            </el-form-item>-->
             <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
               <editor @input="phoneEditor" v-model="uploadForm.phoneDesc" :moduleNum="1"></editor>
             </el-form-item>
@@ -220,13 +231,13 @@
           <el-form-item label="付款方式：" prop="paymethod">
             <el-radio-group v-model="payForm.paymethod">
               <el-radio label="1">普通交易</el-radio>
-              <el-radio label="2">预售模式</el-radio>
+              <!-- <el-radio label="2">预售模式</el-radio> -->
             </el-radio-group>
           </el-form-item>
           <el-form-item label="库存计数：" prop="stockmethod">
             <el-radio-group v-model="payForm.stockmethod">
-              <el-radio label="1">卖家拍下减库存</el-radio>
-              <el-radio label="2">卖家付款减库存</el-radio>
+              <el-radio label="1">买家拍下减库存</el-radio>
+              <el-radio label="2">买家付款减库存</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-form>
@@ -254,6 +265,7 @@
               :disabled="logisticsForm.deliverymode!=='1'"
             >代发</el-checkbox>
             <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
+            <p class="tip-info" style="line-height: 20px;padding-left: 0;">* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
           </el-form-item>
         </el-form>
       </div>
@@ -304,7 +316,12 @@
       </div>
       <el-button type="primary" @click="formdataSubVerify">发布商品</el-button>
     </div>
-    <div v-loading="loading" class="block empty-block" v-else :style="{ 'min-height': parseInt(minHeight)-143+'px' }">请先选择一个分类。</div>
+    <div
+      v-loading="loading"
+      class="block empty-block"
+      v-else
+      :style="{ 'min-height': parseInt(minHeight)-143+'px' }"
+    >请先选择一个分类。</div>
   </div>
 </template>
 <script>
@@ -313,7 +330,7 @@ import DynamicTable from "@/components/DynamicTable";
 import UploadImg from "@/components/UploadImg";
 import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 import {
   getProCate,
   getProData,
@@ -357,17 +374,17 @@ export default {
     const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else if (!(value > this.valuationForm.netweight)) {
+      } else if (!(Number(value) > Number(this.valuationForm.netweight))) {
         callback(new Error("毛重必须大于净重"));
       } else {
         callback();
       }
     };
     return {
-      loadingAll: false,//
+      loadingAll: false, //
       loading: false, //
       haveCateData: false, //
-      homePageClasses: [],//分类类目数组
+      homePageClasses: [], //分类类目数组
       cateDataText: "", //显示的分类类目
       proOptions: [],
       proOptionsInit: [],
@@ -377,7 +394,7 @@ export default {
       saleDataInit: [],
       itemIdArr: [],
       tableArr: [],
-      tableIsShow: false,  
+      tableIsShow: false,
       cversion: "", //版本号商品提交发布使用
       storeInfo: {}, //地址信息
       pmercodeList: [],
@@ -386,6 +403,7 @@ export default {
         pricetype: "2",
         grossweight: "",
         netweight: "",
+        cmdtspecifications: "",
         weightunit: "公斤"
       }, //商品类目表单
       postSaleForm: {
@@ -445,6 +463,9 @@ export default {
         ],
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
+        ],
+        cmdtspecifications: [
+          { required: true, message: "请输入规格", trigger: "blur" }
         ]
       }, //销售属性中计价表单验证
       postSaleFormRules: {
@@ -463,9 +484,6 @@ export default {
         img_one: [
           { required: true, message: "请输入商品主图", trigger: "blur" }
         ],
-        webDesc: [
-          { required: true, message: "请输入电脑端描述", trigger: "blur" }
-        ],
         phoneDesc: [
           { required: true, message: "请输入手机端描述", trigger: "blur" }
         ]
@@ -478,12 +496,14 @@ export default {
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ],
-        isAgent: [
-          { required: true, message: "请选择", trigger: "blur" }
-        ],
+        isAgent: [{ required: true, message: "请选择", trigger: "blur" }],
         pmercode: [
-          { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }
-        ],
+          {
+            required: true,
+            message: "请选择一个商户",
+            trigger: ["blur", "change"]
+          }
+        ]
       }, //自然属性中的标题表单验证
       payFormRules: {
         paymethod: [
@@ -522,7 +542,11 @@ export default {
             data: { pmercodes },
             code: code3
           }
-        ] = await Promise.all([getProCate({}), getHomePageClass(), getSupplierList()]);
+        ] = await Promise.all([
+          getProCate({}),
+          getHomePageClass(),
+          getSupplierList()
+        ]);
         if (code1 === 200) {
           this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
         }
@@ -554,6 +578,18 @@ export default {
     cateChange(val) {
       this.cateForm.cateInputArr = [];
       this._selectCode(this.proOptionsInit, val);
+    },
+
+    /* 计价方式切换重置计价form */
+    pricetypeChange(val) {
+      this.$refs["valuationForm"].resetFields();
+      Object.assign(this.valuationForm, {
+        grossweight: "",
+        netweight: "",
+        cmdtspecifications: "",
+        weightunit: "公斤",
+        pricetype: val
+      });
     },
 
     /* 选择类目后提交数据返回商品初始数据 */
@@ -614,11 +650,6 @@ export default {
     addVideoSec(val) {
       this.uploadForm.baby_video = val.video;
       this.uploadForm.fduration = val.duration ? val.duration : 0;
-    },
-
-    /* 电脑端富文本输入清除验证 */
-    webEditor() {
-      this.$refs["webDesc"].clearValidate();
     },
 
     /* 手机端富文本输入清除验证 */
@@ -736,14 +767,9 @@ export default {
         const { code, msg } = await proPublishSub(this._initFormdataSub());
         this.loadingAll = false;
         if (code === 200) {
-          ELEMENT.MessageBox({
-            message: "商品发布成功",
-            type: "success",
-            duration: 5 * 1000,
-            customClass: "el-message-box-suc"
-          });
+          this.msgSuccess("商品发布成功");
           setTimeout(() => {
-            this.$router.push({path:"/product/on-shelf"})
+            this.$router.push({ path: "/product/on-shelf" });
           }, 1000);
         }
       } catch (err) {
@@ -797,6 +823,10 @@ export default {
       formData.append("grossweight", this.valuationForm.grossweight);
       formData.append("netweight", this.valuationForm.netweight);
       formData.append("weightunit", this.valuationForm.weightunit);
+      formData.append(
+        "cmdtspecifications",
+        this.valuationForm.cmdtspecifications
+      );
       formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);

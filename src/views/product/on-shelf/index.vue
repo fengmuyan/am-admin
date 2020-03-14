@@ -13,14 +13,15 @@
             />
           </el-form-item>
           <el-form-item label="发布时间">
-            <el-date-picker
+             <el-date-picker
               v-model="dateRange"
               size="small"
-              style="width: 240px"
-              format="yyyy-MM-dd"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
+              :clearable="false"
+              style="width: 360px"
+              type="datetimerange"
+              format="yyyy-MM-dd HH:mm:ss"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
             ></el-date-picker>
@@ -55,6 +56,7 @@
       <el-table style="width: 100%" v-loading="loading" :data="productList">
         <el-table-column label="商品编码" prop="ccode" width="90"/>
         <el-table-column label="商品类目" prop="cmdtclassname" show-overflow-tooltip/>
+        <el-table-column label="供货商" prop="thearchyname" show-overflow-tooltip />
         <el-table-column label="商品标题" prop="title" show-overflow-tooltip/>
         <el-table-column label="付款方式" prop="voPaymethod" width="90"/>
         <el-table-column label="库存计数" prop="voStockmethod" width="90"/>
@@ -209,7 +211,7 @@ export default {
     },
 
     _initParams(obj) {
-      const dateRange = this.dateRange;
+      const dateRange = this.dateRange || [];
       Object.assign(obj, {
         timestart: dateRange.length > 0 ? dateRange[0] : null,
         timeend: dateRange.length > 0 ? dateRange[1] : null

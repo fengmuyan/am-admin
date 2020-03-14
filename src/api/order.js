@@ -44,3 +44,84 @@ export function orderExport(data) {
     data
   })
 }
+
+//物流公司列表
+export function getExpressList(data) {
+  return request({
+    url: '/god/order/getExpressList',
+    method: 'post',
+    data
+  })
+}
+
+//发货
+export function handelSendGoods(data) {
+  return request({
+    url: '/god/order/sendGoods',
+    method: 'post',
+    data
+  })
+}
+
+//调价
+export function handelEditPrice(data) {
+  return request({
+    url: '/god/order/modifyOrderDetailPrice',
+    method: 'post',
+    data
+  })
+}
+
+//发货获取明细
+export function getOrderDetailsList(data) {
+  return request({
+    url: '/god/order/getOrderDetailsList',
+    method: 'post',
+    data
+  })
+}
+
+//订单发货列表
+export function getOrderExpressInfo(data) {
+  return request({
+    url: '/god/order/getOrderExpressInfo',
+    method: 'post',
+    data
+  })
+}
+
+//修改发货信息
+export function handelEditExpressInfo(data) {
+  return request({
+    url: '/god/order/modifyOrderExpressInfo',
+    method: 'post',
+    data
+  })
+}
+
+//删除发货信息
+export function handelDelExpressInfo(data) {
+  return request({
+    url: '/god/order/delOrderExpressInfo',
+    method: 'post',
+    data
+  })
+}
+
+//补发货
+export function handelSendExpress(data) {
+  return request({
+    url: '/god/order/sendOrderExpressInfo',
+    method: 'post',
+    data
+  })
+}
+
+//物流追踪
+export function getKdnExpressInfo(data) {
+  return request({
+    url: '/god/order/getKdnExpressInfo',
+    method: 'post',
+    data
+  })
+}

@@ -156,7 +156,21 @@
         <el-table-column label="订单号" prop="orderno" width="150" show-overflow-tooltip />
         <el-table-column label="创建时间" sortable prop="createtime" width="150" />
         <el-table-column label="订单金额" sortable prop="orderamount" width="130" />
-        <el-table-column label="采购商" prop="username" show-overflow-tooltip />
+        <el-table-column label="经销商" prop="username">
+          <template slot-scope="scope">
+            <el-popover
+              placement="top-start"
+              :title="scope.row.username"
+              width="220"
+              trigger="hover"
+            >
+              <div>
+                <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
+              </div>
+              <span slot="reference">{{scope.row.username}}</span>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column label="数量" prop="cmdtcount" width="60" />
         <el-table-column label="应收款" prop="needprice" width="70" />
         <el-table-column label="实收款" prop="realprice" width="70" />
@@ -192,7 +206,7 @@
 </template>
 <script>
 import { getAgentOrderList, handelAgentExport } from "@/api/statistics";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
@@ -322,7 +336,9 @@ export default {
         .catch(function() {});
     },
     _initParams(obj) {
-      const { activeName, payDateRange, createDateRange } = this;
+      const activeName = this.activeName;
+      const payDateRange = this.payDateRange || [];
+      const createDateRange = this.createDateRange || [];
       Object.assign(obj, {
         tradestate: activeName === "-1" ? null : activeName,
         paytimestart: payDateRange.length > 0 ? payDateRange[0] : null,

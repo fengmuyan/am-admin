@@ -1,5 +1,8 @@
+import Vue from 'vue'
 import store from '../store'
+import Router from 'vue-router'
 
+Vue.use(Router)
 /* Layout */
 import Layout from '@/layout'
 
@@ -195,7 +198,7 @@ export const dynamicRoutes = [
   },
 ]
 
-export default new VueRouter({
+export default new Router({
   mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes

@@ -95,7 +95,7 @@ import {
   godTreeselect as treeselect,
   roleMenuTreeselect
 } from "@/api/system/menu";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
@@ -219,12 +219,7 @@ export default {
             if (code === 200) {
               this.open = false;
               await this.getList();
-              ELEMENT.MessageBox({
-                message: "添加成功",
-                type: "success",
-                duration: 5 * 1000,
-                customClass: "el-message-box-suc"
-              });
+              this.msgSuccess("添加成功");
             }
           } catch (err) {
             console.log(err);

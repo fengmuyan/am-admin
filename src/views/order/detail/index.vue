@@ -108,57 +108,38 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="单价" prop="cmdtprice" />
+          <el-table-column label="价格/件" prop="cmdtprice" />
           <el-table-column label="数量" prop="cmdtcount" />
           <el-table-column label="优惠" prop="couponprice" />
-          <el-table-column label="折扣" prop="discount" />
+          <el-table-column label="抹零" prop="dispelprice" />
+          <el-table-column label="折扣" prop="discount">
+            <template slot-scope="scope">{{scope.row.discount | initDiscount}}</template>
+          </el-table-column>
           <el-table-column label="总价" prop="cmdttotalprice" />
-          <el-table-column label="状态" width="200px">
+          <el-table-column label="状态" width="120px">
             <template slot-scope="scope">
-              <div class="weight-box">
-                <span>{{scope.row.tradestate | initTradestate}}</span>
-                <el-button
-                  type="text"
-                  v-if="Number(scope.row.tradestate) === 10"
-                  icon="el-icon-odometer"
-                  @click="handelWeight(scope.row)"
-                >前往称重</el-button>
-              </div>
+              <span>{{scope.row.tradestate | initTradestate}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="220px" v-if="ac10 || ac01011">
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                v-if="Number(scope.row.tradestate)===10"
+                icon="el-icon-odometer"
+                style="margin-right:4px"
+                @click="handelWeight(scope.row)"
+              >前往称重</el-button>
+              <el-button
+                type="text"
+                v-if="Number(scope.row.tradestate)===0 || Number(scope.row.tradestate)===10 || Number(scope.row.tradestate)===11"
+                icon="el-icon-edit-outline"
+                @click="handelAdjust(scope.row)"
+              >调价</el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="goodsFooter">
-          <div class="footer-left" v-if="delivertype !==0">
-            <h4>物流信息</h4>
-            <p>
-              <b>收货人：</b>
-              <span>{{deliveryAddress.name}}</span>
-            </p>
-            <p>
-              <b>联系方式：</b>
-              <span>{{deliveryAddress.phone}}</span>
-            </p>
-            <p>
-              <b>收获地址：</b>
-              <span>{{deliveryAddress.area}}{{deliveryAddress.address}}</span>
-            </p>
-          </div>
-          <div class="footer-left" v-if="invocetype !==0">
-            <h4>发票信息</h4>
-            <p>
-              <b>发票抬头：</b>
-              <span>{{Number(invoceInfo.owner === 1)?invoceInfo.name:invoceInfo.company}}</span>
-            </p>
-            <p>
-              <b>发票类型：</b>
-              <span>{{invoceInfo.type | initInvoce}}</span>
-            </p>
-            <p>
-              <b>发票税号：</b>
-              <span>{{invoceInfo.taxno}}</span>
-            </p>
-          </div>
-          <div class="footer-mid"></div>
           <div class="footer-right">
             <p>
               <b class="totalGoods">
@@ -166,7 +147,15 @@
                 <span>{{totalNum}}</span>件商品
               </b>
               <b>商品总价：</b>
-              <span>￥{{totalPrice}}</span>
+              <span>￥{{orderamount}}</span>
+            </p>
+            <p>
+              <b>总优惠价格：</b>
+              <span>￥{{totalAdjustPrice}}</span>
+            </p>
+            <p>
+              <b>总抹零价格：</b>
+              <span>￥{{totalWeightPrice}}</span>
             </p>
             <p>
               <b>运费（快递）：</b>
@@ -176,15 +165,51 @@
               <b>应付总价：</b>
               <span>￥{{needprice}}</span>
             </p>
+            <p>
+              <b>已支付：</b>
+              <span>￥{{ac1234?needprice:0}}</span>
+            </p>
             <p class="total">
-              <b>实付总价：</b>
+              <b>资金付款：</b>
               <span>￥{{realprice}}</span>
             </p>
           </div>
         </div>
       </div>
+      <div class="footer">
+        <div class="footer-left" v-if="delivertype !==0">
+          <h4>收货人信息</h4>
+          <p>
+            <b>收货人：</b>
+            <span>{{deliveryAddress.name}}</span>
+          </p>
+          <p>
+            <b>联系方式：</b>
+            <span>{{deliveryAddress.phone}}</span>
+          </p>
+          <p>
+            <b>收货地址：</b>
+            <span>{{deliveryAddress.province}}{{deliveryAddress.city}}{{deliveryAddress.area}}{{deliveryAddress.address}}</span>
+          </p>
+        </div>
+        <div class="footer-left" style="border:none" v-if="invocetype !==0">
+          <h4>发票信息</h4>
+          <p>
+            <b>发票抬头：</b>
+            <span>{{Number(invoceInfo.owner === 1)?invoceInfo.name:invoceInfo.company}}</span>
+          </p>
+          <p>
+            <b>发票类型：</b>
+            <span>{{invoceInfo.type | initInvoce}}</span>
+          </p>
+          <p>
+            <b>发票税号：</b>
+            <span>{{invoceInfo.taxno}}</span>
+          </p>
+        </div>
+      </div>
     </div>
-    <el-dialog title="商品称重" :visible.sync="openWeight" width="580px">
+    <el-dialog title="商品称重" :visible.sync="openWeight" width="600px">
       <el-form :model="weightForm" ref="weightForm" :rules="weightFormRules" label-width="140px">
         <div class="goods-info">
           <span>
@@ -196,12 +221,24 @@
             <b>{{weightForm.netweight}}</b>；
           </span>
           <span>
-            商品现价：
+            商品单价：
             <b>￥{{weightForm.cmdtprice}}</b>；
           </span>
           <span>
-            用户价格：
+            折扣：
+            <b>{{weightForm.discount | initDiscount}}</b>；
+          </span>
+          <span>
+            数量：
+            <b>{{weightForm.cmdtcount}}</b>；
+          </span>
+          <span>
+            商品总价：
             <b>￥{{weightForm.cmdttotalprice}}</b>；
+          </span>
+          <span>
+            优惠价格：
+            <b>￥{{weightForm.couponprice}}</b>；
           </span>
         </div>
         <el-form-item label="称重后毛重：" prop="weighedGw">
@@ -210,15 +247,15 @@
         <el-form-item label="称重后净重：" prop="weighedNw">
           <el-input v-model="weightForm.weighedNw" disabled placeholder="由计算得出" />
         </el-form-item>
-        <el-form-item label="称重后价格：" prop="weighedCp">
+        <el-form-item label="商品总价：" prop="weighedCp">
           <el-input v-model="weightForm.weighedCp" disabled placeholder="由计算得出" />
         </el-form-item>
-        <el-form-item label="称重后用户价格：" prop="weighedCtp">
+        <el-form-item label="称重后订单总价：" prop="weighedCtp">
           <el-input v-model="weightForm.weighedCtp" disabled placeholder="由计算得出" />
         </el-form-item>
-        <el-form-item label="微调后价格：" prop="adjustedprice">
-          <el-input maxlength="6" v-model="weightForm.adjustedprice" placeholder="微调后价格" />
-          <div class="tip">* 可以根据称重后用户价格微调取整，上下浮动不超于10。</div>
+        <el-form-item label="订单确认总价：" prop="adjustedprice">
+          <el-input maxlength="6" v-model="weightForm.adjustedprice" placeholder="确认价格" />
+          <div class="tip">* 确认价格可抹零，与称重后用户价格上下相差不能超过10元</div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -230,7 +267,11 @@
 </template>
 
 <script>
-import { getOrderDetail, orderWeight } from "@/api/order";
+import {
+  getOrderDetail,
+  orderWeight,
+  handelEditPrice
+} from "@/api/order";
 export default {
   name: "orderDetail",
   data() {
@@ -295,7 +336,7 @@ export default {
         weighedNw: "", //称重后净重（毛重-筐重）
         weighedCp: "", //称重后商品价格（净重*单价）
         weighedCtp: "", //称重后用户价格（称重后商品价格*折扣*商品数量-优惠金额）
-        adjustedprice: ""
+        adjustedprice: "" //取整后价格
       },
       weightFormRules: {
         weighedGw: [
@@ -334,10 +375,10 @@ export default {
           }
         ]
       },
+
       goodsList: null,
       tradestate: "",
       totalNum: "",
-      totalPrice: "",
       orderno: "",
       carriage: "",
       needprice: "",
@@ -353,7 +394,10 @@ export default {
       deliverytime: "",
       receivetime: "",
       finaltime: "",
-      failuretime: ""
+      failuretime: "",
+      orderamount: 0,
+      totalAdjustPrice: 0,
+      totalWeightPrice: 0
     };
   },
   watch: {
@@ -381,6 +425,7 @@ export default {
       if ((val && patter.test(val), val > frameWeight)) {
         const weighedNw = (Number(val) - frameWeight).toFixed(2);
         const weighedCp = ((Number(val) - frameWeight) * unitprice).toFixed(2);
+        console.log(frameWeight,unitprice,discount,cmdtcount,couponprice)
         const weighedCtp = (
           (weighedCp * discount).toFixed(2) * cmdtcount -
           couponprice
@@ -422,6 +467,14 @@ export default {
     initInvoce(type) {
       const arr = ["", "普通发票", "增值税发票"];
       return arr[type];
+    },
+    initDiscount(val) {
+      if (!val) return "";
+      if (val === 1) {
+        return "无折扣";
+      } else {
+        return `${Number(val) * 100}折`;
+      }
     }
   },
   computed: {
@@ -453,6 +506,22 @@ export default {
     },
     ac6() {
       return this.tradestate === 6;
+    },
+    ac01011() {
+      const tradestate = this.tradestate;
+      return tradestate === 0 || tradestate === 10 || tradestate === 11;
+    },
+    ac23() {
+      return this.tradestate === 2 || this.tradestate === 3;
+    },
+    ac1234() {
+      const tradestate = this.tradestate;
+      return (
+        tradestate === 1 ||
+        tradestate === 2 ||
+        tradestate === 3 ||
+        tradestate === 4
+      );
     }
   },
   created() {
@@ -504,7 +573,8 @@ export default {
             weighttime,
             receivetime,
             finaltime,
-            failuretime
+            failuretime,
+            orderamount
           }
         } = await getOrderDetail({
           orderno: this.orderno
@@ -528,16 +598,29 @@ export default {
           this.receivetime = receivetime;
           this.finaltime = finaltime;
           this.failuretime = failuretime;
+          this.orderamount = orderamount;
+
           this.totalNum = cmdtOrderDetailRespList.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
             return pre;
           }, 0);
-          this.totalPrice = cmdtOrderDetailRespList
-            .reduce((pre, item) => {
-              pre += Number(item.cmdttotalprice);
+
+          this.totalAdjustPrice = cmdtOrderDetailRespList.reduce(
+            (pre, item) => {
+              pre += Number(item.couponprice);
               return pre;
-            }, 0)
-            .toFixed(2);
+            },
+            0
+          ).toFixed(2);
+
+          this.totalWeightPrice = cmdtOrderDetailRespList.reduce(
+            (pre, item) => {
+              pre += Number(item.dispelprice);
+              return pre;
+            },
+            0
+          ).toFixed(2);
+
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
               standards: JSON.parse(item.saleprovalue).salepro.reduce(
@@ -572,7 +655,8 @@ export default {
         cmdttotalprice,
         discount,
         couponprice,
-        cmdtcount
+        cmdtcount,
+        unitprice
       } = item;
       Object.assign(this.weightForm, {
         uid,
@@ -586,7 +670,7 @@ export default {
         discount: Number(discount), //折扣
         couponprice: Number(couponprice), //优惠金额
         cmdtcount: Number(cmdtcount), //数量
-        unitprice: Number(cmdtprice) / Number(netweight), //单价
+        unitprice: Number(unitprice), //单价
         frameWeight: Number(
           (Number(grossweight) - Number(netweight)).toFixed(2)
         ), //框重
@@ -639,7 +723,46 @@ export default {
           return false;
         }
       });
-    }
+    },
+    handelAdjust(item) {
+      const { cmdttotalprice, detailno, orderno } = item;
+      this.$prompt("请输入优惠价格", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputValidator: val => {
+          if (val === "" || val === null) {
+            return "价格不能为空";
+          } else {
+            if (!(/(^[1-9](\d+)?(\.\d{1,2})?$)|(^\d\.\d{1,2}$)/).test(val)) {
+              return "价格为大于零且最多保留两位小数的数字";
+            } else if (Number(val) > Number(cmdttotalprice)) {
+              return "价格不能大于商品总价";
+            } else {
+              return true;
+            }
+          }
+        }
+      })
+        .then(async ({ value }) => {
+          try {
+            const { code } = await handelEditPrice({
+              detailno,
+              orderno,
+              couponprice: value
+            });
+            if (code === 200) {
+              this.getDetail();
+              this.msgSuccess("调价成功");
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    inputValidator(val) {}
   }
 };
 </script>

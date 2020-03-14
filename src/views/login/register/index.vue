@@ -3,7 +3,7 @@
     <div class="header-top">
       <div class="center-wrap">
         <h2>
-          水果电商平台
+          好多果平台
           <span>企业注册</span>
         </h2>
         <p>
@@ -59,7 +59,7 @@
                 <el-checkbox-group v-model="codeForm.radioVal">
                   <el-checkbox label="0" class="autolg">我已阅读并同意</el-checkbox>
                 </el-checkbox-group>
-                <a class="colorGreen">《企业用户注册协议》</a>
+                <a class="colorGreen" target="_blank" href="https://agreement.hdguo.com/regisit-pc.html">《企业用户注册协议》</a>
               </el-form-item>
               <span class="submit-btn" @click="toPwFrom('codeForm')">下一步</span>
             </el-form>

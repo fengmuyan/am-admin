@@ -17,17 +17,6 @@
               end-placeholder="结束日期"
             ></el-date-picker>
           </el-form-item>
-          <el-form-item label="排序方式" prop="sortfield">
-            <el-select
-              v-model="queryForm.sortfield"
-              placeholder="请选择"
-              size="small"
-              style="width: 200px"
-            >
-              <el-option label="订单数排序" value="0" />
-              <el-option label="收款金额排序" value="1" />
-            </el-select>
-          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -60,55 +49,28 @@
           >导出数据</el-button>
         </el-col>
       </el-row>
-      <el-table
-        style="width: 100%"
-        v-loading="loading"
-        :data="orderList"
-        :default-sort="{prop:'usedlimit',order:'descending'}"
-      >
-        <el-table-column label="经销商" prop="username">
-          <template slot-scope="scope">
-            <el-popover
-              placement="top-start"
-              :title="scope.row.username"
-              width="220"
-              trigger="hover"
-            >
-              <div>
-                <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
-                <!-- <p style="margin:0;line-height:22px">手机号：{{scope.row.phone}}</p> -->
-              </div>
-              <span slot="reference">{{scope.row.username}}</span>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column label="订单数" sortable prop="ordercount" />
-        <el-table-column label="付款订单数" prop="paycount" />
-        <el-table-column label="商品数量" prop="cmdtcount" />
-        <el-table-column label="订单金额" sortable prop="needprice" />
-        <el-table-column label="信用额度付款" sortable prop="creditprice" />
-        <el-table-column label="资金付款" sortable prop="totalmoney" />
+      <el-table style="width: 100%" v-loading="loading" :data="orderList">
+        <el-table-column label="商品编号" prop="cmdtcode" width="120" show-overflow-tooltip />
+        <el-table-column label="商品名称" prop="title" show-overflow-tooltip />
+        <el-table-column label="产地" prop="area" width="120" />
+        <el-table-column label="商标" prop="trademark" width="120" />
+        <el-table-column label="级别" prop="level" width="120" />
+        <el-table-column label="品类" prop="varieties" width="120" />
+        <el-table-column label="商品数量" sortable prop="cmdtcount" width="120" />
+        <el-table-column label="订单数量" prop="ordercount" width="120" />
       </el-table>
-      <div class="total-wrap">
-        <div class="total-data">
-          订单金额合计：
-          <span style="margin-right:35px">￥{{totalordermoney}}</span>
-          资金付款合计：
-          <span>￥{{totalMoney}}</span>
-        </div>
-        <pagination
-          v-show="total>0"
-          :total="total"
-          :page.sync="queryForm.pageNum"
-          :limit.sync="queryForm.pageSize"
-          @pagination="getList"
-        />
-      </div>
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="queryForm.pageNum"
+        :limit.sync="queryForm.pageSize"
+        @pagination="getList"
+      />
     </div>
   </div>
 </template>
 <script>
-import { getStatisticsOrder, handelOrderExport } from "@/api/statistics";
+import { getSaleProList, SaleProExport } from "@/api/statistics";
 import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
@@ -119,13 +81,10 @@ export default {
       formShow: true,
       orderList: [],
       total: 0,
-      totalMoney: 0,
-      totalordermoney: 0,
       dateRange: [],
       queryForm: {
         pageNum: 1,
-        pageSize: 10,
-        sortfield: "0"
+        pageSize: 10
       }
     };
   },
@@ -141,17 +100,13 @@ export default {
         const {
           code,
           data: {
-            pageResult: { content, totalSize },
-            totalmoney,
-            totalordermoney
+            pageResult: { content, totalSize }
           }
-        } = await getStatisticsOrder(_initParams(queryForm));
+        } = await getSaleProList(_initParams(queryForm));
         this.loading = false;
         if (code === 200) {
           this.orderList = content;
           this.total = totalSize;
-          this.totalMoney = totalmoney;
-          this.totalordermoney = totalordermoney;
         }
       } catch (err) {
         this.loading = false;
@@ -161,10 +116,7 @@ export default {
     resetTime() {
       this.dateRange = [
         `${this.parseTime(new Date().getTime(), "{y}-{m}-{d}")} 00:00:00`,
-        `${this.parseTime(
-          new Date().getTime() + 24 * 60 * 60 * 1000,
-          "{y}-{m}-{d}"
-        )} 00:00:00`
+        `${this.parseTime(new Date().getTime() + 24*60*60*1000, "{y}-{m}-{d}")} 00:00:00`
       ];
     },
     handleQuery() {
@@ -173,15 +125,8 @@ export default {
     },
     resetQuery() {
       this.resetTime();
-      this.queryForm.sortfield = "0";
       this.resetForm("queryForm");
       this.handleQuery();
-    },
-    handleDetail() {
-      this.$router.push({
-        path: "/query-statistics/quota-detail-qs",
-        query: { code: 1001 }
-      });
     },
     handleExport() {
       const { _initParams, queryForm } = this;
@@ -193,7 +138,7 @@ export default {
       })
         .then(async () => {
           this.exportLoading = true;
-          const { msg, code } = await handelOrderExport(_initParams(queryForm));
+          const { msg, code } = await SaleProExport(_initParams(queryForm));
           if (code === 200) {
             this.download(msg);
             this.msgSuccess("导出成功");

@@ -54,7 +54,8 @@ export default {
     this.onlyOneChild = null
     return {
        hiddenMenu: [
-        "agent-pro-qs/:code"
+        "agent-pro-qs/:code",
+        "sent-list/:code"
       ]
     }
   },

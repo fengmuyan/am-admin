@@ -41,9 +41,6 @@
             <span>基本资料</span>
           </div>
           <el-tabs v-model="activeTab">
-            <el-tab-pane label="基本资料" name="userinfo">
-              <userInfo :user="user" />
-            </el-tab-pane>
             <el-tab-pane label="修改密码" name="resetPwd">
               <resetPwd :user="user" />
             </el-tab-pane>
@@ -56,19 +53,18 @@
 
 <script>
 import userAvatar from "./userAvatar";
-import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 import { getUserProfile } from "@/api/system/user";
 
 export default {
   name: "Profile",
-  components: { userAvatar, userInfo, resetPwd },
+  components: { userAvatar, resetPwd },
   data() {
     return {
       user: {},
       roleGroup: {},
       postGroup: {},
-      activeTab: "userinfo"
+      activeTab: "resetPwd"
     };
   },
   created() {

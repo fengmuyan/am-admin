@@ -25,7 +25,7 @@
                 <el-option label="信用额度支付" value="1" />
               </el-select>
             </el-form-item>
-            
+
             <el-form-item label="订单来源" prop="ordersource">
               <el-select
                 v-model="queryForm.ordersource"
@@ -75,7 +75,7 @@
                 <el-option label="删除" value="N" />
               </el-select>
             </el-form-item>
-            
+
             <el-form-item label="支付状态" prop="paystate">
               <el-select
                 v-model="queryForm.paystate"
@@ -146,7 +146,21 @@
         <el-table-column label="订单号" prop="orderno" width="150" show-overflow-tooltip />
         <el-table-column label="创建时间" sortable prop="createtime" width="150" />
         <el-table-column label="订单金额" sortable prop="orderamount" width="130" />
-        <el-table-column label="采购商" prop="username" show-overflow-tooltip />
+        <el-table-column label="经销商" prop="username" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-popover
+              placement="top-start"
+              :title="scope.row.username"
+              width="220"
+              trigger="hover"
+            >
+              <div>
+                <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
+              </div>
+              <span slot="reference">{{scope.row.username}}</span>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column label="数量" prop="cmdtcount" width="60" />
         <el-table-column label="应收款" prop="needprice" width="70" />
         <el-table-column label="实收款" prop="realprice" width="70" />
@@ -159,7 +173,7 @@
         <el-table-column label="交易状态" prop="tradestate" width="120">
           <template slot-scope="scope">{{scope.row.tradestate | initTradestate}}</template>
         </el-table-column>
-        <el-table-column label="操作" width="130">
+        <el-table-column label="操作" width="160">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -174,6 +188,13 @@
               v-if="Number(scope.row.tradestate) === 1"
               @click="handleSent(scope.row)"
             >发货</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-s-order"
+              v-if="isSentBtn(scope.row)"
+              @click="handleToSentList(scope.row)"
+            >发货列表</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -185,23 +206,123 @@
         @pagination="getList"
       />
     </div>
+
+    <el-dialog title="选择物流发货" :visible.sync="open" @close="clearValidate" width="550px">
+      <el-form
+        :model="expressForm"
+        ref="expressForm"
+        :rules="expressFormRules"
+        v-loading="expressLoading"
+        label-width="120px"
+      >
+        <el-form-item label="发货方式" prop="isAll">
+          <el-radio-group v-model="expressForm.isAll" @change="expressForm.detailNo = []">
+            <el-radio label="Y">全部</el-radio>
+            <el-radio label="N">部分发货</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="expressForm.isAll === 'N'" label="发货商品" prop="detailNo">
+          <el-select
+            v-model="expressForm.detailNo"
+            style="width:350px"
+            multiple
+            placeholder="请选择发货商品"
+          >
+            <el-option
+              v-for="item in orderDetailsList"
+              :key="item.value"
+              :label="item.cmdtname"
+              :value="item.detailno"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="物流单号" prop="expressno">
+          <el-input
+            v-model="expressForm.expressno"
+            placeholder="请输入物流单号"
+            maxlength="20"
+            style="width:350px"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="物流公司" prop="expressname">
+          <el-select
+            v-model="expressForm.expressname"
+            placeholder="请选择物流公司"
+            @change="expressChange"
+            style="width:350px"
+          >
+            <el-option
+              v-for="(item,index) in expressList"
+              :key="index"
+              :label="item.expressname"
+              :value="item.expressname"
+            />
+          </el-select>
+        </el-form-item>
+        <div v-if="expressForm.expressid === '100000001'">
+          <el-form-item label="物流公司名称" prop="inexpressname">
+            <el-input
+              v-model="expressForm.inexpressname"
+              placeholder="请输入物流公司名称"
+              maxlength="30"
+              style="width:350px"
+            ></el-input>
+          </el-form-item>
+        </div>
+        <el-form-item label="发货字号" prop="namebrand">
+          <el-input
+            v-model="expressForm.namebrand"
+            placeholder="请输入发货字号"
+            maxlength="20"
+            style="width:350px"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="open = false">取 消</el-button>
+        <el-button type="primary" :loading="loadingSend" @click="submitForm('expressForm')">发 货</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { getOrderList, orderToSent, orderExport } from "@/api/order";
-import minHeightMix from '@/mixins/minHeight'
+import {
+  getOrderList,
+  orderToSent,
+  orderExport,
+  getExpressList,
+  handelSendGoods,
+  getOrderDetailsList
+} from "@/api/order";
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
+    const validateExpressno = (rule, value, callback) => {
+      if (value === undefined) {
+        callback(new Error("请输入物流单号"));
+      } else {
+        if (!/^[a-zA-Z0-9]{5,20}$/.test(value)) {
+          callback(new Error("请输入正确的物流单号"));
+        }
+        callback();
+      }
+    };
     return {
       loading: false,
       exportLoading: false,
+      expressLoading: false,
+      loadingSend: false,
       formShow: true,
       activeName: "-1",
       orderList: [],
       total: 0,
+      open: false,
+      expressList: [],
+      orderDetailsList: [],
       payDateRange: [],
       createDateRange: [],
+
       queryForm: {
         pageNum: 1,
         pageSize: 10,
@@ -212,8 +333,49 @@ export default {
         ordersource: undefined,
         paystate: undefined,
         orderstate: undefined
+      },
+      expressForm: {
+        uid: undefined,
+        orderno: undefined,
+        expressno: undefined,
+        expressname: undefined,
+        expressid: undefined,
+        inexpressname: undefined,
+        namebrand: undefined,
+        isAll: "Y",
+        detailNo: []
+      },
+      expressFormRules: {
+        expressno: [
+          { validator: validateExpressno, required: true, trigger: "blur" }
+        ],
+        expressname: [
+          { required: true, message: "请选择物流公司", trigger: "change" }
+        ],
+        inexpressname: [
+          { required: true, message: "请输入物流公司名称", trigger: "blur" }
+        ],
+        isAll: [
+          { required: true, message: "请输入发货方式", trigger: "change" }
+        ],
+        detailNo: [
+          { required: true, message: "请选择发货商品", trigger: "change" }
+        ]
       }
     };
+  },
+  computed: {
+    isSentBtn() {
+      return function(item) {
+        const { tradestate, delivertype } = item;
+        return (
+          (Number(tradestate) === 2 ||
+            Number(tradestate) === 3 ||
+            Number(tradestate) === 4) &&
+          Number(delivertype) === 1
+        );
+      };
+    }
   },
   filters: {
     initTradestate(val) {
@@ -229,7 +391,7 @@ export default {
         "",
         "",
         "待称重",
-        "已称重，待付款"
+        "已称重，待付"
       ];
       return arr[val];
     },
@@ -296,27 +458,56 @@ export default {
       this.queryForm.pageNum = 1;
       this.getList();
     },
-    handleSent(item) {
-      this.$confirm("确定要发货吗？", "系统提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        customClass: "el-message-box-wran"
-      }).then(async () => {
+    async handleSent(item) {
+      const { uid, orderno } = item;
+      if (Number(item.delivertype) === 0) {
+        this.$confirm("确定要发货吗？", "系统提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          customClass: "el-message-box-wran"
+        }).then(async () => {
+          try {
+            this.loading = true;
+            const { code } = await orderToSent({ uid, orderno });
+            this.loading = false;
+            if (code === 200) {
+              await this.getList();
+              this.msgSuccess("发货成功");
+            }
+          } catch (err) {
+            this.loading = false;
+            console.log(err);
+          }
+        });
+      } else if (Number(item.delivertype) === 1) {
+        this.resetExpressForm();
+        Object.assign(this.expressForm, {
+          uid,
+          orderno
+        });
+        this.open = true;
         try {
-          const { uid, orderno } = item;
-          this.loading = true;
-          const { code } = await orderToSent({ uid, orderno });
-          this.loading = false;
-          if (code === 200) {
-            await this.getList();
-            this.msgSuccess("发货成功");
+          this.expressLoading = true;
+          const [
+            { data: data1, code: code1 },
+            { data: data2, code: code2 }
+          ] = await Promise.all([
+            getExpressList(),
+            getOrderDetailsList({ orderno })
+          ]);
+          this.expressLoading = false;
+          if (code1 === 200) {
+            this.expressList = data1;
+          }
+          if (code2 === 200) {
+            this.orderDetailsList = data2;
           }
         } catch (err) {
-          this.loading = false;
+          this.expressLoading = false;
           console.log(err);
         }
-      });
+      }
     },
     handleExport() {
       const { _initParams, queryForm } = this;
@@ -339,8 +530,61 @@ export default {
         })
         .catch(function() {});
     },
+    resetExpressForm() {
+      Object.assign(this.expressForm, {
+        uid: undefined,
+        orderno: undefined,
+        expressno: undefined,
+        expressname: undefined,
+        expressid: undefined,
+        inexpressname: undefined,
+        isAll: "Y",
+        detailNo: []
+      });
+    },
+    clearValidate() {
+      this.$refs.expressForm.resetFields();
+    },
+    expressChange(val) {
+      this.expressForm.expressid = this.expressList.find(item => {
+        return item.expressname === val;
+      }).expressid;
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            this.loadingSend = true;
+            const { code } = await handelSendGoods(
+              Object.assign(this.expressForm, {
+                detailnos: this.expressForm.detailNo.join(",")
+              })
+            );
+            this.loadingSend = false;
+            if (code === 200) {
+              this.msgSuccess("发货成功");
+              this.open = false;
+              this.getList();
+            }
+          } catch (err) {
+            this.loadingSend = false;
+            console.log(err);
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    handleToSentList(item) {
+      const orderno = item.orderno;
+      this.$router.push({
+        path: `/order/sent-list/${orderno}`
+      });
+    },
     _initParams(obj) {
-      const { activeName, payDateRange, createDateRange } = this;
+      const activeName = this.activeName;
+      const payDateRange = this.payDateRange || [];
+      const createDateRange = this.createDateRange || [];
       Object.assign(obj, {
         tradestate: activeName === "-1" ? null : activeName,
         paytimestart: payDateRange.length > 0 ? payDateRange[0] : null,

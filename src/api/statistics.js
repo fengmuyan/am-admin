@@ -88,3 +88,35 @@ export function getUsernameList() {
     method: 'get'
   })
 }
+
+export function getSaleProList(data) {
+  return request({
+    url: '/god/statistics/sale',
+    method: 'post',
+    data
+  })
+}
+
+export function SaleProExport(data) {
+  return request({
+    url: '/god/statistics/saleexport',
+    method: 'post',
+    data
+  })
+}
+
+export function getSaleProDetailList(data) {
+  return request({
+    url: '/god/statistics/saledetail',
+    method: 'post',
+    data
+  })
+}
+
+export function SaleProDetailExport(data) {
+  return request({
+    url: '/god/statistics/saledetailexport',
+    method: 'post',
+    data
+  })
+}

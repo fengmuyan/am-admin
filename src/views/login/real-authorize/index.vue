@@ -3,7 +3,7 @@
     <div class="header-top">
       <div class="center-wrap">
         <h2>
-          水果电商平台
+          好多果平台
           <span>企业信息认证</span>
         </h2>
       </div>

@@ -61,8 +61,8 @@ export default {
         if (!patter.test(value)) {
           callback(new Error("必须非负整数或至多保留两位小数！"));
         } else {
-          if (value < this.usedlimit) {
-            callback(new Error(`授权额度不能小于已使用额度（已使用：${this.usedlimit}）。`));
+          if (Number(value) < Number(this.usedlimit)) {
+            callback(new Error(`授权额度不能小于已使用额度（已使用：${this.usedlimit}）`));
           } else {
             callback();
           }
@@ -145,12 +145,7 @@ export default {
         this.fourForm.risklimit = codeArr[3];
         this.usedlimit = codeArr[4];
       } catch (err) {
-        ELEMENT.MessageBox({
-          message: "参数错误，请检查。",
-          type: "error",
-          duration: 5 * 1000,
-          customClass: "el-message-box-err"
-        });
+        this.msgError("参数错误，请检查。")
         console.log(err);
       }
     },

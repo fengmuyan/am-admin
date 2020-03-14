@@ -49,14 +49,14 @@
               <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="titleForm.isAgent==='Y'" label="代卖商户：" prop="pmercode">
-            <el-select v-model="titleForm.pmercode" placeholder="请选择代卖商户" class="w-400">
+          <el-form-item v-if="titleForm.isAgent==='Y'" label="供货商：" prop="pmercode">
+            <el-select v-model="titleForm.pmercode" placeholder="请选择供货商" class="w-400">
               <el-option
                 v-for="item in pmercodeList"
                 :key="item.pmercode"
                 :label="item.name"
-                :value="item.pmercode">
-              </el-option>
+                :value="item.pmercode"
+              ></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -80,6 +80,18 @@
               <el-radio label="2" disabled>按重量</el-radio>
             </el-radio-group>
           </el-form-item>
+          <div v-if="valuationForm.pricetype === '1'">
+            <el-form-item label="规格：" prop="cmdtspecifications">
+              <el-input
+                v-model="valuationForm.cmdtspecifications"
+                maxlength="20"
+                class="w-400"
+                disabled
+                placeholder="请输入规格 (如：30公斤/件)"
+                clearable
+              ></el-input>
+            </el-form-item>
+          </div>
           <div v-if="valuationForm.pricetype === '2'">
             <el-form-item label="重量单位" prop="weightunit">
               <el-radio-group v-model="valuationForm.weightunit">
@@ -184,9 +196,9 @@
               </div>
             </div>
             <div v-loading="loadingUploadDec" class="dec-loading-box">
-              <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item" ref="webDesc">
-                <editor v-model="uploadForm.webDesc" @input="webEditor" :moduleNum="2"></editor>
-              </el-form-item>
+              <!-- <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
+                <editor v-model="uploadForm.webDesc" :moduleNum="2"></editor>
+              </el-form-item>-->
               <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
                 <editor v-model="uploadForm.phoneDesc" @input="phoneEditor" :moduleNum="1"></editor>
                 <el-button
@@ -209,13 +221,13 @@
           <el-form-item label="付款方式：" prop="paymethod">
             <el-radio-group v-model="payForm.paymethod">
               <el-radio label="1">普通交易</el-radio>
-              <el-radio label="2">预售模式</el-radio>
+              <!-- <el-radio label="2">预售模式</el-radio> -->
             </el-radio-group>
           </el-form-item>
           <el-form-item label="库存计数：" prop="stockmethod">
             <el-radio-group v-model="payForm.stockmethod">
-              <el-radio label="1">卖家拍下减库存</el-radio>
-              <el-radio label="2">卖家付款减库存</el-radio>
+              <el-radio label="1">买家拍下减库存</el-radio>
+              <el-radio label="2">买家付款减库存</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-form>
@@ -223,7 +235,7 @@
       <div class="block" v-loading="loadingLogistics">
         <h4>
           物流信息
-          <el-button size="mini" class="f-r" type="primary" @click="editLogistics">修改支付信息</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editLogistics">修改物流信息</el-button>
         </h4>
         <el-form
           :model="logisticsForm"
@@ -247,6 +259,7 @@
               :disabled="logisticsForm.deliverymode!=='1'"
             >代发</el-checkbox>
             <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
+            <p class="tip-info" style="line-height: 20px;padding-left: 0;">* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
           </el-form-item>
         </el-form>
       </div>
@@ -352,7 +365,7 @@ export default {
     const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else if (!(value > this.valuationForm.netweight)) {
+      } else if (!(Number(value) > Number(this.valuationForm.netweight))) {
         callback(new Error("毛重必须大于净重"));
       } else {
         callback();
@@ -396,6 +409,7 @@ export default {
         pricetype: "2",
         grossweight: "",
         netweight: "",
+        cmdtspecifications: "",
         weightunit: "公斤"
       }, //销售属性中计价表单
       postSaleForm: {
@@ -450,6 +464,9 @@ export default {
         ],
         weightunit: [
           { required: true, message: "请输入重量单位", trigger: "blur" }
+        ],
+        cmdtspecifications: [
+          { required: true, message: "请输入规格", trigger: "blur" }
         ]
       }, //销售属性中计价表单验证
       postSaleFormRules: {
@@ -480,11 +497,13 @@ export default {
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ],
-        isAgent: [
-          { required: true, message: "请选择", trigger: "blur" }
-        ],
+        isAgent: [{ required: true, message: "请选择", trigger: "blur" }],
         pmercode: [
-          { required: true, message: "请选择一个商户", trigger: ["blur", "change"] }
+          {
+            required: true,
+            message: "请选择一个商户",
+            trigger: ["blur", "change"]
+          }
         ]
       }, //自然属性中的标题表单验证
       payFormRules: {
@@ -560,11 +579,6 @@ export default {
       this.uploadForm.fduration = val.duration ? val.duration : 0;
     },
 
-    /* 电脑端描述输入后清除验证 */
-    webEditor() {
-      this.$refs["webDesc"].clearValidate();
-    },
-
     /* 手机端描述输入后清除验证  */
     phoneEditor() {
       this.$refs["phoneDesc"].clearValidate();
@@ -574,8 +588,11 @@ export default {
     async getDetailData() {
       try {
         const { producode, uid } = this;
-        const { code: code3, data:{ pmercodes } } = await getSupplierList();
-        if(code3 === 200){
+        const {
+          code: code3,
+          data: { pmercodes }
+        } = await getSupplierList();
+        if (code3 === 200) {
           this.pmercodeList = pmercodes;
           const [
             {
@@ -590,6 +607,7 @@ export default {
                   weightunit,
                   grossweight,
                   netweight,
+                  cmdtspecifications,
                   isdiscount,
                   naturepro,
                   salepro,
@@ -631,6 +649,7 @@ export default {
             this.valuationForm.weightunit = weightunit;
             this.valuationForm.grossweight = grossweight;
             this.valuationForm.netweight = netweight;
+            this.valuationForm.cmdtspecifications = cmdtspecifications;
             this.valuationForm.isdiscount = String(isdiscount);
             this.naturalData = JSON.parse(naturepro).naturepro;
             this.naturalDataInit = initFormData(deepClone(this.naturalData));
@@ -931,12 +950,7 @@ export default {
         if (code === 200) {
           await this.getDetailData();
           this._loadingCancel();
-          ELEMENT.MessageBox({
-            message: "修改成功",
-            type: "success",
-            duration: 5 * 1000,
-            customClass: "el-message-box-suc"
-          });
+          this.msgSuccess("修改成功");
         } else {
           this._loadingCancel();
         }

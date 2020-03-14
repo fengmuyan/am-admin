@@ -322,8 +322,11 @@ import {
 import { treeselect } from "@/api/system/dept";
 import { listPost } from "@/api/system/post";
 import { listRole } from "@/api/system/role";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层

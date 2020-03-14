@@ -108,51 +108,21 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="单价" prop="cmdtprice" />
+          <el-table-column label="价格/件" prop="cmdtprice" />
           <el-table-column label="数量" prop="cmdtcount" />
           <el-table-column label="优惠" prop="couponprice" />
-          <el-table-column label="折扣" prop="discount" />
+          <el-table-column label="抹零" prop="dispelprice" />
+          <el-table-column label="折扣" prop="discount">
+            <template slot-scope="scope">{{scope.row.discount | initDiscount}}</template>
+          </el-table-column>
           <el-table-column label="总价" prop="cmdttotalprice" />
-          <el-table-column label="状态" width="200px">
+          <el-table-column label="状态" width="120px">
             <template slot-scope="scope">
-              <div class="weight-box">
-                <span>{{scope.row.tradestate | initTradestate}}</span>
-              </div>
+              <span>{{scope.row.tradestate | initTradestate}}</span>
             </template>
           </el-table-column>
         </el-table>
         <div class="goodsFooter">
-          <div class="footer-left" v-if="delivertype !==0">
-            <h4>物流信息</h4>
-            <p>
-              <b>收货人：</b>
-              <span>{{deliveryAddress.name}}</span>
-            </p>
-            <p>
-              <b>联系方式：</b>
-              <span>{{deliveryAddress.phone}}</span>
-            </p>
-            <p>
-              <b>收获地址：</b>
-              <span>{{deliveryAddress.area}}{{deliveryAddress.address}}</span>
-            </p>
-          </div>
-          <div class="footer-left" v-if="invocetype !==0">
-            <h4>发票信息</h4>
-            <p>
-              <b>发票抬头：</b>
-              <span>{{Number(invoceInfo.owner === 1)?invoceInfo.name:invoceInfo.company}}</span>
-            </p>
-            <p>
-              <b>发票类型：</b>
-              <span>{{invoceInfo.type | initInvoce}}</span>
-            </p>
-            <p>
-              <b>发票税号：</b>
-              <span>{{invoceInfo.taxno}}</span>
-            </p>
-          </div>
-          <div class="footer-mid"></div>
           <div class="footer-right">
             <p>
               <b class="totalGoods">
@@ -160,7 +130,15 @@
                 <span>{{totalNum}}</span>件商品
               </b>
               <b>商品总价：</b>
-              <span>￥{{totalPrice}}</span>
+              <span>￥{{orderamount}}</span>
+            </p>
+            <p>
+              <b>总优惠价格：</b>
+              <span>￥{{totalAdjustPrice}}</span>
+            </p>
+            <p>
+              <b>总抹零价格：</b>
+              <span>￥{{totalWeightPrice}}</span>
             </p>
             <p>
               <b>运费（快递）：</b>
@@ -170,11 +148,47 @@
               <b>应付总价：</b>
               <span>￥{{needprice}}</span>
             </p>
+            <p>
+              <b>已支付：</b>
+              <span>￥{{ac1234?needprice:0}}</span>
+            </p>
             <p class="total">
-              <b>实付总价：</b>
+              <b>资金付款：</b>
               <span>￥{{realprice}}</span>
             </p>
           </div>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="footer-left" v-if="delivertype !==0">
+          <h4>收货人信息</h4>
+          <p>
+            <b>收货人：</b>
+            <span>{{deliveryAddress.name}}</span>
+          </p>
+          <p>
+            <b>联系方式：</b>
+            <span>{{deliveryAddress.phone}}</span>
+          </p>
+          <p>
+            <b>收货地址：</b>
+            <span>{{deliveryAddress.province}}{{deliveryAddress.city}}{{deliveryAddress.area}}{{deliveryAddress.address}}</span>
+          </p>
+        </div>
+        <div class="footer-left" style="border:none" v-if="invocetype !==0">
+          <h4>发票信息</h4>
+          <p>
+            <b>发票抬头：</b>
+            <span>{{Number(invoceInfo.owner === 1)?invoceInfo.name:invoceInfo.company}}</span>
+          </p>
+          <p>
+            <b>发票类型：</b>
+            <span>{{invoceInfo.type | initInvoce}}</span>
+          </p>
+          <p>
+            <b>发票税号：</b>
+            <span>{{invoceInfo.taxno}}</span>
+          </p>
         </div>
       </div>
     </div>
@@ -182,11 +196,52 @@
 </template>
 
 <script>
-import { getAgentOrderDetail } from "@/api/statistics";
+import { getOrderDetail, orderWeight } from "@/api/order";
 export default {
-  name: "agentOrderDetail",
+  name: "orderDetail",
   data() {
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+    const patterInt = /^\+?[1-9]\d*$/;
+    const validateWeight = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("毛重不能为空！"));
+      }
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else if (!(value > this.weightForm.frameWeight)) {
+        callback(new Error("毛重必须大于筐重"));
+      } else {
+        callback();
+      }
+    };
+    const validateOther = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("选项不能为空！"));
+      }
+      if (!patter.test(value)) {
+        callback(new Error("必须非负整数或至多保留两位小数！"));
+      } else {
+        callback();
+      }
+    };
+    const validateAdjust = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("调整后价格不能为空！"));
+      }
+      if (value === this.weightForm.weighedCtp) {
+        callback();
+      }
+      if (!patterInt.test(value)) {
+        callback(new Error("价格调整后必须为整数！"));
+      } else {
+        if (Math.abs(value - this.weightForm.weighedCtp) > 10) {
+          callback(new Error("上下浮动不能大于10！"));
+        }
+        callback();
+      }
+    };
     return {
+      openWeight: false,
       loading: false,
       goodsList: null,
       tradestate: "",
@@ -207,7 +262,10 @@ export default {
       deliverytime: "",
       receivetime: "",
       finaltime: "",
-      failuretime: ""
+      failuretime: "",
+      orderamount: 0,
+      totalAdjustPrice: 0,
+      totalWeightPrice: 0
     };
   },
   filters: {
@@ -231,6 +289,14 @@ export default {
     initInvoce(type) {
       const arr = ["", "普通发票", "增值税发票"];
       return arr[type];
+    },
+    initDiscount(val) {
+      if (!val) return "";
+      if (val === 1) {
+        return "无折扣";
+      } else {
+        return `${Number(val) * 100}折`;
+      }
     }
   },
   computed: {
@@ -254,14 +320,23 @@ export default {
     ac4() {
       return this.tradestate === 4;
     },
-    ac10() {
-      return this.tradestate === 10;
-    },
     ac5() {
       return this.tradestate === 5;
     },
     ac6() {
       return this.tradestate === 6;
+    },
+    ac23() {
+      return this.tradestate === 2 || this.tradestate === 3;
+    },
+    ac1234() {
+      const tradestate = this.tradestate;
+      return (
+        tradestate === 1 ||
+        tradestate === 2 ||
+        tradestate === 3 ||
+        tradestate === 4
+      );
     }
   },
   created() {
@@ -291,15 +366,16 @@ export default {
             weighttime,
             receivetime,
             finaltime,
-            failuretime
+            failuretime,
+            orderamount
           }
-        } = await getAgentOrderDetail({
+        } = await getOrderDetail({
           orderno: this.orderno
         });
         this.loading = false;
         if (code === 200) {
           this.goodsList = cmdtOrderDetailRespList;
-          this.tradestate = tradestate;
+          this.tradestate = Number(tradestate);
           this.carriage = carriage;
           this.needprice = needprice;
           this.realprice = realprice;
@@ -315,16 +391,26 @@ export default {
           this.receivetime = receivetime;
           this.finaltime = finaltime;
           this.failuretime = failuretime;
+          this.orderamount = orderamount;
           this.totalNum = cmdtOrderDetailRespList.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
             return pre;
           }, 0);
-          this.totalPrice = cmdtOrderDetailRespList
+
+          this.totalAdjustPrice = cmdtOrderDetailRespList
             .reduce((pre, item) => {
-              pre += Number(item.cmdttotalprice);
+              pre += Number(item.couponprice);
               return pre;
             }, 0)
             .toFixed(2);
+
+          this.totalWeightPrice = cmdtOrderDetailRespList
+            .reduce((pre, item) => {
+              pre += Number(item.dispelprice);
+              return pre;
+            }, 0)
+            .toFixed(2);
+
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
               standards: JSON.parse(item.saleprovalue).salepro.reduce(

@@ -352,6 +352,7 @@ export function toCombination(sourceList) {
     { key: "prices", name: "现价", values: "", unit: "元", validate: false, validateType: "num" },
     { key: "originalprice", name: "原价", values: "", unit: "元", validate: false, validateType: "num" },
     { key: "stockNums", name: "库存", values: "", unit: "", validate: false, validateType: "integer" },
+    { key: "salequantity", name: "起售数量", values: "1", unit: "", validate: false, validateType: "integer" },
     { key: "title", name: "标题", values: "", unit: "", validate: false, validateType: "text" },
     { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" }]
   sourceList.forEach(function (n) {
@@ -540,9 +541,10 @@ export function initTableInputData(serverData, timeIdArr, originalData) {
     });
     return Object.assign(item, {
       input: [
-        { key: "prices", name: "现价", values: data.totalprice, unit: "元", validate: false, validateType: "num" },
-        { key: "originalprice", name: "原价", values: data.originalprice, unit: "元", validate: false, validateType: "num" },
+        { key: "prices", name: "现价", values: data.unitprice, unit: "元", validate: false, validateType: "num" },
+        { key: "originalprice", name: "原价", values: data.unitoriginalprice, unit: "元", validate: false, validateType: "num" },
         { key: "stockNums", name: "库存", values: data.stocknums, unit: "", validate: false, validateType: "integer" },
+        { key: "salequantity", name: "起售数量", values: data.salequantity, unit: "", validate: false, validateType: "integer" },
         { key: "title", name: "标题", values: data.title, unit: "", validate: false, validateType: "text" },
         { key: "feature", name: "特色描述", values: data.feature, validate: false, validateType: "text" }
       ],
@@ -565,8 +567,9 @@ export function subTableInputData(timeIdArr) {
       prices: item.input[0].values,
       originalprice: item.input[1].values,
       stockNums: item.input[2].values,
-      title: item.input[3].values,
-      feature: item.input[4].values
+      salequantity: item.input[3].values,
+      title: item.input[4].values,
+      feature: item.input[5].values
     }
   })
 }

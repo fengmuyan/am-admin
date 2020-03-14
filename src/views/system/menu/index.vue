@@ -215,9 +215,11 @@ import {
   updateMenu
 } from "@/api/system/menu";
 import IconSelect from "@/components/IconSelect";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
-  components: { IconSelect },
+  components: { IconSelect, Treeselect },
   data() {
     return {
       // 遮罩层
@@ -274,7 +276,6 @@ export default {
     getTreeselect() {
       treeselect().then(response => {
         this.menuOptions = response.data;
-
       });
     },
     // 菜单显示状态字典翻译

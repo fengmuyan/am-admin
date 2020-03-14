@@ -1,0 +1,147 @@
+@import './variables.scss';
+
+@media screen and (max-width: 750px) {
+  .login {
+    .login-center {
+      width: 350px;
+      height: 460px;
+
+      .title-container {
+        .title {
+          font-size: 26px;
+          height: 80x;
+          line-height: 80px;
+        }
+      }
+
+      .content {
+        .el-form-item {
+          margin-bottom: 18px;
+
+          .tip {
+            font-size: 14px;
+            height: 14px;
+            line-height: 14px;
+          }
+
+          .el-input {
+            font-size: 20px;
+
+            .el-input__inner {
+              height: 58px;
+              line-height: 58px;
+            }
+          }
+        }
+
+        .extra-item {
+          height: 40px;
+          line-height: 40px;
+          margin-bottom: 0;
+        }
+      }
+
+      .submit {
+        width: 290px;
+        height: 60px;
+        font-size: 18px;
+        border-radius: 8px;
+      }
+
+      .verify-box {
+        width: 120px;
+      }
+
+      .verify-btn {
+        width: 290px;
+        height: 60px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .el-message-box-wran {
+    width: 345px;
+    border-radius: 10px;
+    padding-bottom: 26px;
+
+    .el-message-box__header {
+
+      .el-message-box__title {
+        height: 60px;
+        line-height: 60px;
+        font-size: 16px;
+        padding-left: 15px;
+      }
+
+      .el-message-box__title:before {
+        top: 21px;
+      }
+
+      .el-message-box__headerbtn {
+        top: 21px;
+      }
+    }
+
+    .el-message-box__btns {
+      padding: 0 50px;
+    }
+  }
+
+  .el-message-box-err {
+    @extend .el-message-box-wran;
+  }
+
+  .el-message-box-suc {
+    @extend .el-message-box-err;
+  }
+
+  .dashboard-editor-container {
+    padding: 10px 15px !important;
+  }
+
+  .el-pagination__sizes {
+    display: none !important;
+  }
+
+  .my-shop {
+    .w400 {
+      width: 200px;
+    }
+
+    .w190 {
+      width: 95px;
+    }
+
+    .block {
+      padding: 15px;
+    }
+
+    .base-info {
+      height: 800px;
+
+      .el-form {
+        padding: 20px 0;
+
+        .adr-box {
+          .city-item {
+            left: 215px;
+          }
+        }
+
+        .tip-info {
+          display: none;
+        }
+      }
+    }
+
+    .img-info {
+      height: 840px;
+
+      .img-box-wrap {
+        padding: 20px 0px;
+      }
+    }
+  }
+}

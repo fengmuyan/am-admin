@@ -44,17 +44,39 @@
           >导出数据</el-button>
         </el-col>
       </el-row>
-      <el-table style="width: 100%" v-loading="loading" :data="distributorList" :default-sort ="{prop:'usedlimit',order:'descending'}">
-        <el-table-column label="经销商名称" prop="username" show-overflow-tooltip />
+      <el-table
+        style="width: 100%"
+        v-loading="loading"
+        :data="distributorList"
+        :default-sort="{prop:'usedlimit',order:'descending'}"
+      >
+        <el-table-column label="经销商" prop="username">
+          <template slot-scope="scope">
+            <el-popover
+              placement="top-start"
+              :title="scope.row.username"
+              width="220"
+              trigger="hover"
+            >
+              <div>
+                <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
+                <p style="margin:0;line-height:22px">手机号：{{scope.row.phone}}</p>
+              </div>
+              <span slot="reference">{{scope.row.username}}</span>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column label="已用额度" sortable prop="usedlimit" />
         <el-table-column label="授权额度" prop="creditlimit" />
         <el-table-column label="可用额度" prop="usablelimit" />
         <el-table-column label="风控额度" prop="risklimit" />
         <el-table-column label="平台总使用额度" prop="sumlimit" />
         <el-table-column label="风控状态" width="80">
-          <template
-            slot-scope="scope"
-          >{{Number(scope.row.sumlimit)>Number(scope.row.risklimit)?'风控超额':'正常'}}</template>
+          <template slot-scope="scope">
+            <span
+              :class="{'warn-color':Number(scope.row.sumlimit)>Number(scope.row.risklimit),'suc-color':!(Number(scope.row.sumlimit)>Number(scope.row.risklimit))}"
+            >{{Number(scope.row.sumlimit)>Number(scope.row.risklimit)?'风控超额':'正常'}}</span>
+          </template>
         </el-table-column>
         <el-table-column label="信用额度最新使用时间" prop="latestusedtime" width="150" />
         <el-table-column label="操作" width="130">
@@ -86,7 +108,7 @@
 </template>
 <script>
 import { getCreditBill, handelQuotaExport } from "@/api/statistics";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
@@ -140,7 +162,7 @@ export default {
     handleDetail(item) {
       this.$router.push({
         name: "额度账单详情",
-        params: { usercode: item.usercode}
+        params: { usercode: item.usercode }
       });
     },
     handleExport() {

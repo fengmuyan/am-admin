@@ -36,7 +36,7 @@
                 maxlength="30"
                 clearable
                 placeholder="请输入店铺名称"
-                style="width:400px"
+                class="w400"
               ></el-input>
             </el-form-item>
             <el-form-item label="店铺slogan：" prop="slogan">
@@ -45,7 +45,7 @@
                 maxlength="20"
                 clearable
                 placeholder="请输入店铺slogan"
-                style="width:400px"
+                class="w400"
               ></el-input>
               <div class="tip">* 显示在店铺名称下方的宣传语。</div>
             </el-form-item>
@@ -55,7 +55,7 @@
                   v-model="baseForm.province"
                   placeholder="请选择省份"
                   @change="provideChange"
-                  style="width:190px"
+                  class="w190"
                 >
                   <el-option
                     v-for="item in provideArr"
@@ -66,7 +66,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item prop="city" class="city-item">
-                <el-select v-model="baseForm.city" placeholder="请选择城市" style="width:190px">
+                <el-select v-model="baseForm.city" placeholder="请选择城市" class="w190">
                   <el-option
                     v-for="item in cityArr"
                     :key="item.region_id"
@@ -82,7 +82,7 @@
                 maxlength="30"
                 clearable
                 placeholder="请输入详细地址"
-                style="width:400px"
+                class="w400"
               ></el-input>
             </el-form-item>
             <el-form-item label="店铺简介：" prop="shopprofile">
@@ -92,7 +92,7 @@
                 placeholder="请输入店铺简介"
                 maxlength="150"
                 show-word-limit
-                style="width:400px"
+                class="w400"
               ></el-input>
             </el-form-item>
             <el-form-item label="客服电话：" prop="servicephone">
@@ -101,7 +101,7 @@
                 maxlength="11"
                 clearable
                 placeholder="请输入客服电话"
-                style="width:400px"
+                class="w400"
               ></el-input>
             </el-form-item>
           </el-form>

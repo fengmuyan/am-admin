@@ -9,13 +9,13 @@
         <el-table-column label="开户行名称" prop="bankname" show-overflow-tooltip/>
         <el-table-column label="开户行行号" prop="bankno" show-overflow-tooltip/>
         <el-table-column label="预留手机号" prop="mobilephone" width="100"/>
-        <el-table-column label="注册类型" prop="registertype" width="70">
+        <el-table-column label="注册类型" prop="registertype" width="90">
           <template slot-scope="scope">{{registertypeArr[Number(scope.row.registertype)]}}</template>
         </el-table-column>
         <el-table-column label="开通状态" prop="merstate" width="70">
           <template
             slot-scope="scope"
-          >{{scope.row.merstate === null?"未开户":merstateArr[Number(scope.row.merstate)]}}</template>
+          ><span :class="{'warn-color':scope.row.merstate===2,'suc-color':scope.row.merstate===1}">{{scope.row.merstate === null?"未开户":merstateArr[Number(scope.row.merstate)]}}</span></template>
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template slot-scope="scope">
@@ -45,7 +45,7 @@
       </el-table>
     </div>
 
-    <el-dialog title="开通收款账户" :visible.sync="createOpen" width="580px">
+    <el-dialog title="开通收款账户" :visible.sync="createOpen" @close="clearValidateAccount" width="580px">
       <el-form
         :model="accountForm"
         ref="accountForm"
@@ -121,7 +121,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="开通验证" :visible.sync="verifyOpen" width="600px">
+    <el-dialog title="开通验证" :visible.sync="verifyOpen" @close="clearValidateVerify" width="600px">
       <el-form
         :model="verifyForm"
         ref="verifyForm"
@@ -316,12 +316,15 @@ export default {
       });
       this.createOpen = true;
     },
+
     cancel() {
       this.createOpen = false;
     },
+
     cancelVerify() {
       this.verifyOpen = false;
     },
+
     async getList() {
       this.bankArr = bankArr;
       this.loading = true;
@@ -336,11 +339,21 @@ export default {
         console.log(err);
       }
     },
+
     bankChange(val) {
       this.accountForm.bankno = this.bankArr.find(item => {
         return item.bank === val;
       }).bankNum;
     },
+    
+    clearValidateAccount(){
+      this.$refs.accountForm.resetFields();
+    },
+
+    clearValidateVerify(){
+      this.$refs.verifyForm.resetFields();
+    },
+    
     createAccount(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -366,6 +379,7 @@ export default {
         }
       });
     },
+
     handleEdit(item) {
       Object.assign(this.accountForm, {
         channelcode: item.channelcode,
@@ -378,6 +392,7 @@ export default {
       this.registertype = item.cardtype;
       this.createOpen = true;
     },
+
     async handleVerify(item) {
       Object.assign(this.accountFormData, {
         channelcode: item.channelcode,
@@ -391,6 +406,7 @@ export default {
       Object.assign(this.verifyForm, { vercode: "", amount: "" });
       this.verifyOpen = true;
     },
+
     async verifyConfirm(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
