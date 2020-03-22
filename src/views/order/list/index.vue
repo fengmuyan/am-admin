@@ -121,7 +121,7 @@
         <el-tab-pane label="已关闭" name="5"></el-tab-pane>
         <el-tab-pane label="已失效" name="6"></el-tab-pane>
       </el-tabs>
-      <el-row :gutter="10" class="export-btn icon-wrap">
+      <el-row :gutter="10" class="export2-btn icon-wrap">
         <el-col :span="1.5">
           <div class="icon-box icon-box-f" @click="formShow = !formShow">
             <i class="el-icon-zoom-in" v-show="!formShow"></i>
@@ -133,6 +133,13 @@
             <i class="el-icon-refresh"></i>
           </div>
         </el-col>
+        <el-button
+          type="primary"
+          icon="el-icon-download"
+          size="mini"
+          @click="handleExport2"
+          style="margin-left:10px"
+        >快递模板</el-button>
         <el-button
           type="primary"
           icon="el-icon-download"
@@ -283,6 +290,50 @@
         <el-button type="primary" :loading="loadingSend" @click="submitForm('expressForm')">发 货</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="快递模板导出" :visible.sync="exportOpen" @close="clearValidateExport" width="950px">
+      <div v-loading="loadingExportContent" style="min-height:500px">
+        <el-form :model="exportForm" ref="exportForm" :rules="exportFormRules" label-width="100px">
+          <el-form-item label="物流公司" prop="expressid">
+            <el-select v-model="exportForm.expressid" placeholder="请选择快递公司" style="width:300px">
+              <el-option
+                v-for="(item,index) in expressExportList"
+                :key="index"
+                :label="item.expressname"
+                :value="item.expressid"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div class="table-p" style="box-shadow:none;padding:0">
+          <el-table
+            ref="multipleTable"
+            :data="expressExportOrderList"
+            tooltip-effect="dark"
+            style="width: 100%"
+            height="500"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column type="selection" width="50"></el-table-column>
+            <el-table-column label="订单号" prop="orderno" width="150" show-overflow-tooltip />
+            <el-table-column label="创建时间" prop="createtime" width="150" />
+            <el-table-column label="订单金额" prop="orderamount" width="130" />
+            <el-table-column label="经销商" prop="username" />
+            <el-table-column label="数量" prop="cmdtcount" width="60" />
+            <el-table-column label="应收款" prop="needprice" width="70" />
+            <el-table-column label="实收款" prop="realprice" width="70" />
+          </el-table>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="exportOpen = false">取 消</el-button>
+        <el-button
+          type="primary"
+          :loading="loadingExport"
+          @click="submitExportForm('exportForm')"
+        >导出模板</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -292,7 +343,10 @@ import {
   orderExport,
   getExpressList,
   handelSendGoods,
-  getOrderDetailsList
+  getOrderDetailsList,
+  getExpressModelList,
+  getDeliverOrderList,
+  handelExportExpress
 } from "@/api/order";
 import minHeightMix from "@/mixins/minHeight";
 export default {
@@ -311,6 +365,8 @@ export default {
     return {
       loading: false,
       exportLoading: false,
+      loadingExport: false,
+      loadingExportContent: false,
       expressLoading: false,
       loadingSend: false,
       formShow: true,
@@ -318,11 +374,14 @@ export default {
       orderList: [],
       total: 0,
       open: false,
+      exportOpen: false,
       expressList: [],
       orderDetailsList: [],
       payDateRange: [],
       createDateRange: [],
-
+      multipleSelection: [],
+      expressExportList: [],
+      expressExportOrderList: [],
       queryForm: {
         pageNum: 1,
         pageSize: 10,
@@ -360,6 +419,14 @@ export default {
         ],
         detailNo: [
           { required: true, message: "请选择发货商品", trigger: "change" }
+        ]
+      },
+      exportForm: {
+        expressid: ""
+      },
+      exportFormRules: {
+        expressid: [
+          { required: true, message: "请选择快递公司", trigger: "change" }
         ]
       }
     };
@@ -530,6 +597,26 @@ export default {
         })
         .catch(function() {});
     },
+    async handleExport2() {
+      this.exportOpen = true;
+      try {
+        this.loadingExportContent = true;
+        const [
+          { data: data1, code: code1 },
+          { data: data2, code: code2 }
+        ] = await Promise.all([getExpressModelList(), getDeliverOrderList()]);
+        this.loadingExportContent = false;
+        if (code1 === 200) {
+          this.expressExportList = data1;
+        }
+        if (code2 === 200) {
+          this.expressExportOrderList = data2;
+        }
+      } catch (err) {
+        this.loadingExportContent = false;
+        console.log(err);
+      }
+    },
     resetExpressForm() {
       Object.assign(this.expressForm, {
         uid: undefined,
@@ -544,6 +631,10 @@ export default {
     },
     clearValidate() {
       this.$refs.expressForm.resetFields();
+    },
+    clearValidateExport() {
+      this.multipleSelection = [];
+      this.$refs.exportForm.resetFields();
     },
     expressChange(val) {
       this.expressForm.expressid = this.expressList.find(item => {
@@ -579,6 +670,45 @@ export default {
       const orderno = item.orderno;
       this.$router.push({
         path: `/order/sent-list/${orderno}`
+      });
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    submitExportForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          if (this.multipleSelection.length > 0) {
+            try {
+              this.loadingExport = true;
+              const { code, msg } = await handelExportExpress(
+                Object.assign(this.exportForm, {
+                  orderNos: this.multipleSelection
+                    .map(item => item.orderno)
+                    .join(",")
+                })
+              );
+              this.loadingExport = false;
+              if (code === 200) {
+                this.download(msg);
+                this.msgSuccess("导出成功");
+                this.exportOpen = false;
+              }
+            } catch (err) {
+              this.loadingExport = false;
+              console.log(err);
+            }
+          } else {
+            this.$confirm("导出选择订单不能为空。", "系统提示", {
+              confirmButtonText: "确认",
+              cancelButtonText: "取消",
+              type: "warning",
+              customClass: "el-message-box-wran"
+            });
+          }
+        } else {
+          return false;
+        }
       });
     },
     _initParams(obj) {

@@ -125,3 +125,29 @@ export function getKdnExpressInfo(data) {
     data
   })
 }
+//快递公司列表
+export function getExpressModelList(data = {}) {
+  return request({
+    url: '/god/order/getExpressModelList',
+    method: 'post',
+    data
+  })
+}
+
+//代发的列表
+export function getDeliverOrderList(data = {}) {
+  return request({
+    url: '/god/order/deliverOrderlist',
+    method: 'post',
+    data
+  })
+}
+
+//快递模板导出
+export function handelExportExpress(data = {}) {
+  return request({
+    url: '/god/order/deliverOrderexport',
+    method: 'post',
+    data,
+  })
+}
