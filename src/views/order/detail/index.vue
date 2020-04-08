@@ -1,5 +1,5 @@
 <template>
-  <div class="order-detail-wrap app-container">
+  <div class="order-detail-wrap app-container wipe">
     <div class="order-detail" v-loading="loading" v-if="goodsList">
       <div class="statusStep">
         <div class="statusLeft">
@@ -94,7 +94,7 @@
       </div>
       <div class="goodsList">
         <el-table :data="goodsList" class="goodsTable">
-          <el-table-column label="商品信息" width="485">
+          <el-table-column label="商品信息" width="460">
             <template slot-scope="scope">
               <div class="imgBox">
                 <img :src="scope.row.image" alt />
@@ -110,10 +110,21 @@
           </el-table-column>
           <el-table-column label="价格/件" prop="cmdtprice" />
           <el-table-column label="数量" prop="cmdtcount" />
-          <el-table-column label="优惠" prop="couponprice" />
-          <el-table-column label="抹零" prop="dispelprice" />
           <el-table-column label="折扣" prop="discount">
             <template slot-scope="scope">{{scope.row.discount | initDiscount}}</template>
+          </el-table-column>
+          <el-table-column label="优惠" prop="couponprice" />
+          <el-table-column label="抹零" prop="dispelprice" />
+          <el-table-column label="抹账" prop="wipeaccountsprice">
+            <template slot-scope="scope">
+              <el-popover placement="top-start" title="抹账" width="220" trigger="hover">
+                <div>
+                  <p style="margin:0;line-height:22px">已还：{{scope.row.payamount}}</p>
+                  <p style="margin:0;line-height:22px">备注：{{scope.row.remarks}}</p>
+                </div>
+                <span slot="reference">{{scope.row.wipeaccountsprice}}</span>
+              </el-popover>
+            </template>
           </el-table-column>
           <el-table-column label="总价" prop="cmdttotalprice" />
           <el-table-column label="状态" width="120px">
@@ -121,7 +132,7 @@
               <span>{{scope.row.tradestate | initTradestate}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="220px" v-if="ac10 || ac01011">
+          <el-table-column label="操作" width="220px" v-if="isShowAction">
             <template slot-scope="scope">
               <el-button
                 type="text"
@@ -136,6 +147,12 @@
                 icon="el-icon-edit-outline"
                 @click="handelAdjust(scope.row)"
               >调价</el-button>
+              <el-button
+                type="text"
+                v-if="wipeAction"
+                icon="el-icon-edit-outline"
+                @click="handelWipe(scope.row)"
+              >抹账</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -150,12 +167,16 @@
               <span>￥{{orderamount}}</span>
             </p>
             <p>
-              <b>总优惠价格：</b>
+              <b>总优惠金额：</b>
               <span>￥{{totalAdjustPrice}}</span>
             </p>
             <p>
-              <b>总抹零价格：</b>
+              <b>总抹零金额：</b>
               <span>￥{{totalWeightPrice}}</span>
+            </p>
+            <p>
+              <b>总抹账金额：</b>
+              <span>￥{{totalWipePrice}}</span>
             </p>
             <p>
               <b>运费（快递）：</b>
@@ -263,6 +284,41 @@
         <el-button type="primary" @click="submitWeightForm('weightForm')">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="抹账" :visible.sync="openWipe" @close="clearValidateWipe" width="550px">
+      <el-form :model="wipeForm" ref="wipeForm" :rules="wipeFormRules" label-width="120px">
+        <el-form-item label="抹账金额" prop="wipeAccounts">
+          <el-input
+            v-model="wipeForm.wipeAccounts"
+            :placeholder="`抹账金额（最大可抹账：${this.wipeForm.pendingAmount}）`"
+            maxlength="20"
+            style="width:330px"
+          ></el-input>
+        </el-form-item>
+        <div
+          style="line-height: 35px;color: rgb(200,200,200);padding-left: 120px;"
+        >将为你手机号{{numberInit}}发送验证码，请注意查收。</div>
+        <el-form-item label="短信验证" prop="smsCode" class="code-item">
+          <el-input v-model="wipeForm.smsCode" maxlength="6" placeholder="输入验证码" class="code-input"></el-input>
+          <ge-code :config="configSelf" ref="geCodeSelf" class="code-btn"></ge-code>
+        </el-form-item>
+
+        <el-form-item label="备注" prop="remarks">
+          <el-input
+            type="textarea"
+            v-model="wipeForm.remarks"
+            placeholder="请输入备注"
+            maxlength="255"
+            show-word-limit
+            style="width:330px"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="openWipe = false">取 消</el-button>
+        <el-button type="primary" :loading="loadingWipe" @click="submitWipeForm('wipeForm')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -270,13 +326,23 @@
 import {
   getOrderDetail,
   orderWeight,
-  handelEditPrice
+  handelEditPrice,
+  handelWipeSendCode,
+  handelWipeAccounts
 } from "@/api/order";
+import { accMull, subtr, accAdd } from "@/utils";
+import geCode from "vue-gecode";
+import { mapGetters } from "vuex";
 export default {
   name: "orderDetail",
+  components: {
+    geCode
+  },
   data() {
     const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
     const patterInt = /^\+?[1-9]\d*$/;
+    const patterAmount = /(^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$)/;
+
     const validateWeight = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("毛重不能为空！"));
@@ -315,8 +381,24 @@ export default {
         callback();
       }
     };
+    const validateAmount = (rule, value, callback) => {
+      if (!patterAmount.test(value)) {
+        callback(new Error("最多保留两位小数！"));
+      } else if (Number(value) > Number(this.wipeForm.pendingAmount)) {
+        callback(
+          new Error(
+            `抹账金额不能大于最大抹账金额（${this.wipeForm.pendingAmount}）！`
+          )
+        );
+      } else {
+        callback();
+      }
+    };
     return {
       openWeight: false,
+      openWipe: false,
+
+      loadingWipe: false,
       loading: false,
       weightForm: {
         uid: "",
@@ -376,8 +458,52 @@ export default {
         ]
       },
 
+      configSelf: {
+        startText: "获取验证码",
+        endText: "再次获取",
+        totalTime: 60,
+        tickTime: 1,
+        todo: async () => {
+          try {
+            const { orderno, wipeAccounts } = this.wipeForm;
+            const { code } = await handelWipeSendCode({
+              orderno,
+              wipeAccounts
+            });
+            if (code === 200) {
+              return true;
+            } else {
+              this.msgError("短信发送失败！");
+            }
+          } catch (e) {
+            this.$refs.geCodeSelf.stop(1);
+            console.log(e);
+          }
+        },
+        computeText(num) {
+          return "重新获取 " + num + "s";
+        }
+      },
+
+      wipeForm: {
+        orderno: undefined,
+        detailno: undefined,
+        pendingAmount: undefined,
+        wipeAccounts: undefined,
+        smsCode: undefined,
+        remarks: undefined
+      },
+      wipeFormRules: {
+        wipeAccounts: [
+          { validator: validateAmount, required: true, trigger: "blur" }
+        ],
+        smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+      },
+
       goodsList: null,
       tradestate: "",
+      paytype: "",
+      paystate: "",
       totalNum: "",
       orderno: "",
       carriage: "",
@@ -397,7 +523,8 @@ export default {
       failuretime: "",
       orderamount: 0,
       totalAdjustPrice: 0,
-      totalWeightPrice: 0
+      totalWeightPrice: 0,
+      totalWipePrice: 0
     };
   },
   watch: {
@@ -414,22 +541,13 @@ export default {
         cmdtcount
       } = this.weightForm;
       const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-      if (Number(val) === grossweight) {
-        Object.assign(this.weightForm, {
-          weighedNw: netweight,
-          weighedCp: cmdtprice,
-          weighedCtp: cmdttotalprice,
-          adjustedprice: cmdttotalprice
-        });
-      }
-      if ((val && patter.test(val), val > frameWeight)) {
-        const weighedNw = (Number(val) - frameWeight).toFixed(2);
-        const weighedCp = ((Number(val) - frameWeight) * unitprice).toFixed(2);
-        console.log(frameWeight,unitprice,discount,cmdtcount,couponprice)
-        const weighedCtp = (
-          (weighedCp * discount).toFixed(2) * cmdtcount -
+      if (val && patter.test(val) && val > frameWeight) {
+        const weighedNw = subtr(Number(val), frameWeight);
+        const weighedCp = accMull(weighedNw, unitprice);
+        const weighedCtp = subtr(
+          accMull(accMull(weighedCp, discount), cmdtcount),
           couponprice
-        ).toFixed(2);
+        );
         Object.assign(this.weightForm, {
           weighedNw,
           weighedCp,
@@ -478,6 +596,14 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(["userNumber"]),
+    numberInit() {
+      return (
+        this.userNumber.substring(0, 3) +
+        "*****" +
+        this.userNumber.substring(this.userNumber.length - 2)
+      );
+    },
     ac12411() {
       const tradestate = this.tradestate;
       return (
@@ -521,6 +647,25 @@ export default {
         tradestate === 2 ||
         tradestate === 3 ||
         tradestate === 4
+      );
+    },
+    wipeAction() {
+      const { tradestate, paytype, paystate } = this;
+      return (
+        Number(paytype) === 1 &&
+        Number(paystate) === 0 &&
+        (Number(tradestate) === 1 ||
+          Number(tradestate) === 2 ||
+          Number(tradestate) === 3 ||
+          Number(tradestate) === 4)
+      );
+    },
+    isShowAction() {
+      const { tradestate, paystate } = this;
+      return !(
+        Number(tradestate) === 5 ||
+        Number(tradestate) === 6 ||
+        Number(paystate) === 1
       );
     }
   },
@@ -574,7 +719,9 @@ export default {
             receivetime,
             finaltime,
             failuretime,
-            orderamount
+            orderamount,
+            paytype,
+            paystate
           }
         } = await getOrderDetail({
           orderno: this.orderno
@@ -599,6 +746,8 @@ export default {
           this.finaltime = finaltime;
           this.failuretime = failuretime;
           this.orderamount = orderamount;
+          this.paytype = paytype;
+          this.paystate = paystate;
 
           this.totalNum = cmdtOrderDetailRespList.reduce((pre, item) => {
             pre += Number(item.cmdtcount);
@@ -607,19 +756,24 @@ export default {
 
           this.totalAdjustPrice = cmdtOrderDetailRespList.reduce(
             (pre, item) => {
-              pre += Number(item.couponprice);
+              pre = accAdd(pre, Number(item.couponprice));
               return pre;
             },
             0
-          ).toFixed(2);
+          );
 
           this.totalWeightPrice = cmdtOrderDetailRespList.reduce(
             (pre, item) => {
-              pre += Number(item.dispelprice);
+              pre = accAdd(pre, Number(item.dispelprice));
               return pre;
             },
             0
-          ).toFixed(2);
+          );
+
+          this.totalWipePrice = cmdtOrderDetailRespList.reduce((pre, item) => {
+            pre = accAdd(pre, Number(item.wipeaccountsprice));
+            return pre;
+          }, 0);
 
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
@@ -671,9 +825,7 @@ export default {
         couponprice: Number(couponprice), //优惠金额
         cmdtcount: Number(cmdtcount), //数量
         unitprice: Number(unitprice), //单价
-        frameWeight: Number(
-          (Number(grossweight) - Number(netweight)).toFixed(2)
-        ), //框重
+        frameWeight: subtr(Number(grossweight), Number(netweight)), //框重
         weighedGw: "", //称重后毛重
         weighedNw: "", //称重后净重（毛重-框重）
         weighedCp: "", //称重后商品价格（净重*单价）
@@ -683,6 +835,65 @@ export default {
       if (this.$refs["weightForm"]) {
         this.$refs["weightForm"].resetFields();
       }
+    },
+    resetWipeForm() {
+      Object.assign(this.wipeForm, {
+        orderno: undefined,
+        needprice: undefined,
+        wipeAccounts: undefined,
+        smsCode: undefined,
+        remarks: undefined
+      });
+    },
+    clearValidateWipe() {
+      this.$refs.wipeForm.resetFields();
+    },
+    handelWipe(item) {
+      this.resetWipeForm();
+      if (this.$refs.geCodeSelf) {
+        this.$refs.geCodeSelf.stop(1);
+      }
+      Object.assign(this.wipeForm, {
+        orderno: item.orderno,
+        detailno: item.detailno,
+        pendingAmount: item.pendingAmount,
+        remarks: item.remarks
+      });
+      this.openWipe = true;
+    },
+    submitWipeForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            this.loadingWipe = true;
+            const {
+              orderno,
+              detailno,
+              wipeAccounts,
+              smsCode,
+              remarks
+            } = this.wipeForm;
+            const { code } = await handelWipeAccounts({
+              orderno,
+              detailno,
+              wipeAccounts,
+              smsCode,
+              remarks
+            });
+            this.loadingWipe = false;
+            if (code === 200) {
+              this.getDetail();
+              this.openWipe = false;
+              this.msgSuccess("抹账成功");
+            }
+          } catch (err) {
+            this.loadingWipe = false;
+            console.log(err);
+          }
+        } else {
+          return false;
+        }
+      });
     },
     submitWeightForm(formName) {
       this.$refs[formName].validate(async valid => {
@@ -733,7 +944,7 @@ export default {
           if (val === "" || val === null) {
             return "价格不能为空";
           } else {
-            if (!(/(^[1-9](\d+)?(\.\d{1,2})?$)|(^\d\.\d{1,2}$)/).test(val)) {
+            if (!/(^[1-9](\d+)?(\.\d{1,2})?$)|(^\d\.\d{1,2}$)/.test(val)) {
               return "价格为大于零且最多保留两位小数的数字";
             } else if (Number(val) > Number(cmdttotalprice)) {
               return "价格不能大于商品总价";
@@ -761,8 +972,7 @@ export default {
         .catch(err => {
           console.log(err);
         });
-    },
-    inputValidator(val) {}
+    }
   }
 };
 </script>

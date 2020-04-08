@@ -151,3 +151,30 @@ export function handelExportExpress(data = {}) {
     data,
   })
 }
+
+//账单抹账列表
+export function getWipeList(data = {}) {
+  return request({
+    url: '/god/order/wipeList',
+    method: 'post',
+    data,
+  })
+}
+
+//账单抹账验证码发送
+export function handelWipeSendCode(data = {}) {
+  return request({
+    url: '/god/order/wipeAccountsSmsCode',
+    method: 'post',
+    data,
+  })
+}
+
+//账单抹账操作
+export function handelWipeAccounts(data = {}) {
+  return request({
+    url: '/god/order/wipeAccounts',
+    method: 'post',
+    data,
+  })
+}

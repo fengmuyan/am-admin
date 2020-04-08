@@ -1005,6 +1005,24 @@
   }
 }
 
+.wipe {
+  @extend .account;
+  .code-item {
+    .el-form-item__content {
+      width: 330px;
+    }
+
+    .code-input {
+      width: 60%;
+    }
+
+    .code-btn {
+      width: 35%;
+      padding: 0 3px;
+    }
+  }
+}
+
 .my-shop {
   .w400 {
     width: 400px;
@@ -1745,8 +1763,6 @@
         }
 
         .el-table__body {
-          border-left: 1px solid #ececec;
-          border-right: 1px solid #ececec;
           table-layout: auto;
         }
 

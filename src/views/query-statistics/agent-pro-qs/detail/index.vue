@@ -94,7 +94,7 @@
       </div>
       <div class="goodsList">
         <el-table :data="goodsList" class="goodsTable">
-          <el-table-column label="商品信息" width="485">
+          <el-table-column label="商品信息" width="460">
             <template slot-scope="scope">
               <div class="imgBox">
                 <img :src="scope.row.image" alt />
@@ -110,10 +110,21 @@
           </el-table-column>
           <el-table-column label="价格/件" prop="cmdtprice" />
           <el-table-column label="数量" prop="cmdtcount" />
-          <el-table-column label="优惠" prop="couponprice" />
-          <el-table-column label="抹零" prop="dispelprice" />
           <el-table-column label="折扣" prop="discount">
             <template slot-scope="scope">{{scope.row.discount | initDiscount}}</template>
+          </el-table-column>
+          <el-table-column label="优惠" prop="couponprice" />
+          <el-table-column label="抹零" prop="dispelprice" />
+          <el-table-column label="抹账" prop="wipeaccountsprice">
+            <template slot-scope="scope">
+              <el-popover placement="top-start" title="抹账" width="220" trigger="hover">
+                <div>
+                  <p style="margin:0;line-height:22px">已还：{{scope.row.payamount}}</p>
+                  <p style="margin:0;line-height:22px">备注：{{scope.row.remarks}}</p>
+                </div>
+                <span slot="reference">{{scope.row.wipeaccountsprice}}</span>
+              </el-popover>
+            </template>
           </el-table-column>
           <el-table-column label="总价" prop="cmdttotalprice" />
           <el-table-column label="状态" width="120px">
@@ -133,12 +144,16 @@
               <span>￥{{orderamount}}</span>
             </p>
             <p>
-              <b>总优惠价格：</b>
+              <b>总优惠金额：</b>
               <span>￥{{totalAdjustPrice}}</span>
             </p>
             <p>
-              <b>总抹零价格：</b>
+              <b>总抹零金额：</b>
               <span>￥{{totalWeightPrice}}</span>
+            </p>
+            <p>
+              <b>总抹账金额：</b>
+              <span>￥{{totalWipePrice}}</span>
             </p>
             <p>
               <b>运费（快递）：</b>
@@ -197,6 +212,7 @@
 
 <script>
 import { getOrderDetail, orderWeight } from "@/api/order";
+import { accAdd } from "@/utils";
 export default {
   name: "orderDetail",
   data() {
@@ -265,7 +281,8 @@ export default {
       failuretime: "",
       orderamount: 0,
       totalAdjustPrice: 0,
-      totalWeightPrice: 0
+      totalWeightPrice: 0,
+      totalWipePrice: 0
     };
   },
   filters: {
@@ -396,21 +413,24 @@ export default {
             pre += Number(item.cmdtcount);
             return pre;
           }, 0);
-
-          this.totalAdjustPrice = cmdtOrderDetailRespList
-            .reduce((pre, item) => {
-              pre += Number(item.couponprice);
+          this.totalAdjustPrice = cmdtOrderDetailRespList.reduce(
+            (pre, item) => {
+              pre = accAdd(pre, Number(item.couponprice));
               return pre;
-            }, 0)
-            .toFixed(2);
-
-          this.totalWeightPrice = cmdtOrderDetailRespList
-            .reduce((pre, item) => {
-              pre += Number(item.dispelprice);
+            },
+            0
+          );
+          this.totalWeightPrice = cmdtOrderDetailRespList.reduce(
+            (pre, item) => {
+              pre = accAdd(pre, Number(item.dispelprice));
               return pre;
-            }, 0)
-            .toFixed(2);
-
+            },
+            0
+          );
+          this.totalWipePrice = cmdtOrderDetailRespList.reduce((pre, item) => {
+            pre = accAdd(pre, Number(item.wipeaccountsprice));
+            return pre;
+          }, 0);
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
               standards: JSON.parse(item.saleprovalue).salepro.reduce(

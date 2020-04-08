@@ -70,7 +70,7 @@
       <el-table style="width: 100%" v-loading="loading" :data="distributorList">
         <el-table-column label="订单号" prop="orderno" show-overflow-tooltip />
         <el-table-column label="创建日期" sortable prop="paytime" />
-        <el-table-column label="订单金额" sortable prop="orderamount" />
+        <el-table-column label="应付金额" sortable prop="needprice" />
         <el-table-column label="经销商" prop="username">
           <template slot-scope="scope">
             <el-popover

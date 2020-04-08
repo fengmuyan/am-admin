@@ -230,6 +230,7 @@ export default {
         expressname: undefined,
         expressid: undefined,
         inexpressname: undefined,
+        namebrand: undefined,
         isAll: "N",
         detailNo: []
       });
@@ -244,6 +245,9 @@ export default {
     },
     async handleAdd() {
       this.resetExpressForm();
+      Object.assign(this.expressForm, {
+        namebrand: this.dataList[0].namebrand || ""
+      });
       this.open = true;
       try {
         this.expressLoading = true;
@@ -421,7 +425,7 @@ export default {
               icon: "el-icon-receiving"
             });
           } else if (State === "2") {
-            Object.assign(this.logisticList[len - 2], {
+            Object.assign(this.logisticList[len - 1], {
               title: "运输中",
               size: "large",
               icon: "el-icon-truck",

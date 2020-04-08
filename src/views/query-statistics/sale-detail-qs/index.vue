@@ -74,7 +74,6 @@
             >
               <div>
                 <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
-                <!-- <p style="margin:0;line-height:22px">手机号：{{scope.row.phone}}</p> -->
               </div>
               <span slot="reference">{{scope.row.username}}</span>
             </el-popover>
@@ -88,8 +87,10 @@
         <el-table-column label="品类" prop="varieties" width="80" />
         <el-table-column label="商品数量" prop="cmdtcount" width="80" />
         <el-table-column label="毛重" prop="grossweight" width="80" />
-        <el-table-column label="净重" prop="netweight" width="80" />
-        <el-table-column label="单价" prop="cmdtprice" width="80" />
+        <el-table-column label="净重" prop="netweight" width="80">
+          <template slot-scope="scope"> {{scope.row.netweight}}</template>
+        </el-table-column>
+        <el-table-column label="价格/件" prop="cmdtprice" width="80" />
         <el-table-column label="总价" prop="cmdttotalprice" width="80" />
       </el-table>
       <pagination

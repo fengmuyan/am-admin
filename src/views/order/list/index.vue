@@ -526,7 +526,7 @@ export default {
       this.getList();
     },
     async handleSent(item) {
-      const { uid, orderno } = item;
+      const { uid, orderno, namebrand } = item;
       if (Number(item.delivertype) === 0) {
         this.$confirm("确定要发货吗？", "系统提示", {
           confirmButtonText: "确定",
@@ -551,7 +551,8 @@ export default {
         this.resetExpressForm();
         Object.assign(this.expressForm, {
           uid,
-          orderno
+          orderno,
+          namebrand
         });
         this.open = true;
         try {
@@ -625,6 +626,7 @@ export default {
         expressname: undefined,
         expressid: undefined,
         inexpressname: undefined,
+        namebrand: undefined,
         isAll: "Y",
         detailNo: []
       });
