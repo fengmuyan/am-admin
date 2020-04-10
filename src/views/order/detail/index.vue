@@ -342,7 +342,6 @@ export default {
     const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
     const patterInt = /^\+?[1-9]\d*$/;
     const patterAmount = /(^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$)/;
-
     const validateWeight = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("毛重不能为空！"));
@@ -466,14 +465,25 @@ export default {
         todo: async () => {
           try {
             const { orderno, wipeAccounts } = this.wipeForm;
-            const { code } = await handelWipeSendCode({
-              orderno,
-              wipeAccounts
-            });
-            if (code === 200) {
-              return true;
+            if (wipeAccounts && Number(wipeAccounts) !== 0) {
+              const { code } = await handelWipeSendCode({
+                orderno,
+                wipeAccounts
+              });
+              if (code === 200) {
+                return true;
+              } else {
+                this.msgError("短信发送失败！");
+              }
             } else {
-              this.msgError("短信发送失败！");
+              this.$confirm("抹账金额不等于0且不能为空！", "系统提示", {
+                confirmButtonText: "确认",
+                cancelButtonText: "取消",
+                type: "warning",
+                customClass: "el-message-box-wran"
+              })
+                .tnen(() => {})
+                .catch(() => {});
             }
           } catch (e) {
             this.$refs.geCodeSelf.stop(1);

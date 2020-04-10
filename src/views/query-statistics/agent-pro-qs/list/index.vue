@@ -156,6 +156,7 @@
         <el-table-column label="订单号" prop="orderno" width="150" show-overflow-tooltip />
         <el-table-column label="创建时间" sortable prop="createtime" width="150" />
         <el-table-column label="订单金额" sortable prop="orderamount" width="130" />
+        <el-table-column label="供货商" prop="thearchyname"/>
         <el-table-column label="经销商" prop="username">
           <template slot-scope="scope">
             <el-popover
@@ -183,7 +184,7 @@
         <el-table-column label="交易状态" prop="tradestate" width="120">
           <template slot-scope="scope">{{scope.row.tradestate | initTradestate}}</template>
         </el-table-column>
-        <el-table-column label="操作" width="130">
+        <el-table-column label="操作" width="90">
           <template slot-scope="scope">
             <el-button
               size="mini"

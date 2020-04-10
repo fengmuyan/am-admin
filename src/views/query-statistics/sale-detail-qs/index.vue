@@ -64,21 +64,8 @@
         <el-table-column label="日期" prop="paytime" width="150" />
         <el-table-column label="订单号" prop="orderno" width="150" show-overflow-tooltip />
         <el-table-column label="货主" prop="supplier" width="150" show-overflow-tooltip />
-        <el-table-column label="经销商" prop="username">
-          <template slot-scope="scope">
-            <el-popover
-              placement="top-start"
-              :title="scope.row.username"
-              width="220"
-              trigger="hover"
-            >
-              <div>
-                <p style="margin:0;line-height:22px">经销商编号：{{scope.row.usercode}}</p>
-              </div>
-              <span slot="reference">{{scope.row.username}}</span>
-            </el-popover>
-          </template>
-        </el-table-column>
+        <el-table-column label="经销商" prop="username" show-overflow-tooltip />
+        <el-table-column label="经销商编号：" prop="usercode" width="150" show-overflow-tooltip />
         <el-table-column label="商品编号" prop="cmdtcode" width="120" show-overflow-tooltip />
         <el-table-column label="商品名称" prop="title" show-overflow-tooltip />
         <el-table-column label="产地" prop="area" width="80" />
@@ -86,11 +73,12 @@
         <el-table-column label="级别" prop="level" width="80" />
         <el-table-column label="品类" prop="varieties" width="80" />
         <el-table-column label="商品数量" prop="cmdtcount" width="80" />
-        <el-table-column label="毛重" prop="grossweight" width="80" />
-        <el-table-column label="净重" prop="netweight" width="80">
-          <template slot-scope="scope"> {{scope.row.netweight}}</template>
-        </el-table-column>
-        <el-table-column label="价格/件" prop="cmdtprice" width="80" />
+        <el-table-column label="毛重" prop="splitgrossweight" width="80" />
+        <el-table-column label="净重" prop="splitnetweight" width="80" />
+        <el-table-column label="价格/件" prop="discountprice" width="80" />
+        <el-table-column label="优惠" prop="couponprice" />
+        <el-table-column label="抹零" prop="dispelprice" />
+        <el-table-column label="抹账" prop="wipeaccountsprice" width="80" />
         <el-table-column label="总价" prop="cmdttotalprice" width="80" />
       </el-table>
       <pagination
