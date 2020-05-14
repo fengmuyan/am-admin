@@ -3,6 +3,10 @@
     <div class="table-p" :style="{ 'min-height': minHeight }">
       <el-table style="width: 100%" v-loading="loading" :data="passList">
         <el-table-column label="通道名称" prop="channelname" />
+        <!-- <el-table-column label="微信D1结算金额" prop="wxd1amount">
+          <template slot-scope="scope">{{Number(scope.row.wxd1amount)}}</template>
+        </el-table-column>
+        <el-table-column label="二级账户余额" prop="balance" /> -->
         <el-table-column label="账户余额" prop="accountamount" />
         <el-table-column label="可用金额" prop="usableamount" />
         <el-table-column label="冻结金额" prop="frozenamount" />
@@ -24,7 +28,7 @@
 </template>
 <script>
 import { withdrawalAccountList as list } from "@/api/account";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
@@ -53,9 +57,9 @@ export default {
 
     handleWithdrawal(item) {
       const { uid, usercode, usableamount } = item;
-      const params = window.btoa(`${uid}-${usercode}-${usableamount}`)
+      const params = window.btoa(`${uid}-${usercode}-${usableamount}`);
       if (Number(usableamount) > 0) {
-       this.$router.push({
+        this.$router.push({
           path: `/cash/withdrawal/${params}`
         });
       } else {

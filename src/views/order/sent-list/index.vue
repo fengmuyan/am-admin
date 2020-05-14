@@ -10,16 +10,18 @@
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-table :data="scope.row.detailInfos" class="expand-table">
+              <el-table-column label="商品编号" prop="detailno"></el-table-column>
               <el-table-column label="商品名称" prop="cmdtname"></el-table-column>
-              <el-table-column label="明细编号" prop="detailno"></el-table-column>
+              <el-table-column label="发货数量" prop="delivercount"></el-table-column>
             </el-table>
           </template>
         </el-table-column>
         <el-table-column label="订单号" prop="orderno"></el-table-column>
         <el-table-column label="发货字号" prop="namebrand"></el-table-column>
-        <el-table-column label="物流单号" prop="expressno"></el-table-column>
-        <el-table-column label="物流公司编号" prop="expressno"></el-table-column>
+        <el-table-column label="发货时间" prop="fhtime"></el-table-column>
+        <el-table-column label="物流公司编号" prop="expressid"></el-table-column>
         <el-table-column label="物流公司" prop="expressname"></el-table-column>
+        <el-table-column label="物流单号" prop="expressno"></el-table-column>
         <el-table-column label="操作" width="220">
           <template slot-scope="scope">
             <el-button
@@ -28,13 +30,13 @@
               icon="el-icon-map-location"
               @click="handleTrack(scope.row)"
             >订单跟踪</el-button>
-            <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
             <el-button
               size="mini"
               type="text"
-              icon="el-icon-delete"
-              @click="handleDel(scope.row)"
-            >删除</el-button>
+              icon="el-icon-edit"
+              @click="handleEdit(scope.row)"
+              v-if="Number(scope.row.tradestate)===1"
+            >修改</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -47,34 +49,41 @@
         v-loading="expressLoading"
         label-width="120px"
       >
-        <el-form-item label="发货方式" prop="isAll">
-          <el-radio-group v-model="expressForm.isAll" @change="expressForm.detailNo = []">
-            <el-radio label="Y">全部</el-radio>
-            <el-radio label="N">部分发货</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item v-if="expressForm.isAll === 'N'" label="发货商品" prop="detailNo">
-          <el-select
-            v-model="expressForm.detailNo"
-            style="width:350px"
-            multiple
-            placeholder="请选择发货商品"
-          >
-            <el-option
-              v-for="item in orderDetailsList"
-              :key="item.value"
-              :label="item.cmdtname"
-              :value="item.detailno"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="物流单号" prop="expressno">
-          <el-input
-            v-model="expressForm.expressno"
-            placeholder="请输入物流单号"
-            maxlength="20"
-            style="width:350px"
-          ></el-input>
+        <el-form-item class="sent-wrap" label="发货信息" prop="strExpressDetailInfos">
+          <div class="sent-box" v-for="(item,index) in orderDetailsList" :key="index">
+            <div>
+              <el-checkbox
+                v-model="item.checked"
+                :disabled="isDisabled(item)"
+                @change="handelSentChange"
+              >
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="item.cmdtname"
+                  placement="top-start"
+                >
+                  <el-button>{{item.cmdtname}}</el-button>
+                </el-tooltip>
+              </el-checkbox>
+              <el-input-number
+                v-model="item.sentNum"
+                :disabled="isDisabled(item)"
+                @change="handelSentChange"
+                size="small"
+                :min="0"
+                :max="item.allowDelivercount"
+              ></el-input-number>
+            </div>
+            <div style="line-height:10px">
+              <span class="sent-info sent-info-done" v-if="isNoAllowNum(item)">* 已发货。</span>
+              <span class="sent-info sent-info-err" v-if="isNoAllowRefunded(item)">* 已退款。</span>
+              <span
+                class="sent-info sent-info-err"
+                v-if="isNoAllowRefunding(item)"
+              >* 退款处理中（{{item.refund|initRefund}}）。</span>
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="物流公司" prop="expressname">
           <el-select
@@ -101,6 +110,14 @@
             ></el-input>
           </el-form-item>
         </div>
+        <el-form-item label="物流单号" prop="expressno">
+          <el-input
+            v-model="expressForm.expressno"
+            placeholder="请输入物流单号"
+            maxlength="20"
+            style="width:350px"
+          ></el-input>
+        </el-form-item>
         <el-form-item label="发货字号" prop="namebrand">
           <el-input
             v-model="expressForm.namebrand"
@@ -140,11 +157,11 @@
 import {
   getOrderExpressInfo,
   handelEditExpressInfo,
-  handelDelExpressInfo,
   getExpressList,
   getOrderDetailsList,
-  handelSendExpress,
-  getKdnExpressInfo
+  getKdnExpressInfo,
+  getAllowSentNum,
+  handelSendGoods
 } from "@/api/order";
 import minHeightMix from "@/mixins/minHeight";
 export default {
@@ -172,8 +189,8 @@ export default {
       expressList: [],
       orderDetailsList: [],
       logisticList: [],
+      orderDetailsList: [],
       expressForm: {
-        uid: undefined,
         guid: undefined,
         orderno: undefined,
         expressno: undefined,
@@ -181,8 +198,7 @@ export default {
         expressid: undefined,
         inexpressname: undefined,
         namebrand: undefined,
-        isAll: "N",
-        detailNo: []
+        strExpressDetailInfos: []
       },
       expressFormRules: {
         expressno: [
@@ -194,14 +210,60 @@ export default {
         inexpressname: [
           { required: true, message: "请输入物流公司名称", trigger: "blur" }
         ],
-        isAll: [
-          { required: true, message: "请输入发货方式", trigger: "change" }
-        ],
-        detailNo: [
-          { required: true, message: "请选择发货商品", trigger: "change" }
+        strExpressDetailInfos: [
+          {
+            type: "array",
+            required: true,
+            message: "发货信息不能为空！",
+            trigger: "blur"
+          }
         ]
       }
     };
+  },
+  filters: {
+    initRefund(val) {
+      const arr = [
+        "正常",
+        "审核中",
+        "审核失败",
+        "退款中",
+        "已退款",
+        "退款失败"
+      ];
+      return arr[val];
+    }
+  },
+  computed: {
+    isDisabled() {
+      return function(item) {
+        const { refund, allowDelivercount } = item;
+        return (
+          Number(refund) === 1 ||
+          Number(refund) === 3 ||
+          Number(refund) === 4 ||
+          Number(allowDelivercount) === 0
+        );
+      };
+    },
+    isNoAllowNum() {
+      return function(item) {
+        const { allowDelivercount } = item;
+        return Number(allowDelivercount) === 0;
+      };
+    },
+    isNoAllowRefunding() {
+      return function(item) {
+        const { refund } = item;
+        return Number(refund) === 1 || Number(refund) === 3;
+      };
+    },
+    isNoAllowRefunded() {
+      return function(item) {
+        const { refund } = item;
+        return Number(refund) === 4;
+      };
+    }
   },
   created() {
     this.getList();
@@ -223,7 +285,6 @@ export default {
     },
     resetExpressForm() {
       Object.assign(this.expressForm, {
-        uid: undefined,
         guid: undefined,
         orderno: undefined,
         expressno: undefined,
@@ -231,8 +292,7 @@ export default {
         expressid: undefined,
         inexpressname: undefined,
         namebrand: undefined,
-        isAll: "N",
-        detailNo: []
+        strExpressDetailInfos: []
       });
     },
     clearValidate() {
@@ -243,9 +303,20 @@ export default {
         return item.expressname === val;
       }).expressid;
     },
+    handelSentChange() {
+      const checkedData = this.orderDetailsList
+        .filter(item => {
+          return item.checked === true;
+        })
+        .map(v => {
+          return { detailno: v.detailno, delivercount: v.sentNum };
+        });
+      this.expressForm.strExpressDetailInfos = checkedData;
+    },
     async handleAdd() {
       this.resetExpressForm();
       Object.assign(this.expressForm, {
+        orderno: this.$route.params.code,
         namebrand: this.dataList[0].namebrand || ""
       });
       this.open = true;
@@ -261,9 +332,11 @@ export default {
         this.expressLoading = false;
         if (code1 === 200 && code2 === 200) {
           this.expressList = data1;
-          this.orderDetailsList = data2;
-          Object.assign(this.expressForm, {
-            orderno: this.$route.params.code
+          this.orderDetailsList = data2.map(item => {
+            return Object.assign(item, {
+              checked: false,
+              sentNum: item.allowDelivercount
+            });
           });
         }
       } catch (err) {
@@ -274,30 +347,37 @@ export default {
     async handleEdit(item) {
       this.resetExpressForm();
       const {
-        uid,
         guid,
         orderno,
         isexpressqt,
         expressid,
         expressname,
         expressno,
-        namebrand,
-        detailInfos
+        namebrand
       } = item;
       this.open = true;
+      Object.assign(this.expressForm, {
+        guid,
+        orderno,
+        expressno,
+        namebrand
+      });
       try {
         this.expressLoading = true;
         const [
           { data: data1, code: code1 },
           { data: data2, code: code2 }
-        ] = await Promise.all([
-          getExpressList(),
-          getOrderDetailsList({ orderno })
-        ]);
+        ] = await Promise.all([getExpressList(), getAllowSentNum({ guid })]);
         this.expressLoading = false;
         if (code1 === 200 && code2 === 200) {
           this.expressList = data1;
-          this.orderDetailsList = data2;
+          this.orderDetailsList = data2.map(item => {
+            return Object.assign(item, {
+              checked: false,
+              sentNum: item.olddelivercount,
+              allowDelivercount: item.olddelivercount + item.allowDelivercount
+            });
+          });
           if (isexpressqt === "Y") {
             Object.assign(this.expressForm, {
               expressid: "100000001",
@@ -311,16 +391,6 @@ export default {
               expressname
             });
           }
-          Object.assign(this.expressForm, {
-            uid,
-            guid,
-            orderno,
-            expressno,
-            namebrand,
-            detailNo: detailInfos.map(val => {
-              return val.detailno;
-            })
-          });
         }
       } catch (err) {
         this.expressLoading = false;
@@ -334,13 +404,9 @@ export default {
             this.loadingSend = true;
             const func =
               this.expressForm.guid === undefined
-                ? handelSendExpress
+                ? handelSendGoods
                 : handelEditExpressInfo;
-            const { code } = await func(
-              Object.assign(this.expressForm, {
-                detailnos: this.expressForm.detailNo.join(",")
-              })
-            );
+            const { code } = await func(this.expressForm);
             this.loadingSend = false;
             if (code === 200) {
               this.msgSuccess("操作成功");
@@ -355,31 +421,6 @@ export default {
           return false;
         }
       });
-    },
-    handleDel(item) {
-      this.$confirm("确定要删除吗？", "系统提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        customClass: "el-message-box-wran"
-      })
-        .then(async () => {
-          try {
-            const { code } = await handelDelExpressInfo({
-              guid: item.guid,
-              orderno: item.orderno
-            });
-            this.loading = false;
-            if (code === 200) {
-              this.msgSuccess("删除成功");
-              this.getList();
-            }
-          } catch (err) {
-            this.loading = false;
-            console.log(err);
-          }
-        })
-        .catch(err => {});
     },
     async handleTrack(item) {
       const { expressid, expressno, fhtime } = item;

@@ -55,7 +55,8 @@ export default {
     return {
        hiddenMenu: [
         "agent-pro-qs/:code",
-        "sent-list/:code"
+        "sent-list/:code",
+        "sent-self-list/:code",
       ]
     }
   },

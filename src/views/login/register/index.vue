@@ -59,7 +59,11 @@
                 <el-checkbox-group v-model="codeForm.radioVal">
                   <el-checkbox label="0" class="autolg">我已阅读并同意</el-checkbox>
                 </el-checkbox-group>
-                <a class="colorGreen" target="_blank" href="https://agreement.hdguo.com/regisit-pc.html">《企业用户注册协议》</a>
+                <a
+                  class="colorGreen"
+                  target="_blank"
+                  href="https://agreement.hdguo.com/regisit-pc.html"
+                >《企业用户注册协议》</a>
               </el-form-item>
               <span class="submit-btn" @click="toPwFrom('codeForm')">下一步</span>
             </el-form>
@@ -129,6 +133,14 @@
                   v-model="realAuthFrom.contactsPhone"
                   placeholder="联系人电话"
                   maxlength="15"
+                  clearable
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="联系人邮箱" prop="contactsEmail">
+                <el-input
+                  v-model="realAuthFrom.contactsEmail"
+                  placeholder="联系人邮箱"
+                  maxlength="30"
                   clearable
                 ></el-input>
               </el-form-item>
@@ -283,6 +295,7 @@ export default {
         company: "", //企业名称
         companyNo: "", // 企业社会统一信用代码
         contactsPhone: "", //联系人电话
+        contactsEmail: "", //联系人邮箱
         contactsAddress: "", // 企业地址
         business_license: null //营业执照
       }, //公司信息对应表单
@@ -350,6 +363,14 @@ export default {
             validator: validateTelP,
             required: true,
             trigger: ["change", "blur"]
+          }
+        ],
+        contactsEmail: [
+          { required: true, message: "请输入邮箱地址", trigger: "blur" },
+          {
+            type: "email",
+            message: "请输入正确的邮箱地址",
+            trigger: ["blur", "change"]
           }
         ],
         contactsAddress: [
@@ -479,6 +500,7 @@ export default {
           formData.append("company", this.realAuthFrom.company);
           formData.append("companyNo", this.realAuthFrom.companyNo);
           formData.append("contactsPhone", this.realAuthFrom.contactsPhone);
+          formData.append("contactsEmail", this.realAuthFrom.contactsEmail);
           formData.append("contactsAddress", this.realAuthFrom.contactsAddress);
           formData.append(
             "business_license",

@@ -105,6 +105,12 @@
             <el-form-item label="毛重" prop="grossweight">
               <el-input v-model="valuationForm.grossweight" class="w-400" disabled></el-input>
             </el-form-item>
+            <el-form-item label="必须称重：" prop="requiredWeigh">
+              <el-radio-group v-model="valuationForm.requiredWeigh" disabled>
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
           </div>
           <el-form-item label="折扣方式：" prop="isdiscount">
             <el-radio-group v-model="valuationForm.isdiscount">
@@ -259,7 +265,10 @@
               :disabled="logisticsForm.deliverymode!=='1'"
             >代发</el-checkbox>
             <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
-            <p class="tip-info" style="line-height: 20px;padding-left: 0;">* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
+            <p
+              class="tip-info"
+              style="line-height: 20px;padding-left: 0;"
+            >* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
           </el-form-item>
         </el-form>
       </div>
@@ -296,7 +305,7 @@
             <el-radio-group v-model="postSaleForm.state">
               <el-radio label="1">上架</el-radio>
               <el-radio label="2" v-if="Number(state)!==3">下架</el-radio>
-              <el-radio label="3" v-if="Number(state)!==2">放入库存</el-radio>
+              <el-radio label="3" v-if="Number(state)!==2">放入仓库</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item v-if="this.postSaleForm.state === '1'" label="上架时间：" prop="publishtime">
@@ -410,7 +419,8 @@ export default {
         grossweight: "",
         netweight: "",
         cmdtspecifications: "",
-        weightunit: "公斤"
+        weightunit: "公斤",
+        requiredWeigh: "Y"
       }, //销售属性中计价表单
       postSaleForm: {
         invoice: "0",
@@ -467,6 +477,9 @@ export default {
         ],
         cmdtspecifications: [
           { required: true, message: "请输入规格", trigger: "blur" }
+        ],
+        requiredWeigh: [
+          { required: true, message: "请输入是否必须称重", trigger: "blur" }
         ]
       }, //销售属性中计价表单验证
       postSaleFormRules: {
@@ -616,6 +629,7 @@ export default {
                   publishtime,
                   paymethod,
                   stockmethod,
+                  requiredWeigh,
                   issupsubstitute,
                   deliverymode,
                   isagent,
@@ -651,6 +665,7 @@ export default {
             this.valuationForm.netweight = netweight;
             this.valuationForm.cmdtspecifications = cmdtspecifications;
             this.valuationForm.isdiscount = String(isdiscount);
+            this.valuationForm.requiredWeigh = String(requiredWeigh);
             this.naturalData = JSON.parse(naturepro).naturepro;
             this.naturalDataInit = initFormData(deepClone(this.naturalData));
             this.saleData = JSON.parse(salepro).salepro;

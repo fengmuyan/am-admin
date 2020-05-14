@@ -1,4 +1,4 @@
-import { login, logout, getInfo, getRealInfo } from '@/api/login'
+import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -9,6 +9,7 @@ const user = {
     roles: [],
     isReal: '',
     isOpenAccount: '',
+    isOpenAbcAccount: '',
     userNumber: '',
     permissions: [],
     tipAppeared: false
@@ -35,6 +36,9 @@ const user = {
     },
     SET_ACCOUNT: (state, isOpenAccount) => {
       state.isOpenAccount = isOpenAccount
+    },
+    SET_ABC: (state, isOpenAbcAccount) => {
+      state.isOpenAbcAccount = isOpenAbcAccount
     },
     SET_NUMBER: (state, number) => {
       state.userNumber = number
@@ -77,6 +81,7 @@ const user = {
           commit('SET_NAME', user.userName)
           commit('SET_REAL', res.realNameState)
           commit('SET_ACCOUNT', res.bankAccountState)
+          commit('SET_ABC', res.abcBannkAccountState)
           commit('SET_NUMBER', user.phonenumber)
           commit('SET_AVATAR', avatar)
           resolve(res)

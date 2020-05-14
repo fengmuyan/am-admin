@@ -30,7 +30,6 @@ import LineChart from "./dashboard/LineChart";
 import PieChart from "./dashboard/PieChart";
 import PieChart2 from "./dashboard/PieChart2";
 import RefererChart from "./dashboard/RefererChart";
-
 import { mapState } from "vuex";
 import { getHomePageData } from "@/api/index";
 
@@ -94,7 +93,8 @@ export default {
   computed: {
     ...mapState({
       isReal: state => state.user.isReal,
-      isOpenAccount: state => state.user.isOpenAccount
+      isOpenAccount: state => state.user.isOpenAccount,
+      isOpenAbcAccount: state => state.user.isOpenAbcAccount
     }),
     lineChartData() {
       return this.lineChartDataAll[this.activeItem];
@@ -104,7 +104,8 @@ export default {
   created() {
     const isReal = Number(this.isReal);
     const isOpenAccount = this.isOpenAccount;
-    if (isReal === 3 && isOpenAccount === true) {
+    const isOpenAbcAccount = this.isOpenAbcAccount;
+    if (isReal === 3 && isOpenAccount === true && isOpenAbcAccount === true) {
       this.getData();
     } else {
       this.isShow = true;

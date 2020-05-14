@@ -32,20 +32,20 @@
             <li class="line">
               <div class="imgLine gryLine"></div>
             </li>
-            <li>
+            <li v-if="notAllRefund || deliverytime">
               <div :class="['imgIcon', 'imgIcon3',ac24?'imgIcon3-ac':'']"></div>
               <p :class="['iconTitle',ac24?'active':'']">商家发货</p>
               <p class="date" v-if="ac24">{{deliverytime}}</p>
             </li>
-            <li class="line">
+            <li class="line" v-if="notAllRefund || deliverytime">
               <div class="imgLine gryLine"></div>
             </li>
-            <li class="lang-item">
+            <li class="lang-item" v-if="notAllRefund || receivetime">
               <div :class="['imgIcon', 'imgIcon4',ac4?'imgIcon4-ac':'']"></div>
               <p :class="['iconTitle',ac4?'active':'']">买家确认收货</p>
               <p class="date" v-if="ac4">{{receivetime}}</p>
             </li>
-            <li class="line">
+            <li class="line" v-if="notAllRefund || receivetime">
               <div class="imgLine gryLine"></div>
             </li>
             <li>
@@ -102,8 +102,13 @@
               <div class="content">
                 <h4>{{scope.row.title}}</h4>
                 <p>
-                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>
+                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品</span>
                   {{scope.row.standards.substring(0,scope.row.standards.length-1)}}。
+                  <br />
+                  <span
+                    class="refund-pro"
+                    v-if="Number(scope.row.refund)!==0"
+                  >{{scope.row.refund | initRefund}}</span>
                 </p>
               </div>
             </template>
@@ -174,7 +179,7 @@
           </div>
         </div>
       </div>
-      <div class="footer">
+      <div class="footer" v-if="delivertype !==0 || invocetype !==0">
         <div class="footer-left" v-if="delivertype !==0">
           <h4>收货人信息</h4>
           <p>
@@ -282,7 +287,8 @@ export default {
       orderamount: 0,
       totalAdjustPrice: 0,
       totalWeightPrice: 0,
-      totalWipePrice: 0
+      totalWipePrice: 0,
+      notAllRefund: true
     };
   },
   filters: {
@@ -431,6 +437,13 @@ export default {
             pre = accAdd(pre, Number(item.wipeaccountsprice));
             return pre;
           }, 0);
+
+          this.notAllRefund = cmdtOrderDetailRespList
+            .map(item => {
+              return Number(item.refund) === 4;
+            })
+            .includes(false);
+
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
               standards: JSON.parse(item.saleprovalue).salepro.reduce(

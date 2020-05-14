@@ -1003,10 +1003,19 @@
       text-align: center;
     }
   }
+
+  .tip {
+    color: red;
+    opacity: 0.7;
+    font-size: 12px;
+    margin-top: -6px;
+    height: 21px;
+  }
 }
 
 .wipe {
   @extend .account;
+
   .code-item {
     .el-form-item__content {
       width: 330px;
@@ -1021,6 +1030,21 @@
       padding: 0 3px;
     }
   }
+
+  .el-input-group__append {
+    background-color: #fff;
+
+    .el-input__inner {
+      cursor: pointer;
+    }
+
+  }
+
+  .el-input-group--append {
+    .el-select {
+      width: 105px;
+    }
+  }
 }
 
 .my-shop {
@@ -1029,7 +1053,7 @@
   }
 
   .w190 {
-    width: 190px;
+    width: 128px;
   }
 
   .block {
@@ -1050,7 +1074,7 @@
   }
 
   .base-info {
-    height: 800px;
+    height: 865px;
 
     .el-form {
       padding: 20px 50px;
@@ -1138,7 +1162,18 @@
         .city-item {
           position: absolute;
           top: 0;
-          left: 320px;
+          left: 245px;
+
+          .el-form-item__content,
+          .el-select--medium {
+            margin-left: 0 !important;
+          }
+        }
+
+        .area-item {
+          position: absolute;
+          top: 0;
+          left: 380px;
 
           .el-form-item__content,
           .el-select--medium {
@@ -1693,6 +1728,10 @@
             background-image: url(../image/step7-ac.png);
           }
 
+          .imgIcon8-ac {
+            background-image: url(../image/step8-ac.png);
+          }
+
           .iconTitle {
             font-size: 14px;
             height: 30px;
@@ -1819,7 +1858,19 @@
           }
 
           .agent-pro {
-            color: red;
+            color: #fff;
+            border-radius: 10px;
+            padding: 1px 6px;
+            margin-right: 5px;
+            background-color: #ff8647;
+          }
+
+          .refund-pro {
+            color: #fff;
+            border-radius: 10px;
+            padding: 1px 6px;
+            margin-right: 5px;
+            background-color: #fe562e;
           }
         }
       }
@@ -1992,5 +2043,44 @@
       font-size: 18px;
       margin: 0;
     }
+  }
+}
+
+.sent-wrap {
+
+  .sent-box {
+    .el-checkbox__label {
+      button {
+        border: none;
+        width: 190px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: 0;
+        text-align: left;
+      }
+    }
+  }
+
+  .sent-info {
+    font-size: 12px;
+    color: rgb(200, 200, 200);
+    margin: 0;
+    padding: 0;
+    line-height: 12px;
+  }
+
+  .el-input__inner {
+    border-color: #DCDFE6 !important;
+  }
+
+  .sent-info-done {
+    color: #14cfa0;
+    opacity: 0.7;
+  }
+
+  .sent-info-err {
+    color: red;
+    opacity: 0.7;
   }
 }

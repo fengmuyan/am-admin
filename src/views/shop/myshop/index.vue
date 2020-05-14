@@ -55,23 +55,40 @@
                   v-model="baseForm.province"
                   placeholder="请选择省份"
                   @change="provideChange"
+                  filterable
                   class="w190"
                 >
                   <el-option
                     v-for="item in provideArr"
                     :key="item.region_id"
-                    :label="item.local_name"
-                    :value="item.local_name"
+                    :label="item.region_name"
+                    :value="item.region_name"
                   ></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item prop="city" class="city-item">
-                <el-select v-model="baseForm.city" placeholder="请选择城市" class="w190">
+                <el-select
+                  v-model="baseForm.city"
+                  placeholder="请选择城市"
+                  @change="cityChange"
+                  filterable
+                  class="w190"
+                >
                   <el-option
                     v-for="item in cityArr"
                     :key="item.region_id"
-                    :label="item.local_name"
-                    :value="item.local_name"
+                    :label="item.region_name"
+                    :value="item.region_name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item prop="area" class="area-item">
+                <el-select v-model="baseForm.area" placeholder="请选择区县" filterable class="w190">
+                  <el-option
+                    v-for="item in areaArr"
+                    :key="item.region_id"
+                    :label="item.region_name"
+                    :value="item.region_name"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -82,6 +99,15 @@
                 maxlength="30"
                 clearable
                 placeholder="请输入详细地址"
+                class="w400"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="邮政编码：" prop="zipCode">
+              <el-input
+                v-model="baseForm.zipCode"
+                maxlength="10"
+                clearable
+                placeholder="请输入邮政编码"
                 class="w400"
               ></el-input>
             </el-form-item>
@@ -182,7 +208,12 @@ export default {
         shoplogo: "",
         province: "",
         city: "",
+        area: "",
+        provinceCode: "",
+        cityCode: "",
+        areaCode: "",
         address: "",
+        zipCode: "",
         shopprofile: "",
         servicephone: ""
       },
@@ -194,8 +225,12 @@ export default {
           { required: true, message: "请选择地区", trigger: "change" }
         ],
         city: [{ required: true, message: "请选择城市", trigger: "change" }],
+        area: [{ required: true, message: "请选择区县", trigger: "change" }],
         address: [
           { required: true, message: "请输入详细地区", trigger: "blur" }
+        ],
+        zipCode: [
+          { required: true, message: "请输入邮政编码", trigger: "blur" }
         ],
         shopprofile: [
           { required: true, message: "请输入商铺简介", trigger: "blur" }
@@ -221,6 +256,7 @@ export default {
       productImgs: [],
       provideArr: [],
       cityArr: [],
+      areaArr: [],
       imageUrl: "",
       demoUrl: require("@/assets/image/demo.png")
     };
@@ -246,6 +282,11 @@ export default {
               shopcode,
               province,
               city,
+              area,
+              provinceCode,
+              cityCode,
+              areaCode,
+              zipcode,
               shoplocation
             }
           },
@@ -265,8 +306,14 @@ export default {
           this.baseForm.servicephone = servicephone ? servicephone : "";
           this.baseForm.province = province;
           this.baseForm.city = city;
+          this.baseForm.area = area;
+          this.baseForm.provinceCode = provinceCode;
+          this.baseForm.cityCode = cityCode;
+          this.baseForm.areaCode = areaCode;
+          this.baseForm.zipCode = zipcode;
           this.baseForm.address = shoplocation;
           this.cityArr = City.getCity(province);
+          this.areaArr = City.getCity(city);
           const imgData = storeImages.map(item => {
             return Object.assign(item, { url: item.image });
           });
@@ -288,7 +335,13 @@ export default {
 
     provideChange() {
       this.baseForm.city = "";
+      this.baseForm.area = "";
       this.cityArr = City.getCity(this.baseForm.province);
+    },
+
+    cityChange() {
+      this.baseForm.area = "";
+      this.areaArr = City.getCity(this.baseForm.city);
     },
 
     /* 删除图片匹配去掉productImgs中uid */
@@ -308,7 +361,7 @@ export default {
 
     delItemFir(val) {
       this.imgForm.img_one = null;
-      this.delImgItem(val)
+      this.delImgItem(val);
     },
 
     upload(file) {
@@ -344,8 +397,15 @@ export default {
           formData.append("shopname", this.baseForm.shopname);
           formData.append("shoplogo", this.baseForm.shoplogo);
           formData.append("slogan", this.baseForm.slogan);
+
           formData.append("province", this.baseForm.province);
           formData.append("city", this.baseForm.city);
+          formData.append("area", this.baseForm.area);
+          formData.append("provinceCode", City.getCode(this.baseForm.province));
+          formData.append("cityCode", City.getCode(this.baseForm.city));
+          formData.append("areaCode", City.getCode(this.baseForm.area));
+          formData.append("zipCode", this.baseForm.zipCode);
+
           formData.append("address", this.baseForm.address);
           formData.append("shopprofile", this.baseForm.shopprofile);
           formData.append("servicephone", this.baseForm.servicephone);

@@ -54,12 +54,13 @@ export default {
   created() {
     const isReal = Number(this.isReal);
     const isOpenAccount = this.isOpenAccount;
+    const isOpenAbcAccount = this.isOpenAbcAccount;
     const roles = this.roles;
     if (!roles.includes("admin")) {
       if (isReal === 1) {
         this._confirmModel("实名认证正在审核中，请等候。");
       } else if (isReal === 0 || isReal === 2) {
-        this._confirmModel("未实名认证或实名认证未通过。", "前往认证", () => {
+        this._confirmModel("未实名认证或实名认证未通过！", "前往认证", () => {
           this.$router.push({ path: "/real-authorize" });
         });
       } else if (isReal === 3) {
@@ -71,6 +72,16 @@ export default {
               this.$router.push({ path: "/account/list" });
             }
           );
+        } else {
+          if (isOpenAbcAccount !== true) {
+            this._confirmModel(
+              "农行收款账户需要必须开通！",
+              "开通农行",
+              () => {
+                this.$router.push({ path: "/account/list" });
+              }
+            );
+          }
         }
       }
     }

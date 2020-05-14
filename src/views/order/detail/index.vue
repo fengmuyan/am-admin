@@ -32,20 +32,20 @@
             <li class="line">
               <div class="imgLine gryLine"></div>
             </li>
-            <li>
+            <li v-if="notAllRefund || deliverytime">
               <div :class="['imgIcon', 'imgIcon3',ac24?'imgIcon3-ac':'']"></div>
               <p :class="['iconTitle',ac24?'active':'']">商家发货</p>
               <p class="date" v-if="ac24">{{deliverytime}}</p>
             </li>
-            <li class="line">
+            <li class="line" v-if="notAllRefund || deliverytime">
               <div class="imgLine gryLine"></div>
             </li>
-            <li class="lang-item">
+            <li class="lang-item" v-if="notAllRefund || receivetime">
               <div :class="['imgIcon', 'imgIcon4',ac4?'imgIcon4-ac':'']"></div>
               <p :class="['iconTitle',ac4?'active':'']">买家确认收货</p>
               <p class="date" v-if="ac4">{{receivetime}}</p>
             </li>
-            <li class="line">
+            <li class="line" v-if="notAllRefund || receivetime">
               <div class="imgLine gryLine"></div>
             </li>
             <li>
@@ -102,8 +102,13 @@
               <div class="content">
                 <h4>{{scope.row.title}}</h4>
                 <p>
-                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品，</span>
+                  <span class="agent-pro" v-if="scope.row.isagent==='Y'">代卖商品</span>
                   {{scope.row.standards.substring(0,scope.row.standards.length-1)}}。
+                  <br />
+                  <span
+                    class="refund-pro"
+                    v-if="Number(scope.row.refund)!==0"
+                  >{{scope.row.refund | initRefund}}</span>
                 </p>
               </div>
             </template>
@@ -150,6 +155,7 @@
               <el-button
                 type="text"
                 v-if="wipeAction"
+                :disabled="Number(scope.row.refund) !== 0"
                 icon="el-icon-edit-outline"
                 @click="handelWipe(scope.row)"
               >抹账</el-button>
@@ -197,7 +203,7 @@
           </div>
         </div>
       </div>
-      <div class="footer">
+      <div class="footer" v-if="delivertype !==0 || invocetype !==0">
         <div class="footer-left" v-if="delivertype !==0">
           <h4>收货人信息</h4>
           <p>
@@ -230,40 +236,63 @@
         </div>
       </div>
     </div>
+
     <el-dialog title="商品称重" :visible.sync="openWeight" width="600px">
       <el-form :model="weightForm" ref="weightForm" :rules="weightFormRules" label-width="140px">
         <div class="goods-info">
           <span>
             商品毛重（{{weightForm.weightunit}}）：
-            <b>{{weightForm.grossweight}}</b>；
-          </span>
+            <b>{{weightForm.grossweight}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             商品净重（{{weightForm.weightunit}}）：
-            <b>{{weightForm.netweight}}</b>；
-          </span>
+            <b>{{weightForm.netweight}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             商品单价：
-            <b>￥{{weightForm.cmdtprice}}</b>；
-          </span>
+            <b>￥{{weightForm.cmdtprice}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             折扣：
-            <b>{{weightForm.discount | initDiscount}}</b>；
-          </span>
+            <b>{{weightForm.discount | initDiscount}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             数量：
-            <b>{{weightForm.cmdtcount}}</b>；
-          </span>
+            <b>{{weightForm.cmdtcount}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             商品总价：
-            <b>￥{{weightForm.cmdttotalprice}}</b>；
-          </span>
+            <b>￥{{weightForm.cmdttotalprice}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span>
             优惠价格：
-            <b>￥{{weightForm.couponprice}}</b>；
-          </span>
+            <b>￥{{weightForm.couponprice}}</b>
+          </span>&nbsp;&nbsp;&nbsp;&nbsp;
+          <el-button
+            icon="el-icon-plus"
+            size="mini"
+            round
+            v-if="!isGwTotal"
+            @click="isGwTotal = true"
+          >输入总毛重</el-button>
+          <el-button
+            icon="el-icon-close"
+            size="mini"
+            round
+            v-if="isGwTotal"
+            @click="isGwTotal = false"
+          >关闭</el-button>
         </div>
+        <el-form-item label="称重总毛重：" prop="weighedGwTotal" v-if="isGwTotal">
+          <el-input
+            placeholder="请输入总毛重"
+            v-model="weightForm.weighedGwTotal"
+            maxlength="8"
+            @input="handelGwTotalChange"
+          />
+        </el-form-item>
         <el-form-item label="称重后毛重：" prop="weighedGw">
-          <el-input maxlength="6" v-model="weightForm.weighedGw" placeholder="请输入毛重" />
+          <el-input placeholder="请输入毛重（单件）" v-model="weightForm.weighedGw" maxlength="8" />
         </el-form-item>
         <el-form-item label="称重后净重：" prop="weighedNw">
           <el-input v-model="weightForm.weighedNw" disabled placeholder="由计算得出" />
@@ -276,7 +305,7 @@
         </el-form-item>
         <el-form-item label="订单确认总价：" prop="adjustedprice">
           <el-input maxlength="6" v-model="weightForm.adjustedprice" placeholder="确认价格" />
-          <div class="tip">* 确认价格可抹零，与称重后用户价格上下相差不能超过10元</div>
+          <div class="tip">* 确认价格可抹零，与称重后用户价格上下相差不能超过100元</div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -330,7 +359,7 @@ import {
   handelWipeSendCode,
   handelWipeAccounts
 } from "@/api/order";
-import { accMull, subtr, accAdd } from "@/utils";
+import { accMull, subtr, accAdd, accDiv } from "@/utils";
 import geCode from "vue-gecode";
 import { mapGetters } from "vuex";
 export default {
@@ -374,8 +403,8 @@ export default {
       if (!patterInt.test(value)) {
         callback(new Error("价格调整后必须为整数！"));
       } else {
-        if (Math.abs(value - this.weightForm.weighedCtp) > 10) {
-          callback(new Error("上下浮动不能大于10！"));
+        if (Math.abs(value - this.weightForm.weighedCtp) > 100) {
+          callback(new Error("上下浮动不能大于100！"));
         }
         callback();
       }
@@ -396,14 +425,16 @@ export default {
     return {
       openWeight: false,
       openWipe: false,
-
       loadingWipe: false,
       loading: false,
+      timer: null,
+      isGwTotal: false,
       weightForm: {
         uid: "",
         orderno: "",
         detailno: "",
         weightunit: "", //单位
+        weighedGwTotal: "", //总毛重
         grossweight: "", //毛重
         netweight: "", //净重
         cmdtprice: "", //商品现价
@@ -531,6 +562,7 @@ export default {
       receivetime: "",
       finaltime: "",
       failuretime: "",
+      notAllRefund: true,
       orderamount: 0,
       totalAdjustPrice: 0,
       totalWeightPrice: 0,
@@ -539,39 +571,44 @@ export default {
   },
   watch: {
     "weightForm.weighedGw"(val) {
-      const {
-        grossweight,
-        netweight,
-        cmdtprice,
-        cmdttotalprice,
-        unitprice,
-        frameWeight,
-        discount,
-        couponprice,
-        cmdtcount
-      } = this.weightForm;
-      const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-      if (val && patter.test(val) && val > frameWeight) {
-        const weighedNw = subtr(Number(val), frameWeight);
-        const weighedCp = accMull(weighedNw, unitprice);
-        const weighedCtp = subtr(
-          accMull(accMull(weighedCp, discount), cmdtcount),
-          couponprice
-        );
-        Object.assign(this.weightForm, {
-          weighedNw,
-          weighedCp,
-          weighedCtp,
-          adjustedprice: weighedCtp
-        });
-      } else {
-        Object.assign(this.weightForm, {
-          weighedNw: "",
-          weighedCp: "",
-          weighedCtp: "",
-          adjustedprice: ""
-        });
+      if (this.timer) {
+        clearTimeout(this.timer);
       }
+      this.timer = setTimeout(() => {
+        const {
+          grossweight,
+          netweight,
+          cmdtprice,
+          cmdttotalprice,
+          unitprice,
+          frameWeight,
+          discount,
+          couponprice,
+          cmdtcount
+        } = this.weightForm;
+        const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+        if (val && patter.test(val) && val > frameWeight) {
+          const weighedNw = subtr(Number(val), frameWeight);
+          const weighedCp = accMull(weighedNw, unitprice);
+          const weighedCtp = subtr(
+            accMull(accMull(weighedCp, discount), cmdtcount),
+            couponprice
+          );
+          Object.assign(this.weightForm, {
+            weighedNw,
+            weighedCp,
+            weighedCtp,
+            adjustedprice: weighedCtp
+          });
+        } else {
+          Object.assign(this.weightForm, {
+            weighedNw: "",
+            weighedCp: "",
+            weighedCtp: "",
+            adjustedprice: ""
+          });
+        }
+      }, 400);
     }
   },
   filters: {
@@ -603,6 +640,17 @@ export default {
       } else {
         return `${Number(val) * 100}折`;
       }
+    },
+    initRefund(val) {
+      const arr = [
+        "正常",
+        "退款审核中",
+        "退款审核失败",
+        "退款中",
+        "已退款",
+        "退款失败"
+      ];
+      return arr[val];
     }
   },
   computed: {
@@ -673,6 +721,7 @@ export default {
     isShowAction() {
       const { tradestate, paystate } = this;
       return !(
+        Number(tradestate) === 4 ||
         Number(tradestate) === 5 ||
         Number(tradestate) === 6 ||
         Number(paystate) === 1
@@ -690,6 +739,7 @@ export default {
         orderno: "",
         detailno: "",
         weightunit: "",
+        weighedGwTotal: "", //总毛重
         grossweight: "", //毛重
         netweight: "", //净重
         cmdtprice: "", //商品现价
@@ -785,6 +835,12 @@ export default {
             return pre;
           }, 0);
 
+          this.notAllRefund = cmdtOrderDetailRespList
+            .map(item => {
+              return Number(item.refund) === 4;
+            })
+            .includes(false);
+
           cmdtOrderDetailRespList.forEach(item => {
             Object.assign(item, {
               standards: JSON.parse(item.saleprovalue).salepro.reduce(
@@ -870,6 +926,44 @@ export default {
         remarks: item.remarks
       });
       this.openWipe = true;
+    },
+    handelGwTotalChange(val) {
+      const {
+        grossweight,
+        netweight,
+        cmdtprice,
+        cmdttotalprice,
+        unitprice,
+        frameWeight,
+        discount,
+        couponprice,
+        cmdtcount
+      } = this.weightForm;
+      const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+      if (val && patter.test(val) && val > frameWeight) {
+        const weighedGw = accDiv(Number(val), cmdtcount);
+        const weighedNw = subtr(Number(val), frameWeight);
+        const weighedCp = accMull(weighedNw, unitprice);
+        const weighedCtp = subtr(
+          accMull(accMull(weighedCp, discount), cmdtcount),
+          couponprice
+        );
+        Object.assign(this.weightForm, {
+          weighedGw,
+          weighedNw,
+          weighedCp,
+          weighedCtp,
+          adjustedprice: weighedCtp
+        });
+      } else {
+        Object.assign(this.weightForm, {
+          weighedGw: "",
+          weighedNw: "",
+          weighedCp: "",
+          weighedCtp: "",
+          adjustedprice: ""
+        });
+      }
     },
     submitWipeForm(formName) {
       this.$refs[formName].validate(async valid => {

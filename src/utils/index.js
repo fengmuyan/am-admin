@@ -642,6 +642,19 @@ export function _fomatFloat(num, n) {
   }
   return Number(s);
 }
+/**
+ * @desc 解决精度问题返回四舍五入两位小数（相除）
+ * @param {Number} arg1 符号左侧参数
+ * @param {Number} arg2 符号右侧参数
+ * @param {Number} num 保留小数位数
+ * 
+ */
+export function accDiv(arg1, arg2, num = 2) {
+  var m = 0, n = 0, s1 = arg1.toString(), s2 = arg2.toString();
+  try { m += s1.split(".")[1].length } catch (e) { }
+  try { n += s2.split(".")[1].length } catch (e) { }
+  return _fomatFloat(Number(s1.replace(".", "")) / Number(s2.replace(".", "")) * Math.pow(10, (m - n)), num)
+}
 
 /**
  * @desc 解决精度问题返回四舍五入两位小数（相乘）

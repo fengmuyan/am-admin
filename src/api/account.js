@@ -9,11 +9,12 @@ export function getAccountPass() {
 }
 
 // 开通二级账户
-export function createAccount(data) {
+export function createAccount(formData) {
+  const data = { formData, $_isFormData: true }
   return request({
     url: '/god/account/reg',
     method: 'post',
-    data
+    data,
   })
 }
 
@@ -64,6 +65,24 @@ export function withdrawalCheckCode(data) {
 export function withdrawal(data) {
   return request({
     url: '/god/account/cashOut',
+    method: 'post',
+    data
+  })
+}
+
+// 流水列表
+export function getAccountFlowList(data = {}) {
+  return request({
+    url: '/god/account/changelist',
+    method: 'post',
+    data
+  })
+}
+
+// 流水导出
+export function handelAccountFlowExport(data = {}) {
+  return request({
+    url: '/god/account/changeexport',
     method: 'post',
     data
   })

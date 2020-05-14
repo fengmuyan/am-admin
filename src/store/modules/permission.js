@@ -27,17 +27,17 @@ const permission = {
             commit('SET_ROUTES', constantRoutes)
             resolve(constantRoutes)
           } else {
-            if (getters.isOpenAccount !== true) {
-              const routes = [...constantRoutes, ...accountRoutes]
-              commit('SET_ROUTES', routes)
-              resolve(routes)
-            } else {
+            if (getters.isOpenAccount === true && getters.isOpenAbcAccount === true) {
               getRouters().then(res => {
                 const accessedRoutes = filterAsyncRouter(res.data)
                 const routes = [...constantRoutes, ...accessedRoutes, ...dynamicRoutes]
                 commit('SET_ROUTES', routes)
                 resolve(routes)
               })
+            } else {
+              const routes = [...constantRoutes, ...accountRoutes]
+              commit('SET_ROUTES', routes)
+              resolve(routes)
             }
           }
         }

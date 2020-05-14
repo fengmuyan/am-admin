@@ -152,6 +152,12 @@
                 clearable
               ></el-input>
             </el-form-item>
+            <el-form-item label="必须称重：" prop="requiredWeigh">
+              <el-radio-group v-model="valuationForm.requiredWeigh">
+                <el-radio label="Y">是</el-radio>
+                <el-radio label="N">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
           </div>
           <el-form-item label="折扣方式：" prop="isdiscount">
             <el-radio-group v-model="valuationForm.isdiscount">
@@ -265,7 +271,10 @@
               :disabled="logisticsForm.deliverymode!=='1'"
             >代发</el-checkbox>
             <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
-            <p class="tip-info" style="line-height: 20px;padding-left: 0;">* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
+            <p
+              class="tip-info"
+              style="line-height: 20px;padding-left: 0;"
+            >* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
           </el-form-item>
         </el-form>
       </div>
@@ -299,7 +308,7 @@
             <el-radio-group v-model="postSaleForm.state">
               <el-radio label="1">立即上架</el-radio>
               <el-radio label="4">定时上架</el-radio>
-              <el-radio label="3">放入库存</el-radio>
+              <el-radio label="3">放入仓库</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item v-if="this.postSaleForm.state === '4'" label="上架时间：" prop="publishtime">
@@ -374,8 +383,13 @@ export default {
     const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
         callback(new Error("必须非负整数或至多保留两位小数！"));
-      } else if (!(Number(value) > Number(this.valuationForm.netweight))) {
-        callback(new Error("毛重必须大于净重"));
+      } else if (
+        !(
+          Number(value) > Number(this.valuationForm.netweight) ||
+          Number(value) === Number(this.valuationForm.netweight)
+        )
+      ) {
+        callback(new Error("净重不能大于毛重！"));
       } else {
         callback();
       }
@@ -404,7 +418,8 @@ export default {
         grossweight: "",
         netweight: "",
         cmdtspecifications: "",
-        weightunit: "公斤"
+        weightunit: "公斤",
+        requiredWeigh: "N"
       }, //商品类目表单
       postSaleForm: {
         invoice: "0",
@@ -466,6 +481,9 @@ export default {
         ],
         cmdtspecifications: [
           { required: true, message: "请输入规格", trigger: "blur" }
+        ],
+        requiredWeigh: [
+          { required: true, message: "请输入是否必须称重", trigger: "blur" }
         ]
       }, //销售属性中计价表单验证
       postSaleFormRules: {
@@ -588,7 +606,8 @@ export default {
         netweight: "",
         cmdtspecifications: "",
         weightunit: "公斤",
-        pricetype: val
+        pricetype: val,
+        requiredWeigh: "N"
       });
     },
 
@@ -820,6 +839,7 @@ export default {
       formData.append("tags", JSON.stringify(tags));
       formData.append("isdiscount", this.valuationForm.isdiscount);
       formData.append("pricetype", this.valuationForm.pricetype);
+      formData.append("requiredWeigh", this.valuationForm.requiredWeigh);
       formData.append("grossweight", this.valuationForm.grossweight);
       formData.append("netweight", this.valuationForm.netweight);
       formData.append("weightunit", this.valuationForm.weightunit);

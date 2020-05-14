@@ -108,15 +108,6 @@ export function handelDelExpressInfo(data) {
   })
 }
 
-//补发货
-export function handelSendExpress(data) {
-  return request({
-    url: '/god/order/sendOrderExpressInfo',
-    method: 'post',
-    data
-  })
-}
-
 //物流追踪
 export function getKdnExpressInfo(data) {
   return request({
@@ -138,6 +129,15 @@ export function getExpressModelList(data = {}) {
 export function getDeliverOrderList(data = {}) {
   return request({
     url: '/god/order/deliverOrderlist',
+    method: 'post',
+    data
+  })
+}
+
+// 发货列表修改
+export function getAllowSentNum(data = {}) {
+  return request({
+    url: '/god/order/modifyOrderExpressInfoInit',
     method: 'post',
     data
   })

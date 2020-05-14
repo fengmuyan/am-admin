@@ -120,3 +120,21 @@ export function SaleProDetailExport(data) {
     data
   })
 }
+
+// 退款订单列表
+export function getRefundList(data) {
+  return request({
+    url: '/god/statistics/refund',
+    method: 'post',
+    data
+  })
+}
+
+// 退款订单导出
+export function handelRefundExport(data) {
+  return request({
+    url: '/god/statistics/refundexport',
+    method: 'post',
+    data
+  })
+}

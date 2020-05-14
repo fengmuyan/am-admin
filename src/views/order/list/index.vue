@@ -25,7 +25,6 @@
                 <el-option label="信用额度支付" value="1" />
               </el-select>
             </el-form-item>
-
             <el-form-item label="订单来源" prop="ordersource">
               <el-select
                 v-model="queryForm.ordersource"
@@ -75,7 +74,6 @@
                 <el-option label="删除" value="N" />
               </el-select>
             </el-form-item>
-
             <el-form-item label="支付状态" prop="paystate">
               <el-select
                 v-model="queryForm.paystate"
@@ -192,7 +190,7 @@
               size="mini"
               type="text"
               icon="el-icon-truck"
-              v-if="Number(scope.row.tradestate) === 1"
+              v-if="Number(scope.row.tradestate) === 1 && Number(scope.row.delivercount === 0)"
               @click="handleSent(scope.row)"
             >发货</el-button>
             <el-button
@@ -214,7 +212,7 @@
       />
     </div>
 
-    <el-dialog title="选择物流发货" :visible.sync="open" @close="clearValidate" width="550px">
+    <el-dialog title="选择物流发货" :visible.sync="open" @close="clearValidate" width="600px">
       <el-form
         :model="expressForm"
         ref="expressForm"
@@ -222,34 +220,41 @@
         v-loading="expressLoading"
         label-width="120px"
       >
-        <el-form-item label="发货方式" prop="isAll">
-          <el-radio-group v-model="expressForm.isAll" @change="expressForm.detailNo = []">
-            <el-radio label="Y">全部</el-radio>
-            <el-radio label="N">部分发货</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item v-if="expressForm.isAll === 'N'" label="发货商品" prop="detailNo">
-          <el-select
-            v-model="expressForm.detailNo"
-            style="width:350px"
-            multiple
-            placeholder="请选择发货商品"
-          >
-            <el-option
-              v-for="item in orderDetailsList"
-              :key="item.value"
-              :label="item.cmdtname"
-              :value="item.detailno"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="物流单号" prop="expressno">
-          <el-input
-            v-model="expressForm.expressno"
-            placeholder="请输入物流单号"
-            maxlength="20"
-            style="width:350px"
-          ></el-input>
+        <el-form-item class="sent-wrap" label="发货信息" prop="strExpressDetailInfos">
+          <div class="sent-box" v-for="(item,index) in orderDetailsList" :key="index">
+            <div>
+              <el-checkbox
+                v-model="item.checked"
+                :disabled="isDisabled(item)"
+                @change="handelSentChange"
+              >
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="item.cmdtname"
+                  placement="top-start"
+                >
+                  <el-button>{{item.cmdtname}}</el-button>
+                </el-tooltip>
+              </el-checkbox>
+              <el-input-number
+                v-model="item.sentNum"
+                :disabled="isDisabled(item)"
+                @change="handelSentChange"
+                size="small"
+                :min="0"
+                :max="item.allowDelivercount"
+              ></el-input-number>
+            </div>
+            <div style="line-height:10px">
+              <span class="sent-info sent-info-done" v-if="isNoAllowNum(item)">* 已发货。</span>
+              <span class="sent-info sent-info-err" v-if="isNoAllowRefunded(item)">* 已退款。</span>
+              <span
+                class="sent-info sent-info-err"
+                v-if="isNoAllowRefunding(item)"
+              >* 退款处理中（{{item.refund | initRefund}}）。</span>
+            </div>
+          </div>
         </el-form-item>
         <el-form-item label="物流公司" prop="expressname">
           <el-select
@@ -284,10 +289,62 @@
             style="width:350px"
           ></el-input>
         </el-form-item>
+        <el-form-item label="物流单号" prop="expressno">
+          <el-input
+            v-model="expressForm.expressno"
+            placeholder="请输入物流单号"
+            maxlength="20"
+            style="width:350px"
+          ></el-input>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="open = false">取 消</el-button>
         <el-button type="primary" :loading="loadingSend" @click="submitForm('expressForm')">发 货</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="选择发货信息" :visible.sync="openSelf" @close="clearValidateSelf" width="600px">
+      <el-form
+        :model="selfForm"
+        ref="selfForm"
+        :rules="selfFormRules"
+        v-loading="selfLoading"
+        label-width="120px"
+      >
+        <el-form-item class="sent-wrap" label="发货信息" prop="strExpressDetailInfos">
+          <div class="sent-box" v-for="(item,index) in orderDetailsList" :key="index">
+            <el-checkbox
+              v-model="item.checked"
+              :disabled="isDisabled(item)"
+              @change="handelSentChange"
+            >
+              <el-tooltip class="item" effect="dark" :content="item.cmdtname" placement="top-start">
+                <el-button>{{item.cmdtname}}</el-button>
+              </el-tooltip>
+            </el-checkbox>
+            <el-input-number
+              v-model="item.sentNum"
+              :disabled="isDisabled(item)"
+              @change="handelSentChange"
+              size="small"
+              :min="0"
+              :max="item.allowDelivercount"
+            ></el-input-number>
+            <div style="line-height:10px">
+              <span class="sent-info sent-info-done" v-if="isNoAllowNum(item)">* 已发货。</span>
+              <span class="sent-info sent-info-err" v-if="isNoAllowRefunded(item)">* 已退款。</span>
+              <span
+                class="sent-info sent-info-err"
+                v-if="isNoAllowRefunding(item)"
+              >* 退款处理中（{{item.refund | initRefund}}）。</span>
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="openSelf = false">取 消</el-button>
+        <el-button type="primary" :loading="loadingSelf" @click="submitSelfForm('selfForm')">发 货</el-button>
       </div>
     </el-dialog>
 
@@ -365,16 +422,19 @@ export default {
     return {
       loading: false,
       exportLoading: false,
+      selfLoading: false,
       loadingExport: false,
       loadingExportContent: false,
       expressLoading: false,
       loadingSend: false,
+      loadingSelf: false,
       formShow: true,
       activeName: "-1",
       orderList: [],
       total: 0,
       open: false,
       exportOpen: false,
+      openSelf: false,
       expressList: [],
       orderDetailsList: [],
       payDateRange: [],
@@ -382,6 +442,7 @@ export default {
       multipleSelection: [],
       expressExportList: [],
       expressExportOrderList: [],
+      isSelfSent: false,
       queryForm: {
         pageNum: 1,
         pageSize: 10,
@@ -401,8 +462,12 @@ export default {
         expressid: undefined,
         inexpressname: undefined,
         namebrand: undefined,
-        isAll: "Y",
-        detailNo: []
+        strExpressDetailInfos: []
+      },
+      selfForm: {
+        uid: undefined,
+        orderno: undefined,
+        strExpressDetailInfos: []
       },
       expressFormRules: {
         expressno: [
@@ -414,11 +479,23 @@ export default {
         inexpressname: [
           { required: true, message: "请输入物流公司名称", trigger: "blur" }
         ],
-        isAll: [
-          { required: true, message: "请输入发货方式", trigger: "change" }
-        ],
-        detailNo: [
-          { required: true, message: "请选择发货商品", trigger: "change" }
+        strExpressDetailInfos: [
+          {
+            type: "array",
+            required: true,
+            message: "发货信息不能为空！",
+            trigger: "blur"
+          }
+        ]
+      },
+      selfFormRules: {
+        strExpressDetailInfos: [
+          {
+            type: "array",
+            required: true,
+            message: "发货信息不能为空！",
+            trigger: "blur"
+          }
         ]
       },
       exportForm: {
@@ -434,13 +511,37 @@ export default {
   computed: {
     isSentBtn() {
       return function(item) {
-        const { tradestate, delivertype } = item;
+        const { delivercount } = item;
+        return Number(delivercount) > 0;
+      };
+    },
+    isDisabled() {
+      return function(item) {
+        const { refund, allowDelivercount } = item;
         return (
-          (Number(tradestate) === 2 ||
-            Number(tradestate) === 3 ||
-            Number(tradestate) === 4) &&
-          Number(delivertype) === 1
+          Number(refund) === 1 ||
+          Number(refund) === 3 ||
+          Number(refund) === 4 ||
+          Number(allowDelivercount) === 0
         );
+      };
+    },
+    isNoAllowNum() {
+      return function(item) {
+        const { allowDelivercount } = item;
+        return Number(allowDelivercount) === 0;
+      };
+    },
+    isNoAllowRefunding() {
+      return function(item) {
+        const { refund } = item;
+        return Number(refund) === 1 || Number(refund) === 3;
+      };
+    },
+    isNoAllowRefunded() {
+      return function(item) {
+        const { refund } = item;
+        return Number(refund) === 4;
       };
     }
   },
@@ -479,6 +580,17 @@ export default {
     },
     initInvocetype(val) {
       const arr = ["不开发票", "开发票"];
+      return arr[val];
+    },
+    initRefund(val) {
+      const arr = [
+        "正常",
+        "审核中",
+        "审核失败",
+        "退款中",
+        "已退款",
+        "退款失败"
+      ];
       return arr[val];
     }
   },
@@ -528,26 +640,31 @@ export default {
     async handleSent(item) {
       const { uid, orderno, namebrand } = item;
       if (Number(item.delivertype) === 0) {
-        this.$confirm("确定要发货吗？", "系统提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-          customClass: "el-message-box-wran"
-        }).then(async () => {
-          try {
-            this.loading = true;
-            const { code } = await orderToSent({ uid, orderno });
-            this.loading = false;
-            if (code === 200) {
-              await this.getList();
-              this.msgSuccess("发货成功");
-            }
-          } catch (err) {
-            this.loading = false;
-            console.log(err);
-          }
+        this.isSelfSent = true;
+        this.resetSelfForm();
+        Object.assign(this.selfForm, {
+          uid,
+          orderno
         });
+        this.openSelf = true;
+        try {
+          this.selfLoading = true;
+          const { data, code } = await getOrderDetailsList({ orderno });
+          this.selfLoading = false;
+          if (code === 200) {
+            this.orderDetailsList = data.map(item => {
+              return Object.assign(item, {
+                checked: false,
+                sentNum: item.allowDelivercount
+              });
+            });
+          }
+        } catch (err) {
+          this.selfLoading = false;
+          console.log(err);
+        }
       } else if (Number(item.delivertype) === 1) {
+        this.isSelfSent = false;
         this.resetExpressForm();
         Object.assign(this.expressForm, {
           uid,
@@ -569,7 +686,12 @@ export default {
             this.expressList = data1;
           }
           if (code2 === 200) {
-            this.orderDetailsList = data2;
+            this.orderDetailsList = data2.map(item => {
+              return Object.assign(item, {
+                checked: false,
+                sentNum: item.allowDelivercount
+              });
+            });
           }
         } catch (err) {
           this.expressLoading = false;
@@ -627,8 +749,14 @@ export default {
         expressid: undefined,
         inexpressname: undefined,
         namebrand: undefined,
-        isAll: "Y",
-        detailNo: []
+        strExpressDetailInfos: []
+      });
+    },
+    resetSelfForm() {
+      Object.assign(this.selfForm, {
+        uid: undefined,
+        orderno: undefined,
+        strExpressDetailInfos: []
       });
     },
     clearValidate() {
@@ -638,21 +766,34 @@ export default {
       this.multipleSelection = [];
       this.$refs.exportForm.resetFields();
     },
+    clearValidateSelf() {
+      this.$refs.selfForm.resetFields();
+    },
     expressChange(val) {
       this.expressForm.expressid = this.expressList.find(item => {
         return item.expressname === val;
       }).expressid;
+    },
+    handelSentChange() {
+      const checkedData = this.orderDetailsList
+        .filter(item => {
+          return item.checked === true;
+        })
+        .map(v => {
+          return { detailno: v.detailno, delivercount: v.sentNum };
+        });
+      if (this.isSelfSent) {
+        this.selfForm.strExpressDetailInfos = checkedData;
+      } else {
+        this.expressForm.strExpressDetailInfos = checkedData;
+      }
     },
     submitForm(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           try {
             this.loadingSend = true;
-            const { code } = await handelSendGoods(
-              Object.assign(this.expressForm, {
-                detailnos: this.expressForm.detailNo.join(",")
-              })
-            );
+            const { code } = await handelSendGoods(this.expressForm);
             this.loadingSend = false;
             if (code === 200) {
               this.msgSuccess("发货成功");
@@ -668,11 +809,38 @@ export default {
         }
       });
     },
-    handleToSentList(item) {
-      const orderno = item.orderno;
-      this.$router.push({
-        path: `/order/sent-list/${orderno}`
+    submitSelfForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            this.loadingSelf = true;
+            const { code } = await handelSendGoods(this.selfForm);
+            this.loadingSelf = false;
+            if (code === 200) {
+              this.msgSuccess("发货成功");
+              this.openSelf = false;
+              this.getList();
+            }
+          } catch (err) {
+            this.loadingSelf = false;
+            console.log(err);
+          }
+        } else {
+          return false;
+        }
       });
+    },
+    handleToSentList(item) {
+      const { orderno, delivertype } = item;
+      if (Number(delivertype) === 0) {
+        this.$router.push({
+          path: `/order/sent-self-list/${orderno}`
+        });
+      } else if (Number(delivertype) === 1) {
+        this.$router.push({
+          path: `/order/sent-list/${orderno}`
+        });
+      }
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
