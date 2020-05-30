@@ -116,7 +116,11 @@ export default {
             .dispatch("Login", { randstr, ticket, username, password })
             .then(() => {
               this.loading = false;
-              this.$router.push({ path: this.redirect || "/" });
+              this.$router.push(
+                { path: this.redirect || "/" },
+                () => {},
+                () => {}
+              );
             })
             .catch(() => {
               this.captchaStatus = 0;

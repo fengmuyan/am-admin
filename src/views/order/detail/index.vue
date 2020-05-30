@@ -5,6 +5,7 @@
         <div class="statusLeft">
           <p>订单号：{{orderno}}</p>
           <h3>{{tradestate | initTradestate}}</h3>
+          <p v-if="Number(tradestate)===2" class="confirm-tip">5天用户未确认收货由系统自动完成确认!</p>
         </div>
         <ul class="statusRight">
           <li>

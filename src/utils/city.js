@@ -11,6 +11,16 @@ function getCity(localName) {
   return JSON.parse(addressArr).filter(v => v.parent_id === item.region_id)
 }
 
+function getCityforCode(code) {
+  if (!code) {
+    return []
+  }
+  const item = JSON.parse(addressArr).find((v) => {
+    return v.area_code == code
+  })
+  return JSON.parse(addressArr).filter(v => v.parent_id === item.region_id)
+}
+
 function getCode(localName) {
   if (!localName) {
     return ""
@@ -26,5 +36,6 @@ export default ({
     return v.parent_id === 1
   }),
   getCity,
-  getCode
+  getCode,
+  getCityforCode
 })

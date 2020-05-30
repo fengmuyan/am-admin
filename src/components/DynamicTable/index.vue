@@ -5,7 +5,7 @@
         <thead>
           <tr>
             <th v-for="(item,index) in tableArr" :key="index">{{item.name}}</th>
-            <th v-for="(item,index) in thInputData" :width="item.width">{{item.name}}</th>
+            <th v-for="(item,index) in thInputData" :key="index" :width="item.width">{{item.name}}</th>
           </tr>
         </thead>
         <tbody>
@@ -16,7 +16,7 @@
               v-if="item.rowSpanArr[i]!==0"
               :rowspan="item.rowSpanArr[i]"
             >{{getItemName(i,item.rangeArr)}}</td>
-            <td v-for="(j,k) in item.input">
+            <td v-for="(j,k) in item.input" :key="k">
               <el-input
                 v-model="j.values"
                 :keyId="item.rangeArr"

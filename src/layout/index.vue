@@ -40,6 +40,7 @@ export default {
       fixedHeader: state => state.settings.fixedHeader,
       isReal: state => state.user.isReal,
       isOpenAccount: state => state.user.isOpenAccount,
+      isOpenAbcAccount: state => state.user.isOpenAbcAccount,
       roles: state => state.user.roles
     }),
     classObj() {

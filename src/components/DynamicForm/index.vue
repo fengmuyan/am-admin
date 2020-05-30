@@ -1,7 +1,7 @@
 <template>
   <el-form label-width="110px" :model="dynamicForm" :ref="dynamicForm">
     <dynamic-form-item
-      v-for="(item,index) in value"
+      v-for="item in value"
       :key="item.name"
       :item="item"
       :value="item.values"

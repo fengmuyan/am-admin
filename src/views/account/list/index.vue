@@ -29,10 +29,10 @@
               @click="handleAdd(scope.row)"
             >开通账户</el-button>
             <el-button
-              v-if="isShowBtn('edit',scope.row.merstate)"
               size="mini"
               type="text"
               icon="el-icon-edit"
+              v-if="isShowBtn('edit',scope.row.merstate)"
               @click="handleEdit(scope.row)"
             >修改</el-button>
             <el-button
@@ -151,8 +151,60 @@
               style="width: 210px"
             />
           </el-form-item>
+          <el-form-item label="邮政编码" prop="zipcode">
+            <el-input
+              v-model="accountForm.zipcode"
+              placeholder="请输入商户邮政编码"
+              clearable
+              style="width: 210px"
+            />
+          </el-form-item>
+          <div class="adr-box">
+            <el-form-item label="商户地区" prop="provincecode" class="adr-item">
+              <el-select
+                v-model="accountForm.provincecode"
+                placeholder="请选择省份"
+                @change="provideChangeSec"
+                class="w190"
+              >
+                <el-option
+                  v-for="item in provideArrSec"
+                  :key="item.region_id"
+                  :label="item.region_name"
+                  :value="item.area_code"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="citycode" class="city-item">
+              <el-select
+                v-model="accountForm.citycode"
+                placeholder="请选择城市"
+                @change="cityChangeSec"
+                class="w190"
+              >
+                <el-option
+                  v-for="item in cityArrSec"
+                  :key="item.region_id"
+                  :label="item.region_name"
+                  :value="item.area_code"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="areacode" class="area-item">
+              <el-select v-model="accountForm.areacode" placeholder="请选择区县" class="w190">
+                <el-option
+                  v-for="item in areaArrSec"
+                  :key="item.region_id"
+                  :label="item.region_name"
+                  :value="item.area_code"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <el-form-item label="详细地址" prop="address">
+            <el-input v-model="accountForm.address" style="width: 554px" placeholder="请输入详细地址" />
+          </el-form-item>
         </div>
-
         <el-form-item label="收款卡类型" prop="cardtype">
           <el-select
             v-model="accountForm.cardtype"
@@ -172,7 +224,12 @@
             style="margin-right: 70px"
             ref="itemFir"
           >
-            <upload-img @add-item="addItemFir" @del-item="delItemFir"></upload-img>
+            <upload-img
+              v-if="imageShow"
+              @add-item="addItemFir"
+              @del-item="delItemFir"
+              :file="accountForm.cbmsVendorApplPic1?[{uid:0,url:accountForm.cbmsVendorApplPic1}]:[null]"
+            ></upload-img>
           </el-form-item>
           <el-form-item
             label="征信查询授权书"
@@ -180,7 +237,12 @@
             class="file-item"
             ref="itemSec"
           >
-            <upload-img @add-item="addItemSec" @del-item="delItemSec"></upload-img>
+            <upload-img
+              v-if="imageShow"
+              @add-item="addItemSec"
+              @del-item="delItemSec"
+              :file="accountForm.cbmsCreditQryAuthPic1?[{uid:0,url:accountForm.cbmsCreditQryAuthPic1}]:[null]"
+            ></upload-img>
           </el-form-item>
           <el-form-item
             label="开户许可证"
@@ -189,10 +251,20 @@
             style="margin-right: 70px"
             ref="itemThi"
           >
-            <upload-img @add-item="addItemThi" @del-item="delItemThi"></upload-img>
+            <upload-img
+              v-if="imageShow"
+              @add-item="addItemThi"
+              @del-item="delItemThi"
+              :file="accountForm.cbmsOpenAcctAuthPic1?[{uid:0,url:accountForm.cbmsOpenAcctAuthPic1}]:[null]"
+            ></upload-img>
           </el-form-item>
           <el-form-item label="调查审批表" prop="cbmsInvestApprPic1" class="file-item" ref="itemFou">
-            <upload-img @add-item="addItemFou" @del-item="delItemFou"></upload-img>
+            <upload-img
+              v-if="imageShow"
+              @add-item="addItemFou"
+              @del-item="delItemFou"
+              :file="accountForm.cbmsInvestApprPic1?[{uid:0,url:accountForm.cbmsInvestApprPic1}]:[null]"
+            ></upload-img>
           </el-form-item>
         </div>
       </el-form>
@@ -289,6 +361,7 @@ export default {
       createOpen: false,
       verifyOpen: false,
       codeLock: false,
+      imageShow: false,
       passList: [],
       bankArr: [],
       merstateArr: [
@@ -303,11 +376,14 @@ export default {
       registertype: "",
       provideArr: [],
       cityArr: [],
+      provideArrSec: [],
+      cityArrSec: [],
+      areaArrSec: [],
       accountForm: {
-        cbmsVendorApplPic1: undefined,
-        cbmsCreditQryAuthPic1: undefined,
-        cbmsOpenAcctAuthPic1: undefined,
-        cbmsInvestApprPic1: undefined,
+        cbmsVendorApplPic1: null,
+        cbmsCreditQryAuthPic1: null,
+        cbmsOpenAcctAuthPic1: null,
+        cbmsInvestApprPic1: null,
         bankprovince: undefined,
         bankcity: undefined,
         subbranch: undefined,
@@ -317,7 +393,12 @@ export default {
         mobilephone: "",
         bankname: "",
         bankno: "",
-        cardtype: "1"
+        cardtype: "1",
+        provincecode: undefined,
+        citycode: undefined,
+        areacode: undefined,
+        zipcode: undefined,
+        address: undefined
       },
       accountFormRules: {
         accountname: [
@@ -330,34 +411,45 @@ export default {
           { validator: validateTel, required: true, trigger: "blur" }
         ],
         bankname: [
-          { required: true, message: "请输入开户行名称", trigger: "change" }
+          { required: true, message: "请输入开户行名称", trigger: "blur" }
         ],
         bankno: [
-          { required: true, message: "请输入开户行行号", trigger: "change" }
+          { required: true, message: "请输入开户行行号", trigger: "blur" }
         ],
         cardtype: [
           { required: true, message: "请输入收款卡类型", trigger: "blur" }
         ],
         cbmsVendorApplPic1: [
-          { required: true, message: "请上传商户申请书", trigger: "change" }
+          { required: true, message: "请上传商户申请书", trigger: "blur" }
         ],
         cbmsCreditQryAuthPic1: [
-          { required: true, message: "请上传征信查询授权书", trigger: "change" }
+          { required: true, message: "请上传征信查询授权书", trigger: "blur" }
         ],
         cbmsOpenAcctAuthPic1: [
-          { required: true, message: "请上传开户许可证", trigger: "change" }
+          { required: true, message: "请上传开户许可证", trigger: "blur" }
         ],
         cbmsInvestApprPic1: [
-          { required: true, message: "请上传1调查审批表", trigger: "change" }
+          { required: true, message: "请上传1调查审批表", trigger: "blur" }
         ],
         bankprovince: [
-          { required: true, message: "请选择开户省份", trigger: "change" }
+          { required: true, message: "请选择开户省份", trigger: "blur" }
         ],
         bankcity: [
-          { required: true, message: "请选择开户城市", trigger: "change" }
+          { required: true, message: "请选择开户城市", trigger: "blur" }
         ],
         subbranch: [
-          { required: true, message: "请选择开户支行", trigger: "change" }
+          { required: true, message: "请选择开户支行", trigger: "blur" }
+        ],
+        provincecode: [
+          { required: true, message: "请选择地区", trigger: "blur" }
+        ],
+        citycode: [{ required: true, message: "请选择城市", trigger: "blur" }],
+        areacode: [{ required: true, message: "请选择区县", trigger: "blur" }],
+        zipcode: [
+          { required: true, message: "请输入邮政编码", trigger: "blur" }
+        ],
+        address: [
+          { required: true, message: "请输入详细地址", trigger: "blur" }
         ]
       },
       verifyForm: {
@@ -426,9 +518,10 @@ export default {
   },
   mounted() {
     this.provideArr = City.provide;
+    this.provideArrSec = City.provide;
   },
   methods: {
-    initAccountForm() {
+    async initAccountForm() {
       Object.assign(this.accountForm, {
         channelcode: "",
         accountname: "",
@@ -436,18 +529,29 @@ export default {
         bankname: "",
         mobilephone: "",
         bankno: "",
-        cbmsVendorApplPic1: undefined,
-        cbmsCreditQryAuthPic1: undefined,
-        cbmsOpenAcctAuthPic1: undefined,
-        cbmsInvestApprPic1: undefined,
+        cbmsVendorApplPic1: null,
+        cbmsCreditQryAuthPic1: null,
+        cbmsOpenAcctAuthPic1: null,
+        cbmsInvestApprPic1: null,
         bankprovince: undefined,
         bankcity: undefined,
-        subbranch: undefined
+        subbranch: undefined,
+        provincecode: undefined,
+        citycode: undefined,
+        areacode: undefined,
+        zipcode: undefined,
+        address: undefined
       });
+      this.cityArr = [];
+      this.cityArrSec = [];
+      this.areaArrSec = [];
     },
 
-    handleAdd(item) {
+    async handleAdd(item) {
+      this.imageShow = false;
       this.initAccountForm();
+      await this.$nextTick();
+      this.imageShow = true;
       this.registertype = item.registertype;
       Object.assign(this.accountForm, {
         channelcode: item.channelcode
@@ -496,38 +600,47 @@ export default {
             formData.append("bankname", this.accountForm.bankname);
             formData.append("bankno", this.accountForm.bankno);
             formData.append("cardtype", this.accountForm.cardtype);
-
-            formData.append("bankprovince", this.accountForm.bankprovince);
-            formData.append("bankcity", this.accountForm.bankcity);
-            formData.append("subbranch", this.accountForm.subbranch);
-            formData.append(
-              "cbmsVendorApplPic1",
-              this.accountForm.cbmsVendorApplPic1
-            );
-            formData.append(
-              "cbmsCreditQryAuthPic1",
-              this.accountForm.cbmsCreditQryAuthPic1
-            );
-            formData.append(
-              "cbmsOpenAcctAuthPic1",
-              this.accountForm.cbmsOpenAcctAuthPic1
-            );
-            formData.append(
-              "cbmsInvestApprPic1",
-              this.accountForm.cbmsInvestApprPic1
-            );
+            if (this.accountForm.channelcode === "100002") {
+              formData.append("bankprovince", this.accountForm.bankprovince);
+              formData.append("bankcity", this.accountForm.bankcity);
+              formData.append("subbranch", this.accountForm.subbranch);
+              formData.append("provincecode", this.accountForm.provincecode);
+              formData.append("citycode", this.accountForm.citycode);
+              formData.append("areacode", this.accountForm.areacode);
+              formData.append("address", this.accountForm.address);
+              formData.append("zipcode", this.accountForm.zipcode);
+              formData.append(
+                "cbmsVendorApplPic1",
+                this.accountForm.cbmsVendorApplPic1
+              );
+              formData.append(
+                "cbmsCreditQryAuthPic1",
+                this.accountForm.cbmsCreditQryAuthPic1
+              );
+              formData.append(
+                "cbmsOpenAcctAuthPic1",
+                this.accountForm.cbmsOpenAcctAuthPic1
+              );
+              formData.append(
+                "cbmsInvestApprPic1",
+                this.accountForm.cbmsInvestApprPic1
+              );
+            }
             const { code } = await createAccount(formData);
             if (code === 200) {
               this.getList();
-              this.accountFormData = Object.assign({}, this.accountForm);
+              this.msgSuccess("操作成功");
               this.createOpen = false;
-              this.verifyOpen = true;
-              this.codeLock = true;
-              await this.$nextTick();
-              if (Number(this.accountForm.cardtype) === 0) {
-                this.$refs.geCode.runtime();
+              if (this.accountForm.channelcode === "100001") {
+                this.accountFormData = Object.assign({}, this.accountForm);
+                this.verifyOpen = true;
+                this.codeLock = true;
+                await this.$nextTick();
+                if (Number(this.accountForm.cardtype) === 0) {
+                  this.$refs.geCode.runtime();
+                }
+                this.codeLock = false;
               }
-              this.codeLock = false;
             }
           } catch (err) {
             console.log(err);
@@ -538,8 +651,11 @@ export default {
       });
     },
 
-    handleEdit(item) {
+    async handleEdit(item) {
+      this.imageShow = false;
       this.initAccountForm();
+      await this.$nextTick();
+      this.imageShow = true;
       this.registertype = item.registertype;
       Object.assign(this.accountForm, {
         channelcode: item.channelcode,
@@ -550,7 +666,24 @@ export default {
         bankno: item.bankno
       });
       if (item.channelcode === "100002") {
-       
+        this.cityArr = City.getCity(item.bankprovince);
+        this.cityArrSec = City.getCityforCode(item.provincecode);
+        this.areaArrSec = City.getCityforCode(item.citycode);
+        const imageurl = JSON.parse(item.imageurl);
+        Object.assign(this.accountForm, {
+          subbranch: item.subbranch,
+          provincecode: item.provincecode,
+          citycode: item.citycode,
+          areacode: item.areacode,
+          zipcode: item.zipcode,
+          address: item.address,
+          bankprovince: item.bankprovince,
+          bankcity: item.bankcity,
+          cbmsVendorApplPic1: imageurl["cbmsVendorApplPic1"],
+          cbmsCreditQryAuthPic1: imageurl["cbmsCreditQryAuthPic1"],
+          cbmsOpenAcctAuthPic1: imageurl["cbmsOpenAcctAuthPic1"],
+          cbmsInvestApprPic1: imageurl["cbmsInvestApprPic1"]
+        });
       }
       this.createOpen = true;
     },
@@ -634,6 +767,17 @@ export default {
     provideChange() {
       this.accountForm.bankcity = "";
       this.cityArr = City.getCity(this.accountForm.bankprovince);
+    },
+
+    provideChangeSec() {
+      this.accountForm.citycode = "";
+      this.accountForm.areacode = "";
+      this.cityArrSec = City.getCityforCode(this.accountForm.provincecode);
+    },
+
+    cityChangeSec() {
+      this.accountForm.areacode = "";
+      this.areaArrSec = City.getCityforCode(this.accountForm.citycode);
     }
   }
 };

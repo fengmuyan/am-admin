@@ -4,6 +4,8 @@ import '@/assets/el-style/index.css'
 import '@/assets/styles/am.scss'
 import '@/assets/styles/private.scss'
 import '@/assets/styles/mobile.scss'
+import '@/assets/styles/safari.scss'
+
 import Vue from 'vue'
 import Cookies from 'js-cookie'
 

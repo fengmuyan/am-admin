@@ -222,10 +222,10 @@ export default {
           { required: true, message: "请输入店铺名称", trigger: "blur" }
         ],
         province: [
-          { required: true, message: "请选择地区", trigger: "change" }
+          { required: true, message: "请选择地区", trigger: "blur" }
         ],
-        city: [{ required: true, message: "请选择城市", trigger: "change" }],
-        area: [{ required: true, message: "请选择区县", trigger: "change" }],
+        city: [{ required: true, message: "请选择城市", trigger: "blur" }],
+        area: [{ required: true, message: "请选择区县", trigger: "blur" }],
         address: [
           { required: true, message: "请输入详细地区", trigger: "blur" }
         ],

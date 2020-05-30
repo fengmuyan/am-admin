@@ -1011,6 +1011,36 @@
     margin-top: -6px;
     height: 21px;
   }
+
+  .adr-box {
+    position: relative;
+
+    .city-item {
+      position: absolute;
+      top: 0;
+      left: 307px;
+
+      .el-form-item__content,
+      .el-select--medium {
+        margin-left: 0 !important;
+      }
+    }
+
+    .area-item {
+      position: absolute;
+      top: 0;
+      left: 494px;
+
+      .el-form-item__content,
+      .el-select--medium {
+        margin-left: 0 !important;
+      }
+    }
+
+    .w190 {
+      width: 180px;
+    }
+  }
 }
 
 .wipe {
@@ -1648,6 +1678,18 @@
           line-height: 50px;
           font-size: 15px;
           padding-left: 24px;
+        }
+
+        .confirm-tip {
+          height: 20px;
+          width: 280px;
+          line-height: 19px;
+          font-size: 13px;
+          color: #ff8647;
+          text-align: center;
+          margin-top: -53px;
+          letter-spacing: 1px;
+          padding-left: 100px;
         }
 
         @media screen and (max-width: 1700px) {

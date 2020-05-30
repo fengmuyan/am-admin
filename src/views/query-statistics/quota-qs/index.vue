@@ -50,7 +50,7 @@
         :data="distributorList"
         :default-sort="{prop:'usedlimit',order:'descending'}"
       >
-        <el-table-column label="经销商" prop="username">
+        <el-table-column label="经销商" prop="username" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-popover
               placement="top-start"
