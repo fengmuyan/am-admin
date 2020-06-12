@@ -138,7 +138,7 @@
               <span>{{scope.row.tradestate | initTradestate}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="220px" v-if="isShowAction">
+          <el-table-column label="操作" width="220px" v-if="wipeAction || isShowAction">
             <template slot-scope="scope">
               <el-button
                 type="text"
@@ -288,12 +288,17 @@
           <el-input
             placeholder="请输入总毛重"
             v-model="weightForm.weighedGwTotal"
-            maxlength="8"
             @input="handelGwTotalChange"
+            maxlength="8"
           />
         </el-form-item>
         <el-form-item label="称重后毛重：" prop="weighedGw">
-          <el-input placeholder="请输入毛重（单件）" v-model="weightForm.weighedGw" maxlength="8" />
+          <el-input
+            placeholder="请输入毛重（单件）"
+            v-model="weightForm.weighedGw"
+            @input="handelWeighedGwChange"
+            maxlength="8"
+          />
         </el-form-item>
         <el-form-item label="称重后净重：" prop="weighedNw">
           <el-input v-model="weightForm.weighedNw" disabled placeholder="由计算得出" />
@@ -429,6 +434,8 @@ export default {
       loadingWipe: false,
       loading: false,
       timer: null,
+      timer2: null,
+      lock: false,
       isGwTotal: false,
       weightForm: {
         uid: "",
@@ -456,35 +463,35 @@ export default {
           {
             required: true,
             validator: validateWeight,
-            trigger: ["blur", "change"]
+            trigger: ["blur"]
           }
         ],
         weighedNw: [
           {
             required: true,
             validator: validateOther,
-            trigger: ["blur", "change"]
+            trigger: ["blur"]
           }
         ],
         weighedCp: [
           {
             required: true,
             validator: validateOther,
-            trigger: ["blur", "change"]
+            trigger: ["blur"]
           }
         ],
         weighedCtp: [
           {
             required: true,
             validator: validateOther,
-            trigger: ["blur", "change"]
+            trigger: ["blur"]
           }
         ],
         adjustedprice: [
           {
             required: true,
             validator: validateAdjust,
-            trigger: ["blur", "change"]
+            trigger: ["blur"]
           }
         ]
       },
@@ -569,48 +576,6 @@ export default {
       totalWeightPrice: 0,
       totalWipePrice: 0
     };
-  },
-  watch: {
-    "weightForm.weighedGw"(val) {
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
-      this.timer = setTimeout(() => {
-        const {
-          grossweight,
-          netweight,
-          cmdtprice,
-          cmdttotalprice,
-          unitprice,
-          frameWeight,
-          discount,
-          couponprice,
-          cmdtcount
-        } = this.weightForm;
-        const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-        if (val && patter.test(val) && val > frameWeight) {
-          const weighedNw = subtr(Number(val), frameWeight);
-          const weighedCp = accMull(weighedNw, unitprice);
-          const weighedCtp = subtr(
-            accMull(accMull(weighedCp, discount), cmdtcount),
-            couponprice
-          );
-          Object.assign(this.weightForm, {
-            weighedNw,
-            weighedCp,
-            weighedCtp,
-            adjustedprice: weighedCtp
-          });
-        } else {
-          Object.assign(this.weightForm, {
-            weighedNw: "",
-            weighedCp: "",
-            weighedCtp: "",
-            adjustedprice: ""
-          });
-        }
-      }, 400);
-    }
   },
   filters: {
     initTradestate(val) {
@@ -928,43 +893,88 @@ export default {
       });
       this.openWipe = true;
     },
-    handelGwTotalChange(val) {
-      const {
-        grossweight,
-        netweight,
-        cmdtprice,
-        cmdttotalprice,
-        unitprice,
-        frameWeight,
-        discount,
-        couponprice,
-        cmdtcount
-      } = this.weightForm;
-      const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
-      if (val && patter.test(val) && val > frameWeight) {
-        const weighedGw = accDiv(Number(val), cmdtcount);
-        const weighedNw = subtr(Number(val), frameWeight);
-        const weighedCp = accMull(weighedNw, unitprice);
-        const weighedCtp = subtr(
-          accMull(accMull(weighedCp, discount), cmdtcount),
-          couponprice
-        );
-        Object.assign(this.weightForm, {
-          weighedGw,
-          weighedNw,
-          weighedCp,
-          weighedCtp,
-          adjustedprice: weighedCtp
-        });
-      } else {
-        Object.assign(this.weightForm, {
-          weighedGw: "",
-          weighedNw: "",
-          weighedCp: "",
-          weighedCtp: "",
-          adjustedprice: ""
-        });
+    handelWeighedGwChange(val) {
+      if (this.timer) {
+        clearTimeout(this.timer);
       }
+      this.timer = setTimeout(() => {
+        const {
+          grossweight,
+          netweight,
+          cmdtprice,
+          cmdttotalprice,
+          unitprice,
+          frameWeight,
+          discount,
+          couponprice,
+          cmdtcount
+        } = this.weightForm;
+        const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+        if (val && patter.test(val) && val > frameWeight) {
+          const weighedNw = subtr(Number(val), frameWeight);
+          const weighedCp = accMull(weighedNw, unitprice);
+          const weighedCtp = subtr(
+            accMull(accMull(weighedCp, discount), cmdtcount),
+            couponprice
+          );
+          Object.assign(this.weightForm, {
+            weighedNw,
+            weighedCp,
+            weighedCtp,
+            adjustedprice: weighedCtp
+          });
+        } else {
+          Object.assign(this.weightForm, {
+            weighedNw: "",
+            weighedCp: "",
+            weighedCtp: "",
+            adjustedprice: ""
+          });
+        }
+      }, 400);
+    },
+    handelGwTotalChange(val) {
+      if (this.timer2) {
+        clearTimeout(this.timer2);
+      }
+      this.timer2 = setTimeout(() => {
+        const {
+          grossweight,
+          netweight,
+          cmdtprice,
+          cmdttotalprice,
+          unitprice,
+          frameWeight,
+          discount,
+          couponprice,
+          cmdtcount
+        } = this.weightForm;
+        const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+        if (val && patter.test(val) && val > frameWeight) {
+          const weighedGw = accDiv(Number(val), cmdtcount);
+          const weighedNw = subtr(weighedGw, frameWeight);
+          const weighedCp = accMull(weighedNw, unitprice);
+          const weighedCtp = subtr(
+            accMull(accMull(weighedCp, discount), cmdtcount),
+            couponprice
+          );
+          Object.assign(this.weightForm, {
+            weighedGw,
+            weighedNw,
+            weighedCp,
+            weighedCtp,
+            adjustedprice: weighedCtp
+          });
+        } else {
+          Object.assign(this.weightForm, {
+            weighedGw: "",
+            weighedNw: "",
+            weighedCp: "",
+            weighedCtp: "",
+            adjustedprice: ""
+          });
+        }
+      }, 400);
     },
     submitWipeForm(formName) {
       this.$refs[formName].validate(async valid => {

@@ -40,6 +40,7 @@ export default {
       fixedHeader: state => state.settings.fixedHeader,
       isReal: state => state.user.isReal,
       isOpenAccount: state => state.user.isOpenAccount,
+      isOpenAbcAccount: state => state.user.isOpenAbcAccount,
       roles: state => state.user.roles
     }),
     classObj() {
@@ -54,12 +55,13 @@ export default {
   created() {
     const isReal = Number(this.isReal);
     const isOpenAccount = this.isOpenAccount;
+    const isOpenAbcAccount = this.isOpenAbcAccount;
     const roles = this.roles;
     if (!roles.includes("admin")) {
       if (isReal === 1) {
         this._confirmModel("实名认证正在审核中，请等候。");
       } else if (isReal === 0 || isReal === 2) {
-        this._confirmModel("未实名认证或实名认证未通过。", "前往认证", () => {
+        this._confirmModel("未实名认证或实名认证未通过！", "前往认证", () => {
           this.$router.push({ path: "/real-authorize" });
         });
       } else if (isReal === 3) {
@@ -71,6 +73,16 @@ export default {
               this.$router.push({ path: "/account/list" });
             }
           );
+        } else {
+          if (isOpenAbcAccount !== true) {
+            this._confirmModel(
+              "农行收款账户需要必须开通！",
+              "开通农行",
+              () => {
+                this.$router.push({ path: "/account/list" });
+              }
+            );
+          }
         }
       }
     }
@@ -79,6 +91,7 @@ export default {
     handleClickOutside() {
       this.$store.dispatch("app/closeSideBar", { withoutAnimation: false });
     },
+
     _confirmModel(msg, confirmButtonText = "确定", confirmFn, cancelFn) {
       this.$confirm(msg, "系统提示", {
         confirmButtonText,
@@ -104,16 +117,19 @@ export default {
 <style lang="scss" scoped>
 @import "~@/assets/styles/mixin.scss";
 @import "~@/assets/styles/variables.scss";
+
 .app-wrapper {
   @include clearfix;
   position: relative;
   height: 100%;
   width: 100%;
+
   &.mobile.openSidebar {
     position: fixed;
     top: 0;
   }
 }
+
 .drawer-bg {
   background: #000;
   opacity: 0.3;
@@ -123,6 +139,7 @@ export default {
   position: absolute;
   z-index: 999;
 }
+
 .fixed-header {
   position: fixed;
   top: 0;
@@ -131,9 +148,11 @@ export default {
   width: calc(100% - #{$sideBarWidth});
   transition: width 0.28s;
 }
+
 .hideSidebar .fixed-header {
   width: calc(100% - 54px);
 }
+
 .mobile .fixed-header {
   width: 100%;
 }
