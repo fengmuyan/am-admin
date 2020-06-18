@@ -5,12 +5,13 @@
       size="mini"
       type="primary"
       style="position: absolute;top: -55px;left: 79px;"
+      v-if="!noEdit"
     >仓库中选择</el-button>
     <div class="edit-table">
-      <div class="table-box action-table" v-loading="loading">
+      <div :class="{'table-box':true, 'action-table':!noEdit}" v-loading="loading">
         <table cellpadding="0" cellspacing="0">
           <thead>
-            <th v-for="(item,index) in thData" :key="index" :width="item.width">
+            <th v-for="(item,index) in thData" v-if="!item.hidden" :key="index" :width="item.width">
               <span class="require-icon" v-if="item.isRequire === true">*</span>
               <i class="el-icon-edit-outline" v-if="item.isEdit === true"></i>
               {{item.name}}
@@ -18,7 +19,7 @@
           </thead>
           <tbody>
             <tr v-for="(item,index) in tableData" :key="index">
-              <td width="110" class="operate-btns">
+              <td width="110" class="operate-btns" v-if="!noEdit">
                 <i class="el-icon-remove" v-if="tableData.length!==1" @click="delItem(index)"></i>
                 <i class="el-icon-circle-plus" @click="addItem(index)"></i>
                 <i
@@ -34,6 +35,7 @@
               </td>
               <td
                 v-for="(v,i) in item.content"
+                v-if="!v.hidden"
                 :key="i"
                 :style="`width:${v.width}px;background-color: rgb(242, 242, 242);`"
               >
@@ -68,8 +70,8 @@
                     <el-option
                       v-for="(item,index) in v.inputOptions"
                       :key="index"
-                      :label="item.label"
-                      :value="item.value"
+                      :label="item.dictName"
+                      :value="item.dictCode"
                     ></el-option>
                   </el-select>
                   <el-input
@@ -83,9 +85,10 @@
                     style="width:97%"
                   >
                     <el-select
-                      v-model="v.selectVal"
+                      v-model="v.selectValue"
                       slot="append"
                       placeholder="请选择"
+                      @change="innerSelectChange(index,i)"
                       :disabled="item.isSent && v.sentAttr"
                     >
                       <el-option
@@ -100,8 +103,8 @@
                     v-if="v.canEdit && v.inputType === 6"
                     :disabled="item.isSent && v.sentAttr"
                     placeholder="试搜索：苹果 / pg"
-                    :filter-method="_dataFilter"
-                    :options="cateArr"
+                    :filter-method="v.dataFilterFn"
+                    :options="v.inputOptions"
                     @change="handelCascader($event,index,i)"
                     v-model="v.value"
                     filterable
@@ -125,6 +128,7 @@
             <tr>
               <td
                 v-for="(item,index) in thData"
+                v-if="!item.hidden"
                 :key="index"
                 :width="item.width"
                 style="padding:12px 0;height:39px"
@@ -134,8 +138,8 @@
         </table>
       </div>
     </div>
-    <!-- 添加或修改套餐组 -->
-    <el-dialog title="选择商品" :visible.sync="open" width="980px" custom-class="edit-table-dialog">
+
+    <!-- <el-dialog title="选择商品" :visible.sync="open" width="980px" custom-class="edit-table-dialog">
       <div style="min-height:400px">
         <div class="form-p">
           <el-form :model="form" ref="form" label-width="40px" :inline="true">
@@ -203,70 +207,37 @@
         <el-button @click="open = false">取 消</el-button>
         <el-button type="primary" @click="submitForm('form')">确 定</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
 <script>
 import { accAdd, subtr, accMull, accDiv, deepClone } from "@/utils";
-import { getProCate } from "@/api/product";
 export default {
   name: "edit-table",
   props: {
     tableInit: {
       type: Array,
       default() {
-        /* return [
-          {
-            cate: "02000020", //商品分类code
-            cateName: "橙橘柚柑 / 柑", //商品分类名称
-            name: "测试名称01", //商品名称
-            gongchang: "1", //工厂code
-            maichang: "测试卖场", //卖场
-            car: "测试车次", //车次
-            address: "1", //产地code
-            pinji: "1", //品级code
-            num: "10", //件数
-            weight: "100", //件重
-            weightUnit: "公斤", //件重单位
-            price: "20.32", //单价
-            priceUnit: "越盾", //单价单位
-            huilv: "1.23" //汇率
-          },
-          {
-            cate: "02000020",
-            cateName: "橙橘柚柑 / 柑",
-            name: "测试名称02",
-            gongchang: "2",
-            maichang: "测试卖场02",
-            car: "测试车次02",
-            address: "2",
-            pinji: "2",
-            num: "15",
-            weight: "106.32",
-            weightUnit: "斤",
-            price: "30.32",
-            priceUnit: "泰铢",
-            huilv: "1.03"
-          },
-          {
-            cate: "02000020",
-            cateName: "橙橘柚柑 / 柑",
-            name: "测试名称03",
-            gongchang: "2",
-            maichang: "测试卖场03",
-            car: "测试车次03",
-            address: "2",
-            pinji: "2",
-            num: "15",
-            weight: "106.32",
-            weightUnit: "斤",
-            price: "56.32",
-            priceUnit: "泰铢",
-            huilv: "1.13"
-          }
-        ]; */
         return [];
+      }
+    },
+    modelTableData: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    thData: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    noEdit: {
+      type: Boolean,
+      default() {
+        return false;
       }
     }
   },
@@ -276,7 +247,7 @@ export default {
       if (val.inputType === 6 || val.inputType === 2 || val.inputType === 7) {
         return val.labelValue;
       } else if (val.inputType === 5) {
-        return `${val.value}${val.selectVal}`;
+        return `${val.value}${val.selectLabelValue}`;
       } else {
         return val.value;
       }
@@ -285,311 +256,17 @@ export default {
 
   data() {
     return {
-      //表格内容模板数据
-      modelTableData: {
-        editAction: true,
-        isSelected: false,
-        isSent: false,
-        content: [
-          {
-            idStr: "", //对应唯一标识（删除）
-            key: "order",
-            value: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 80, //占用宽度
-            noSubmit: true
-          },
-          {
-            key: "procode",
-            value: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 100 //占用宽度
-          },
-          {
-            key: "cate", //对应键值
-            value: "", //val值
-            labelValue: "",
-            placeholder: "商品分类", //占位符
-            canEdit: true, //是否可编辑
-            validate: false, //是否验证通过（默认false）
-            validateType: 1, //验证类型（1：不能为空，2：不能为空且遵守正则，3：可以为空，不为空的时候须遵守正则）
-            inputType: 6, //元素类型（1：select选择框，2：input输入框，3：radio单选框，4：checkBox多选框，5：input + select，6：多联选择，7：总重，总价带单位，8：可供匹配的inout）
-            width: 170,
-            sentAttr: true, //是否仓库中属性
-            errMsg: "* 必填项不能为空。" //错误提示
-          },
-          {
-            key: "name",
-            value: "",
-            placeholder: "名称",
-            canEdit: true,
-            validate: false,
-            validateType: 1,
-            inputType: 1,
-            maxLen: 30,
-            width: 160, //占用宽度
-            sentAttr: true, //是否仓库中属性
-            errMsg: "* 必填项不能为空。"
-          },
-          {
-            key: "gongchang",
-            value: "",
-            labelValue: "",
-            placeholder: "工厂",
-            canEdit: true,
-            noValidate: true, //不做验证
-            inputType: 1,
-            maxLen: 30
-          },
-          {
-            key: "maichang",
-            value: "",
-            placeholder: "卖场",
-            canEdit: true,
-            noValidate: true, //不做验证
-            inputType: 1,
-            maxLen: 30
-          },
-          {
-            key: "car",
-            value: "",
-            placeholder: "车次",
-            canEdit: true,
-            noValidate: true, //不做验证
-            inputType: 1,
-            maxLen: 30
-          },
-          {
-            key: "carNum",
-            value: "",
-            placeholder: "车牌号",
-            canEdit: true,
-            validate: false,
-            validateType: 1,
-            inputType: 1,
-            maxLen: 30,
-            errMsg: "* 必填项不能为空。"
-          },
-          {
-            key: "carPhone",
-            value: "",
-            placeholder: "司机联系方式",
-            canEdit: true,
-            validate: false,
-            validateType: 2,
-            pattern: "^[0-9]\\d{6,15}$",
-            inputType: 1,
-            maxLen: 15,
-            width: 150, //占用宽度
-            errMsg: "* 联系电话格式不正确！"
-          },
-          {
-            key: "address",
-            value: "",
-            labelValue: "",
-            placeholder: "产地",
-            canEdit: true,
-            validate: false,
-            validateType: 1,
-            inputType: 2,
-            inputOptions: [
-              {
-                value: "1",
-                label: "越南"
-              },
-              {
-                value: "2",
-                label: "老挝"
-              }
-            ],
-            sentAttr: true, //是否仓库中属性
-            errMsg: "* 必填项不能为空。"
-          },
-          {
-            key: "pinji",
-            value: "",
-            labelValue: "",
-            placeholder: "品级",
-            canEdit: true,
-            validate: false,
-            validateType: 1,
-            inputType: 2,
-            inputOptions: [
-              {
-                value: "1",
-                label: "特级"
-              },
-              {
-                value: "2",
-                label: "一级"
-              }
-            ],
-            sentAttr: true, //是否仓库中属性
-            errMsg: "* 必填项不能为空。"
-          },
-          {
-            key: "num",
-            value: "",
-            placeholder: "件数",
-            canEdit: true,
-            validate: false,
-            validateType: 2,
-            pattern: "^[1-9]\\d*$",
-            inputType: 1,
-            maxLen: 10,
-            errMsg: "* 件数为大于0的整数。"
-          },
-          {
-            key: "weight",
-            value: "",
-            placeholder: "件重",
-            canEdit: true,
-            validate: false,
-            validateType: 2,
-            pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
-            inputType: 5,
-            selectVal: "公斤",
-            selectOptions: [
-              {
-                value: "公斤",
-                label: "公斤"
-              },
-              {
-                value: "斤",
-                label: "斤"
-              }
-            ],
-            maxLen: 10,
-            width: 160,
-            sentAttr: true, //是否仓库中属性
-            errMsg: "* 件重为大于0且至多两位小数。"
-          },
-          {
-            key: "tWeight",
-            value: "",
-            inputType: 7,
-            labelValue: "",
-            noValidate: true, //不做验证
-            width: 70, //占用宽度
-            canEdit: false,
-            noSubmit: true
-          },
-          {
-            key: "price",
-            value: "",
-            placeholder: "单价",
-            canEdit: true,
-            validate: false,
-            validateType: 2,
-            pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
-            inputType: 5,
-            selectVal: "越盾",
-            selectOptions: [
-              {
-                value: "越盾",
-                label: "越盾"
-              },
-              {
-                value: "泰铢",
-                label: "泰铢"
-              }
-            ],
-            maxLen: 10,
-            width: 160,
-            errMsg: "* 单价为大于0且至多两位小数"
-          },
-          {
-            key: "purPrice",
-            value: "",
-            inputType: 7,
-            labelValue: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 90, //占用宽度
-            noSubmit: true
-          },
-          {
-            key: "huilv",
-            value: "",
-            placeholder: "当天汇率",
-            canEdit: true,
-            validate: false,
-            validateType: 3,
-            pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
-            inputType: 1,
-            maxLen: 10,
-            errMsg: "* 汇率为大于0且至多两位小数。"
-          },
-          {
-            key: "purPriceYuan",
-            value: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 90, //占用宽度
-            noSubmit: true
-          }
-        ]
-      },
-      //表格标题模板数据
-      thData: [
-        { name: "", width: 120 },
-        { name: "序号", width: 80, value: "合计" },
-        { name: "商品编号", width: 100 },
-        { name: "商品分类", isEdit: true, isRequire: true, width: 170 },
-        { name: "名称", isEdit: true, isRequire: true, width: 160 },
-        { name: "工厂", isEdit: true },
-        { name: "卖场", isEdit: true },
-        { name: "车次", isEdit: true },
-        { name: "车牌号", isEdit: true, isRequire: true },
-        { name: "司机电话", isEdit: true, isRequire: true, width: 150 },
-        { name: "产地", isEdit: true, isRequire: true },
-        { name: "品级", isEdit: true, isRequire: true },
-        { name: "件数", isEdit: true, isRequire: true, key: "num", value: "0" },
-        { name: "件重", isEdit: true, isRequire: true, width: 160 },
-        { name: "总重", width: 70, key: "tWeight", value: "" },
-        { name: "单价", isEdit: true, isRequire: true, width: 160 },
-        { name: "总价/外汇", width: 90, key: "purPrice", value: "" },
-        { name: "当天汇率", isEdit: true },
-        { name: "总价/元", width: 90, key: "purPriceYuan", value: "" }
-      ],
-      errMsgArr: [],
-      tableData: [],
-      cateArr: [],
-      subData: [],
-      proList: [],
-      selectSent: [],
       loading: false,
-      open: false,
-      form: {
-        proName: ""
-      }
+      errMsgArr: [],
+      tableData: []
     };
   },
 
   created() {
-    this.cateList();
     this._initTableData();
   },
 
   methods: {
-    async cateList() {
-      try {
-        const {
-          data: {
-            cmdtClassTree: { children }
-          },
-          code
-        } = await getProCate({});
-        if (code === 200) {
-          this.cateArr = this._initDataArr(this._delEmptyVal(children));
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    },
-
     /* 表格新增一行 */
     addItem(index) {
       const model = deepClone(this.modelTableData);
@@ -672,7 +349,14 @@ export default {
       const item = this.tableData[index].content;
       item[i].validate = false;
       item[i].labelValue = item[i].inputOptions.find(v => {
-        return v.value === item[i].value;
+        return v.dictCode === item[i].value;
+      }).dictName;
+    },
+
+    innerSelectChange(index, i) {
+      const item = this.tableData[index].content;
+      item[i].selectLabelValue = item[i].selectOptions.find(v => {
+        return v.value === item[i].selectValue;
       }).label;
     },
 
@@ -772,6 +456,24 @@ export default {
       fn.call(this, this._deinitData(this.tableData).length > 0);
     },
 
+    validateRate(fn) {
+      const rateArr = this.tableData
+        .filter(v => {
+          return v.isSelected === true;
+        })
+        .map(item => {
+          return item.content.find(v => {
+            return v.key === "rate";
+          }).value;
+        });
+      fn.call(
+        this,
+        rateArr.filter(k => {
+          return k !== "" && k !== undefined;
+        }).length > 0
+      );
+    },
+
     /* 添加仓库中项 */
     _addSentItem(operateItem) {
       operateItem.forEach((v, i) => {
@@ -820,16 +522,16 @@ export default {
         return item.key === "num";
       });
       const idxWeight = operateItem.content.findIndex(item => {
-        return item.key === "weight";
+        return item.key === "unitWeight";
       });
       const idxTWeight = operateItem.content.findIndex(item => {
         return item.key === "tWeight";
       });
       const idxPrice = operateItem.content.findIndex(item => {
-        return item.key === "price";
+        return item.key === "unitPrice";
       });
       const idxHuilv = operateItem.content.findIndex(item => {
-        return item.key === "huilv";
+        return item.key === "rate";
       });
       const idxPurPrice = operateItem.content.findIndex(item => {
         return item.key === "purPrice";
@@ -843,14 +545,14 @@ export default {
       );
       operateItem.content[
         idxTWeight
-      ].labelValue = `${operateItem.content[idxTWeight].value}${operateItem.content[idxWeight].selectVal}`;
+      ].labelValue = `${operateItem.content[idxTWeight].value}`;
       operateItem.content[idxPurPrice].value = accMull(
         Number(operateItem.content[idxPrice].value),
         Number(operateItem.content[idxTWeight].value)
       );
       operateItem.content[
         idxPurPrice
-      ].labelValue = `${operateItem.content[idxPurPrice].value}${operateItem.content[idxPrice].selectVal}`;
+      ].labelValue = `${operateItem.content[idxPurPrice].value}`;
       if (operateItem.content[idxHuilv].value !== "") {
         operateItem.content[idxPurPriceYuan].value = accDiv(
           Number(operateItem.content[idxPurPrice].value),
@@ -869,8 +571,8 @@ export default {
         })
         .map(k => {
           return k.content.find(j => {
-            return j.key === "weight";
-          }).selectVal;
+            return j.key === "unitWeight";
+          }).selectLabelValue;
         });
       const priceUnitArr = this.tableData
         .filter(v => {
@@ -878,8 +580,8 @@ export default {
         })
         .map(k => {
           return k.content.find(j => {
-            return j.key === "price";
-          }).selectVal;
+            return j.key === "unitPrice";
+          }).selectLabelValue;
         });
       const weightUnitArrInit = Array.from(new Set(weightUnitArr));
       const priceUnitArrInit = Array.from(new Set(priceUnitArr));
@@ -905,17 +607,11 @@ export default {
             }, 0);
           if (item.key === "tWeight") {
             Object.assign(item, {
-              value:
-                weightUnitArrInit.length === 1
-                  ? `${value}${weightUnitArrInit[0]}`
-                  : ""
+              value: weightUnitArrInit.length === 1 ? `${value}` : ""
             });
           } else if (item.key === "purPrice") {
             Object.assign(item, {
-              value:
-                priceUnitArrInit.length === 1
-                  ? `${value}${priceUnitArrInit[0]}`
-                  : ""
+              value: priceUnitArrInit.length === 1 ? `${value}` : ""
             });
           } else {
             Object.assign(item, {
@@ -940,14 +636,10 @@ export default {
           modelData.content.forEach(k => {
             k.value = v[k.key] || "";
             if (k.inputType === 5) {
-              k.selectVal = v[`${k.key}Unit`];
-            } else if (k.inputType === 2) {
-              const selectItem = k.inputOptions.find(j => {
-                return j.value === v[k.key];
-              });
-              k.labelValue = selectItem ? selectItem.label : "";
-            } else if (k.inputType === 6) {
-              k.labelValue = v[`${k.key}Name`];
+              k.selectValue = v[k.selectKey] || v[k.selectLabelKey];
+              k.selectLabelValue = v[k.selectLabelKey];
+            } else if (k.inputType === 2 || k.inputType === 6) {
+              k.labelValue = v[k.labelKey];
             }
           });
           modelData.content[0].value = i + 1;
@@ -972,8 +664,16 @@ export default {
             })
             .reduce((pre, j) => {
               Object.assign(pre, { [j.key]: j.value });
+              if (j.inputType === 2) {
+                Object.assign(pre, {
+                  [`${j.labelKey}`]: j.labelValue
+                });
+              }
               if (j.inputType === 5) {
-                Object.assign(pre, { [`${j.key}Unit`]: j.selectVal });
+                Object.assign(pre, {
+                  [`${j.selectKey}`]: j.selectValue,
+                  [`${j.selectLabelKey}`]: j.selectLabelValue
+                });
               }
               return pre;
             }, {});
@@ -1045,54 +745,6 @@ export default {
         pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
       }
       return pwd;
-    },
-
-    /* 类目搜索过滤 */
-    _dataFilter(node, keyword) {
-      if (
-        node.data.enlabel.includes(keyword) ||
-        node.data.enlabel.includes(keyword.toLowerCase()) ||
-        node.data.label.includes(keyword)
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-
-    /* 递归查找类目中的标签项添加标签数组 */
-    _initDataArr(arr) {
-      return arr.map(item => {
-        const idx =
-          item.children &&
-          item.children.findIndex(v => {
-            return v.istag === "Y";
-          });
-        if (idx === null) {
-          return item;
-        }
-        if (idx !== -1) {
-          const tagArr = item.children.map(j => {
-            return Object.assign(j, { inputVal: "" });
-          });
-          return Object.assign(item, { tagArr, children: null });
-        } else {
-          this._initDataArr(item.children);
-          return item;
-        }
-      });
-    },
-
-    /* children数组为空赋值null*/
-    _delEmptyVal(arr) {
-      return arr.map(item => {
-        if (item.children && item.children.length === 0) {
-          return Object.assign(item, { children: null });
-        } else {
-          this._delEmptyVal(item.children);
-          return item;
-        }
-      });
     }
   }
 };

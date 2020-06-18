@@ -57,6 +57,7 @@ export default {
         "agent-pro-qs/:code",
         "sent-list/:code",
         "sent-self-list/:code",
+        "edit-order/:code",
       ]
     }
   },

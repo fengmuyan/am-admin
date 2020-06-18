@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="edit-table-item">
-      <div :class="{'table-box':true,'action-table':haveAction}" v-loading="loading">
+      <div :class="{'table-box':true}" v-loading="loading">
         <table cellpadding="0" cellspacing="0">
           <thead>
-            <th v-for="(item,index) in thData" :key="index" :width="item.width">
+            <th v-for="(item,index) in thData" v-if="!item.hidden" :key="index" :width="item.width">
               <span class="require-icon" v-if="item.isRequire === true">*</span>
               <i class="el-icon-edit-outline" v-if="item.isEdit === true"></i>
               {{item.name}}
@@ -12,9 +12,13 @@
           </thead>
           <tbody>
             <tr v-for="(item,index) in tableData" :key="index">
-              <td width="110" class="operate-btns" v-if="haveAction">
+              <td width="110" class="operate-btns" v-if="!noEdit">
                 <i class="el-icon-remove" v-if="tableData.length!==1" @click="delItem(index)"></i>
-                <i class="el-icon-circle-plus" @click="addItem(index)"></i>
+                <i
+                  class="el-icon-circle-plus"
+                  v-if="tableData.length !== maxLen"
+                  @click="addItem(index)"
+                ></i>
                 <i
                   class="el-icon-success"
                   @click="updateItem(index)"
@@ -50,15 +54,54 @@
                     v-on:input="handleInput(index,i)"
                     style="width:95%"
                   ></el-input>
-                  <el-checkbox
+                  <el-select
                     v-if="v.canEdit && v.inputType === 2"
                     v-model="v.value"
-                    :disabled="v.disabled"
+                    :placeholder="v.placeholder"
+                    :class="{'err-validate':v.validate}"
+                    @change="selectChange(index,i)"
+                    style="width:97%"
+                  >
+                    <el-option
+                      v-for="(item,index) in v.inputOptions"
+                      :key="index"
+                      :label="item.cname"
+                      :value="item.ccode"
+                    ></el-option>
+                  </el-select>
+                  <el-checkbox
+                    v-if="v.canEdit && v.inputType === 3"
+                    v-model="v.value"
+                    @change="radioChange($event,index,i)"
                   >已结算</el-checkbox>
+                  <el-input
+                    v-if="v.canEdit && v.inputType === 5"
+                    v-model="v.value"
+                    :disabled="item.isSent && v.sentAttr"
+                    :placeholder="v.placeholder"
+                    :maxlength="v.maxLen"
+                    :class="{'input-with-select':true,'err-validate':v.validate}"
+                    v-on:input="handleInput(index,i)"
+                    style="width:97%"
+                  >
+                    <el-select
+                      v-model="v.selectValue"
+                      slot="append"
+                      placeholder="请选择"
+                      @change="innerSelectChange(index,i)"
+                    >
+                      <el-option
+                        v-for="(item,index) in v.selectOptions"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      ></el-option>
+                    </el-select>
+                  </el-input>
                 </div>
                 <div v-else>
                   <span>
-                    {{v.value}}
+                    {{v|inputTypeInit}}
                     <i
                       class="el-icon-success"
                       v-if="item.isSelected && i === 0"
@@ -71,6 +114,7 @@
             <tr>
               <td
                 v-for="(item,index) in thData"
+                v-if="!item.hidden"
                 :key="index"
                 :width="item.width"
                 style="padding:12px 0;height:39px"
@@ -84,7 +128,7 @@
 </template>
 
 <script>
-import { accAdd, subtr, accMull, accDiv, deepClone } from "@/utils";
+import { accAdd, deepClone } from "@/utils";
 export default {
   name: "edit-table-item",
   props: {
@@ -94,83 +138,54 @@ export default {
         return [];
       }
     },
-    haveAction: {
+    modelTableData: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    thData: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    noEdit: {
       type: Boolean,
       default() {
         return false;
+      }
+    },
+    maxLen: {
+      type: Number,
+      default() {
+        return 20;
+      }
+    }
+  },
+
+  filters: {
+    inputTypeInit(val) {
+      if (
+        val.inputType === 6 ||
+        val.inputType === 2 ||
+        val.inputType === 7 ||
+        val.inputType === 3
+      ) {
+        return val.labelValue;
+      } else if (val.inputType === 5) {
+        return `${val.value}${val.selectLabelValue}`;
+      } else {
+        return val.value;
       }
     }
   },
 
   data() {
     return {
-      //表格内容模板数据
-      modelTableData: {
-        editAction: true,
-        isSelected: false,
-        content: [
-          {
-            idStr: "", //对应唯一标识（删除）
-            key: "order",
-            value: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 80, //占用宽度
-            noSubmit: true
-          },
-          {
-            key: "company",
-            value: "",
-            canEdit: false,
-            noValidate: true, //不做验证
-            width: 150
-          },
-          {
-            key: "shouldPay",
-            value: "",
-            canEdit: false,
-            noValidate: true //不做验证
-          },
-          {
-            key: "name",
-            value: "",
-            placeholder: "已付",
-            canEdit: true,
-            validate: false,
-            validateType: 2,
-            pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
-            inputType: 1,
-            maxLen: 30,
-            errMsg: "* 必填项不能为空。"
-          },
-          {
-            key: "isDone",
-            value: "",
-            canEdit: true,
-            inputType: 2,
-            noValidate: true //不做验证
-          }
-        ]
-      },
-      //表格标题模板数据
-      thData: [
-        { name: "序号", width: 80, value: "合计" },
-        { name: "打税公司", width: 150 },
-        { name: "应付", key: "shouldPay", value: "" },
-        {
-          name: "已付",
-          isEdit: true,
-          isRequire: true,
-          key: "name",
-          value: ""
-        },
-        { name: "打税是否已结算", isEdit: true }
-      ],
       loading: false,
       errMsgArr: [],
-      tableData: [],
-      cateArr: [],
-      subData: []
+      tableData: []
     };
   },
 
@@ -258,6 +273,26 @@ export default {
       this.subData = this._deinitData(this.tableData);
     },
 
+    radioChange(val, index, i) {
+      const item = this.tableData[index].content;
+      item[i].labelValue = val === true ? "已结算" : "未结算";
+    },
+
+    selectChange(index, i) {
+      const item = this.tableData[index].content;
+      item[i].validate = false;
+      item[i].labelValue = item[i].inputOptions.find(v => {
+        return v.ccode === item[i].value;
+      }).cname;
+    },
+
+    innerSelectChange(index, i) {
+      const item = this.tableData[index].content;
+      item[i].selectLabelValue = item[i].selectOptions.find(v => {
+        return v.value === item[i].selectValue;
+      }).label;
+    },
+
     /* 根据项标识删除项 */
     _delItem(operateItem) {
       const idStr = this.tableData.findIndex(item => {
@@ -312,6 +347,14 @@ export default {
           modelData.content[0].idStr = this._generateStr(15);
           modelData.content.forEach(k => {
             k.value = v[k.key] || "";
+            if (k.inputType === 5) {
+              k.selectValue = v[k.selectKey] || v[k.selectLabelKey];
+              k.selectLabelValue = v[k.selectLabelKey];
+            } else if (k.inputType === 2) {
+              k.labelValue = v[k.labelKey];
+            } else if (k.inputType === 3) {
+              k.labelValue = v[k.key] === true ? "已结算" : "未结算";
+            }
           });
           modelData.content[0].value = i + 1;
           this.tableData.push(modelData);

@@ -49,14 +49,6 @@
           </template>
         </el-table-column>
       </el-table>
-
-      <!-- <pagination
-        v-show="total>0"
-        :total="total"
-        :page.sync="pageNum"
-        :limit.sync="pageSize"
-        @pagination="getList"
-      /> -->
     </div>
 
     <el-dialog title="新增用户" :visible.sync="open" width="500px">

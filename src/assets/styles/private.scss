@@ -2177,7 +2177,6 @@
 
     table tbody {
       display: block;
-      overflow-y: scroll;
       overflow-x: hidden;
     }
 
@@ -2186,10 +2185,6 @@
       display: table;
       width: 100%;
       table-layout: fixed;
-    }
-
-    table thead {
-      width: calc(100% - 1.25em);
     }
 
     .tip-info-table {
@@ -2220,7 +2215,7 @@
     .input-with-select {
       .el-input-group__append {
         background-color: #fff;
-        width: 60px;
+        width: 72px;
         padding: 0 12px;
 
         .el-input__inner {
@@ -2264,13 +2259,6 @@
     table {
       min-width: 800px;
     }
-
-    table thead,
-    table tr {
-      border-bottom: none;
-      border-top: 1px solid rgb(220, 220, 220);
-      border-right: 1px solid rgb(220, 220, 220);
-    }
   }
 }
 
@@ -2295,6 +2283,7 @@
 
   .imgs-item {
     padding: 5px 10px;
+
     .el-form-item__content {
       display: flex;
       flex-direction: row;
@@ -2305,8 +2294,25 @@
     }
   }
 
-  .btns{
+  .btns {
     padding: 15px 30px;
     text-align: right;
+  }
+
+  .status {
+    color: #14cfa0;
+    font-size: 28px;
+    margin-right: 20px;
+  }
+}
+
+.purchase-list {
+  .el-table .cell {
+    line-height: 35px;
+  }
+
+  .table-p th,
+  .table-p td {
+    padding: 4px 0;
   }
 }
