@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 获取仓库中的商品
+// 获取仓库中的商品（全部）
 export function getStoreCmdtList(data) {
   return request({
     url: '/god/rt/storeCmdtList',
@@ -8,6 +8,16 @@ export function getStoreCmdtList(data) {
     data
   })
 }
+
+// 获取仓库中的商品（分页）
+export function getStorePageCmdtList(data) {
+  return request({
+    url: '/god/rt/storePageCmdtList',
+    method: 'post',
+    data
+  })
+}
+
 
 // 获取字典（产地，品级）列表
 export function getDictList(data) {
@@ -128,4 +138,57 @@ export function handelPurListExport(data) {
   })
 }
 
+// 采购单税费补充初始化
+export function handelTaxInit(data) {
+  return request({
+    url: '/god/rt/modifyTaxInit',
+    method: 'post',
+    data
+  })
+}
 
+// 采购单税费补充
+export function handelTax(data) {
+  return request({
+    url: '/god/rt/modifyTax',
+    method: 'post',
+    data
+  })
+}
+
+// 获取产品列表
+export function getProductList(data) {
+  return request({
+    url: '/god/rt/publish/productList',
+    method: 'post',
+    data
+  })
+}
+
+// 商品发布初始化
+export function handelPublishInit(data) {
+  return request({
+    url: '/god/rt/publish/init',
+    method: 'post',
+    data
+  })
+}
+
+// 商品发布操作
+export function handelPublish(formData) {
+  const data = { formData, $_isFormData: true }
+  return request({
+    url: '/god/rt/publish/rtPublish',
+    method: 'post',
+    data
+  })
+}
+
+// 修改库存
+export function handelEditStore(data) {
+  return request({
+    url: '/god/rt/modifyStoreNum',
+    method: 'post',
+    data
+  })
+}

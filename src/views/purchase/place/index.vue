@@ -9,6 +9,7 @@
       <el-table v-loading="loading" :data="gradeList">
         <el-table-column label="序号" prop="order" width="80" />
         <el-table-column label="产地名称" prop="dictName" />
+        <el-table-column label="排序" prop="serial" />
         <el-table-column label="创建日期" prop="createtime" />
         <el-table-column label="操作" align="center" width="400">
           <template slot-scope="scope">
@@ -29,6 +30,9 @@
         <el-form-item label="产地名称" prop="dictName">
           <el-input v-model="form.dictName" placeholder="请输入产地名称" />
         </el-form-item>
+        <el-form-item label="排序" prop="serial">
+          <el-input v-model="form.serial" placeholder="请输入排序序号" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="open = false">取 消</el-button>
@@ -44,6 +48,13 @@ import { getDictList, handelDelDict, handelSaveDict } from "@/api/purchase";
 export default {
   mixins: [minHeightMix],
   data() {
+    const validateOrder = (rule, value, callback) => {
+      if (value === "" || /^[0-9]*$/.test(value)) {
+        callback();
+      } else {
+        callback(new Error("排序序号为数字！"));
+      }
+    };
     return {
       loading: false,
       loadingForm: false,
@@ -52,12 +63,14 @@ export default {
       form: {
         uid: undefined,
         typeCode: 1,
-        dictName: ""
+        dictName: "",
+        serial: ""
       },
       formRules: {
         dictName: [
           { required: true, message: "产地名称不能为空", trigger: "blur" }
-        ]
+        ],
+        serial: [{ validator: validateOrder, trigger: "blur" }]
       }
     };
   },
@@ -98,7 +111,8 @@ export default {
       this.title = "修改产地";
       Object.assign(this.form, {
         uid: item.uid,
-        dictName: item.dictName
+        dictName: item.dictName,
+        serial: item.serial
       });
       await this.$nextTick();
       this.open = true;

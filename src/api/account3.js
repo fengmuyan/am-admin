@@ -9,7 +9,8 @@ export function getAccountPass() {
 }
 
 // 开通二级账户
-export function createAccount(data = {}) {
+export function createAccount(formData) {
+  const data = { formData, $_isFormData: true }
   return request({
     url: '/god/account/reg',
     method: 'post',

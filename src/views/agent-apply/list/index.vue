@@ -116,7 +116,7 @@
             @change="thearchyChange"
           >
             <el-option
-              v-for="(item,index) in shipperList"
+              v-for="item in shipperList"
               :key="item.guid"
               :label="item.thearchyname"
               :value="item.guid"
@@ -155,17 +155,6 @@ import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
-    const validateTel = (rule, value, callback) => {
-      console.log(value);
-      if (value === "" || value === undefined) {
-        callback();
-      } else {
-        if (!/^1[345678]\d{9}$/.test(value)) {
-          callback(new Error("请输入正确的手机号"));
-        }
-        callback();
-      }
-    };
     return {
       loading: false,
       formShow: true,

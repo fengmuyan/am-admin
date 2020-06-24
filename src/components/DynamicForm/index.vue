@@ -59,6 +59,9 @@ export default {
             .findIndex(item => item.values.length === 0) === -1;
         this.$emit("table-show", isTable);
       }
+      if (Number(type) === 1) {
+        this.$emit("checkbox", value);
+      }
       this.$emit("input", value);
     },
 

@@ -10,7 +10,7 @@
         <el-table-column label="用户编号" prop="userId" width="80" />
         <el-table-column label="用户名称" prop="userName" />
         <el-table-column label="用户昵称" prop="nickName" />
-        <el-table-column label="角色" prop="roleNames"/>
+        <el-table-column label="角色" prop="roleNames" />
         <el-table-column label="状态" prop="status" width="80">
           <template slot-scope="scope">
             <el-switch
@@ -63,7 +63,7 @@
           <el-input v-model="userForm.nickName" placeholder="请输入用户名称" />
         </el-form-item>
         <el-form-item label="用户角色" prop="roleIds">
-          <el-select v-model="userForm.roleIds" multiple style="width:340px" placeholder="请选择">
+          <el-select v-model="userForm.roleIds" multiple style="width:320px" placeholder="请选择">
             <el-option
               v-for="item in roleOptions"
               :key="item.roleId"
@@ -87,7 +87,12 @@
         label-width="110px"
       >
         <el-form-item label="用户名称" prop="userName">
-          <el-input v-model="userEditForm.userName" style="width:320px" disabled placeholder="请输入用户名称" />
+          <el-input
+            v-model="userEditForm.userName"
+            style="width:320px"
+            disabled
+            placeholder="请输入用户名称"
+          />
         </el-form-item>
         <el-form-item label="用户昵称" prop="nickName">
           <el-input v-model="userEditForm.nickName" style="width:320px" placeholder="请输入用户名称" />
@@ -125,7 +130,7 @@
 import { addUser, getUserList, getRoleList } from "@/api/user";
 import { delUser, resetUserPwd, changeUserStatus } from "@/api/system/user";
 import { deepClone } from "@/utils";
-import minHeightMix from '@/mixins/minHeight'
+import minHeightMix from "@/mixins/minHeight";
 export default {
   mixins: [minHeightMix],
   data() {
@@ -233,12 +238,21 @@ export default {
         formName === "userForm"
           ? deepClone(this.userForm)
           : deepClone(this.userEditForm);
+
       this.$refs[formName].validate(async valid => {
         if (valid) {
           try {
+            const roleNames = data.roleIds
+              .map(v => {
+                return this.roleOptions.find(k => {
+                  return k.roleId === v;
+                }).roleName;
+              })
+              .join(",");
             const { code, msg } = await addUser(
               Object.assign(data, {
-                roleIds: data.roleIds.join(",")
+                roleIds: data.roleIds.join(","),
+                roleNames
               })
             );
             this.open = false;

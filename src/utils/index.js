@@ -211,7 +211,6 @@ export function deepClone(source) {
   return targetObj
 }
 
-
 /**
  * @param {Array} arr
  * @returns {Array}
@@ -354,12 +353,20 @@ export function toCombination(sourceList) {
     { key: "stockNums", name: "库存", values: "", unit: "", validate: false, validateType: "integer" },
     { key: "salequantity", name: "起售数量", values: "1", unit: "", validate: false, validateType: "integer" },
     { key: "title", name: "标题", values: "", unit: "", validate: false, validateType: "text" },
-    { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" }]
+    { key: "feature", name: "特色描述", values: "", validate: false, validateType: "text" },
+    { key: "rtcmdtcode", name: "采购发布提交", values: "", validate: true, validateType: "text", noSubmit: true, hidden: true }]
   sourceList.forEach(function (n) {
     let items = n.values || [];
     let cloneRangeList = deepClone(rangeList);
     rangeList = [];
     items.forEach(function (item) {
+      //采购发布多传参数，并且库存带过来
+      if (item.rtcmdtcode !== "") {
+        input[2].values = item.rtstorenum;
+        input[6].values = item.rtcmdtcode;
+        input[6].noSubmit = false;
+      }
+
       let itemId = item.itemId;
       let itemKey = item.itemKey;
       let cloneInput = deepClone(input)
@@ -437,7 +444,6 @@ export function setRowSpan(rangeList) {
   })
 }
 
-
 /**
  * @desc 动态表格提交数据处理（拼装哈希提交数据）
  * @param {Array} original 动态表单原始数据
@@ -485,7 +491,9 @@ export function setTableSubData(original, present, timeIdData) {
         dataArr.push(cloneData[i]);
       }
     }
-    const inputItemVal = item.input.reduce((pre, item) => {
+    const inputItemVal = item.input.filter(s => {
+      return s.noSubmit !== true
+    }).reduce((pre, item) => {
       Object.assign(pre, { [item.key]: item.values })
       return pre;
     }, {})
@@ -642,6 +650,7 @@ export function _fomatFloat(num, n) {
   }
   return Number(s);
 }
+
 /**
  * @desc 解决精度问题返回四舍五入两位小数（相除）
  * @param {Number} arg1 符号左侧参数

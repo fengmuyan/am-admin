@@ -142,7 +142,7 @@ export default {
 
     handleEdit(item) {
       const { producode, uid } = item;
-      const params = window.btoa(`${item.producode}-${item.uid}`);
+      const params = window.btoa(`${item.producode}-${item.uid}-${item.isRt}`);
       this.$router.push({
         path: `/publish/detail/${params}`
       });
@@ -163,6 +163,7 @@ export default {
       }).then(() => {
         let formData = new FormData();
         formData.append("moduleNum", "3");
+        formData.append("isRt", item.isRt);
         formData.append("producode", item.producode);
         formData.append("uid", item.uid);
         formData.append("invoice", item.invoice);
@@ -182,7 +183,7 @@ export default {
           this.getList();
         }
       } catch (err) {
-        this.loading = true;
+        this.loading = false;
         console.log(err);
       }
     },

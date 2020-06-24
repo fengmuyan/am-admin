@@ -2139,7 +2139,6 @@
 
   .table-box {
     table {
-      min-width: 2180px;
 
       td,
       th {
@@ -2314,5 +2313,125 @@
   .table-p th,
   .table-p td {
     padding: 4px 0;
+  }
+}
+
+.pur-publish {
+  .block {
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    margin-bottom: 20px;
+
+    h4 {
+      width: 100%;
+      border-bottom: 1px solid #ddd;
+      height: 40px;
+      line-height: 40px;
+      margin: 0;
+      margin-bottom: 20px;
+    }
+
+    .upload {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .editor-item {
+      margin-bottom: 70px;
+
+      .avatar-uploader {
+        display: none;
+      }
+
+      .el-form-item__error {
+        padding-top: 50px;
+      }
+    }
+
+    .el-input .el-input__count {
+      color: rgb(230, 230, 230) !important;
+    }
+
+    .imgs-item {
+      .el-form-item__content {
+        display: flex;
+        flex-direction: row;
+
+        .uploadImg {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .img-loading-box {
+      margin-bottom: 20px;
+      height: 540px;
+    }
+
+    .video-loading-box {
+      margin-bottom: 20px;
+      height: 440px;
+    }
+
+    .edit-dec-btn {
+      position: relative;
+      bottom: -60px;
+    }
+
+    .img-wrap {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .tip-info {
+      color: #ccc;
+      font-size: 14px;
+      height: 15px;
+      line-height: 15px;
+      margin-left: 30px;
+      padding-left: 110px;
+      margin: 0;
+      padding-bottom: 25px;
+    }
+
+    .logistics-adr {
+      color: #606266;
+      display: inline-block;
+      padding-left: 20px;
+      width: 300px;
+    }
+  }
+
+  .empty-block {
+    height: 600px;
+    line-height: 600px;
+    text-align: center;
+    color: #999;
+
+    .el-loading-spinner {
+      top: 0;
+    }
+  }
+
+  .b-t-g {
+    border-bottom: 1px solid #f3f4f5;
+  }
+
+  .f-r {
+    float: right;
+  }
+
+  .w-300 {
+    width: 300px;
+  }
+
+  .w-400 {
+    width: 400px;
+  }
+
+  .m-b-20 {
+    margin-bottom: 20px;
   }
 }

@@ -1,51 +1,6 @@
 <template>
-  <div
-    class="pro-publish app-container"
-    v-loading="loadingAll"
-    element-loading-text="可能需要一段时间，请耐心等候！"
-  >
-    <div v-if="!haveCateData" class="block top-select" ref="formPublic">
-      <el-form ref="cateForm" :inline="true" :model="cateForm" label-width="100px">
-        <el-form-item
-          label="产品分类："
-          prop="cateData"
-          :rules="{
-            required: true, message: '分类选项不能为空', trigger: 'blur'
-          }"
-        >
-          <el-cascader
-            placeholder="试试搜索：苹果 / pg"
-            :options="proOptionsInit"
-            v-model="cateForm.cateData"
-            filterable
-            :filter-method="dataFilter"
-            :props="{emitPath:false}"
-            ref="elCascader"
-            @change="cateChange"
-            class="w-400"
-          ></el-cascader>
-        </el-form-item>
-        <el-form-item
-          v-for="(item,index) in cateForm.cateInputArr"
-          :key="index"
-          :label="item.label+'：'"
-          :prop="'cateInputArr.' + index + '.inputVal'"
-          :rules="{
-            required: true, message: `${item.label}不能为空`, trigger: 'blur'
-          }"
-        >
-          <el-input v-model="item.inputVal" class="w-400"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button @click="proPublish('cateForm')">确 定</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-    <div v-if="haveCateData">
-      <div class="block">
-        <h4>当前类目：{{cateDataText}}</h4>
-        <el-button @click="haveCateData = false">切换类目</el-button>
-      </div>
+  <div class="pur-publish app-container">
+    <div v-loading="loading">
       <div class="block">
         <h4>自然属性</h4>
         <el-form
@@ -55,23 +10,17 @@
           label-width="110px"
           class="b-t-g m-b-20"
         >
-          <el-form-item label="商品名称：" prop="produname">
-            <el-input
-              v-model="titleForm.produname"
-              class="w-400"
-              maxlength="30"
-              clearable
-              placeholder="请输入商品名称"
-            ></el-input>
+          <el-form-item label="商品编号：" prop="producode">
+            <el-input v-model="titleForm.producode" class="w-400" maxlength="30" disabled></el-input>
           </el-form-item>
-          <el-form-item label="商品标题：" prop="title">
-            <el-input
-              v-model="titleForm.title"
-              class="w-400"
-              maxlength="30"
-              clearable
-              placeholder="请输入商品标题"
-            ></el-input>
+          <el-form-item label="分类名称：" prop="cname">
+            <el-input v-model="titleForm.cname" class="w-400" maxlength="30" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="产地：" prop="producerName">
+            <el-input v-model="titleForm.producerName" class="w-400" maxlength="30" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="商品名称：" prop="cmdtname">
+            <el-input v-model="titleForm.cmdtname" class="w-400" maxlength="30" disabled></el-input>
           </el-form-item>
           <el-form-item label="展示分类：" prop="homepageclass">
             <el-radio-group v-model="titleForm.homepageclass">
@@ -91,7 +40,7 @@
           <el-form-item v-if="titleForm.isAgent==='Y'" label="供货商：" prop="pmercode">
             <el-select v-model="titleForm.pmercode" placeholder="请选择供货商" class="w-400">
               <el-option
-                v-for="item in pmercodeList"
+                v-for="item in supplierList"
                 :key="item.pmercode"
                 :label="item.name"
                 :value="item.pmercode"
@@ -99,7 +48,6 @@
             </el-select>
           </el-form-item>
         </el-form>
-        <dynamic-form v-model="naturalDataInit" ref="dynamicFormNatural"></dynamic-form>
       </div>
       <div class="block">
         <h4>销售属性</h4>
@@ -128,11 +76,8 @@
             </el-form-item>
           </div>
           <div v-if="valuationForm.pricetype === '2'">
-            <el-form-item label="重量单位：" prop="weightunit">
-              <el-radio-group v-model="valuationForm.weightunit">
-                <el-radio label="公斤">公斤</el-radio>
-                <el-radio label="斤">斤</el-radio>
-              </el-radio-group>
+            <el-form-item label="重量单位：" prop="typeCode">
+              <el-input v-model="valuationForm.typeCode" class="w-400" maxlength="30" disabled></el-input>
             </el-form-item>
             <el-form-item label="净重：" prop="netweight">
               <el-input
@@ -167,6 +112,7 @@
           </el-form-item>
         </el-form>
         <dynamic-form
+          v-if="formIsShow"
           v-model="saleDataInit"
           :isHaveTable="true"
           @table-show="tableShow"
@@ -222,9 +168,6 @@
             <el-form-item label="商品详情视频：" prop="baby_video">
               <upload-video @add-item="addVideoSec" v-model="uploadForm.baby_video"></upload-video>
             </el-form-item>
-            <!-- <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
-              <editor v-model="uploadForm.webDesc" :moduleNum="2"></editor>
-            </el-form-item>-->
             <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
               <editor @input="phoneEditor" v-model="uploadForm.phoneDesc" :moduleNum="1"></editor>
             </el-form-item>
@@ -238,7 +181,6 @@
           <el-form-item label="付款方式：" prop="paymethod">
             <el-radio-group v-model="payForm.paymethod">
               <el-radio label="1">普通交易</el-radio>
-              <!-- <el-radio label="2">预售模式</el-radio> -->
             </el-radio-group>
           </el-form-item>
           <el-form-item label="库存计数：" prop="stockmethod">
@@ -326,12 +268,6 @@
       </div>
       <el-button type="primary" @click="formdataSubVerify">发布商品</el-button>
     </div>
-    <div
-      v-loading="loading"
-      class="block empty-block"
-      v-else
-      :style="{ 'min-height': parseInt(minHeight)-143+'px' }"
-    >请先选择一个分类。</div>
   </div>
 </template>
 <script>
@@ -342,12 +278,11 @@ import UploadVideo from "@/components/UploadVideo";
 import Editor from "@/components/Editor";
 import minHeightMix from "@/mixins/minHeight";
 import {
-  getProCate,
   getProData,
   getHomePageClass,
-  proPublishSub,
   getSupplierList
 } from "@/api/product";
+import { handelPublishInit, handelPublish } from "@/api/purchase";
 import {
   initFormData,
   deInitFormData,
@@ -396,30 +331,23 @@ export default {
       }
     };
     return {
-      loadingAll: false,
       loading: false,
-      haveCateData: false,
-      homePageClasses: [], //分类类目数组
-      cateDataText: "", //显示的分类类目
-      proOptions: [],
-      proOptionsInit: [],
-      naturalData: [],
-      naturalDataInit: [],
       saleData: [],
       saleDataInit: [],
       itemIdArr: [],
       tableArr: [],
       tableIsShow: false,
-      cversion: "", //版本号商品提交发布使用
+      formIsShow: true,
+      homePageClasses: [], //分类类目数组
       storeInfo: {}, //地址信息
-      pmercodeList: [],
+      supplierList: [],
       valuationForm: {
         isdiscount: "1",
         pricetype: "2",
         grossweight: "",
         netweight: "",
         cmdtspecifications: "",
-        weightunit: "公斤",
+        weightunit: "",
         requiredWeigh: "N"
       }, //商品类目表单
       postSaleForm: {
@@ -450,8 +378,10 @@ export default {
       titleForm: {
         isAgent: "N",
         pmercode: "",
-        produname: "",
-        title: "",
+        cname: "",
+        producerName: "",
+        cmdtname: "",
+        producode: "",
         homepageclass: "10000004"
       }, //自然属性中的标题表单
       payForm: {
@@ -476,9 +406,6 @@ export default {
         grossweight: [
           { required: true, message: "请输入毛重", trigger: "blur" },
           { validator: validateGrossWeight, trigger: ["change", "blur"] }
-        ],
-        weightunit: [
-          { required: true, message: "请输入重量单位", trigger: "blur" }
         ],
         cmdtspecifications: [
           { required: true, message: "请输入规格", trigger: "blur" }
@@ -508,10 +435,6 @@ export default {
         ]
       }, //上传表单验证
       titleFormRules: {
-        produname: [
-          { required: true, message: "请输入商品名称", trigger: "blur" }
-        ],
-        title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
         homepageclass: [
           { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
         ],
@@ -546,10 +469,20 @@ export default {
     /* 获取类目列表和产品分类*/
     async getHomePageClass() {
       try {
+        this.loading = true;
         const [
           {
             data: {
-              cmdtClassTree: { children }
+              rtPurchaseProduct: {
+                producode,
+                producerName,
+                cname,
+                typeCode,
+                cmdtname,
+                unitWeight
+              },
+              storeInfo,
+              salepro
             },
             code: code1
           },
@@ -562,41 +495,36 @@ export default {
             code: code3
           }
         ] = await Promise.all([
-          getProCate({}),
+          handelPublishInit({ producode: this.$route.params.code }),
           getHomePageClass(),
           getSupplierList()
         ]);
-        if (code1 === 200) {
-          this.proOptionsInit = this._initDataArr(this._delEmptyVal(children));
-        }
-        if (code2 === 200) {
+        this.loading = false;
+        if (code1 === 200 && code2 === 200 && code3 === 200) {
+          this.storeInfo = storeInfo;
+          this.titleForm.producode = producode;
+          this.titleForm.producerName = producerName;
+          this.titleForm.cmdtname = cmdtname;
+          this.titleForm.cname = cname;
+
+          this.valuationForm.netweight = unitWeight;
+          this.valuationForm.typeCode = typeCode;
+          this.saleData = JSON.parse(salepro).salepro;
+          this.saleDataInit = initFormData(deepClone(this.saleData));
           this.homePageClasses = homePageClasses;
-        }
-        if (code3 === 200) {
-          this.pmercodeList = pmercodes;
+          this.supplierList = pmercodes;
         }
       } catch (err) {
+        this.loading = false;
         console.log(err);
       }
     },
 
-    /* 类目搜索过滤 */
-    dataFilter(node, keyword) {
-      if (
-        node.data.enlabel.includes(keyword) ||
-        node.data.enlabel.includes(keyword.toLowerCase()) ||
-        node.data.label.includes(keyword)
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-
-    /* 选择项有便签项的显示标签项 */
-    cateChange(val) {
-      this.cateForm.cateInputArr = [];
-      this._selectCode(this.proOptionsInit, val);
+    /* 更新动态表单清除验证*/
+    async checkBoxChange(val) {
+      this.formIsShow = false;
+      await this.$nextTick();
+      this.formIsShow = true;
     },
 
     /* 计价方式切换重置计价form */
@@ -609,43 +537,6 @@ export default {
         weightunit: "公斤",
         pricetype: val,
         requiredWeigh: "N"
-      });
-    },
-
-    /* 选择类目后提交数据返回商品初始数据 */
-    proPublish(formName) {
-      this.$refs[formName].validate(async valid => {
-        if (valid) {
-          this.loading = true;
-          const { cateData: ccode } = this.cateForm;
-          try {
-            const {
-              code,
-              data: {
-                cmdtProertiesRelation: { naturepro, salepro, cversion },
-                storeInfo
-              }
-            } = await getProData({ ccode });
-            if (code === 200) {
-              this.loading = false;
-              this.haveCateData = true;
-              this.cversion = cversion;
-              this.storeInfo = storeInfo;
-              this.cateDataText = this.$refs.elCascader.inputValue;
-              this.naturalData = JSON.parse(naturepro).naturepro;
-              this.saleData = JSON.parse(salepro).salepro;
-              this.naturalDataInit = initFormData(deepClone(this.naturalData));
-              this.saleDataInit = initFormData(deepClone(this.saleData));
-            } else {
-              this.loading = false;
-            }
-          } catch (err) {
-            this.loading = false;
-            console.log(err);
-          }
-        } else {
-          return false;
-        }
       });
     },
 
@@ -695,13 +586,6 @@ export default {
       }
     },
 
-    /* 更新动态表单清除验证*/
-    async checkBoxChange() {
-      this.formIsShow = false;
-      await this.$nextTick();
-      this.formIsShow = true;
-    },
-
     /* 商品发布前的验证 */
     formdataSubVerify() {
       const p1 = new Promise((resolve, reject) => {
@@ -731,17 +615,6 @@ export default {
           }
         });
       });
-      const p4 = new Promise((resolve, reject) => {
-        this.$refs.dynamicFormNatural.$refs["[object Object]"].validate(
-          valid => {
-            if (valid) {
-              resolve();
-            } else {
-              reject("err");
-            }
-          }
-        );
-      });
       const p5 = new Promise((resolve, reject) => {
         this.$refs.dynamicFormSale.$refs["[object Object]"].validate(valid => {
           if (valid) {
@@ -760,7 +633,7 @@ export default {
           }
         });
       });
-      let validateArr = [p1, p2, p3, p4, p5, p6];
+      let validateArr = [p1, p2, p3, p5, p6];
       if (this.$refs.dynamicTable) {
         const p6 = new Promise((resolve, reject) => {
           this.$refs.dynamicTable.validatInit(valid => {
@@ -790,9 +663,9 @@ export default {
     /* 商品发布验证完成后提交 */
     async _subTableData() {
       try {
-        this.loadingAll = true;
-        const { code, msg } = await proPublishSub(this._initFormdataSub());
-        this.loadingAll = false;
+        this.loading = true;
+        const { code, msg } = await handelPublish(this._initFormdataSub());
+        this.loading = false;
         if (code === 200) {
           this.msgSuccess("商品发布成功");
           setTimeout(() => {
@@ -800,40 +673,20 @@ export default {
           }, 1000);
         }
       } catch (err) {
-        this.loadingAll = false;
+        this.loading = false;
         console.log(err);
       }
     },
 
     /* 拼装商品发布提交数据 */
     _initFormdataSub() {
-      const tags = this.cateForm.cateInputArr.reduce((pre, item) => {
-        Object.assign(pre, { [item.label]: item.inputVal });
-        return pre;
-      }, {});
       const { invoice, ticketType } = this.postSaleForm;
-      const naturalDataInit = deepClone(this.naturalDataInit);
       const saleDataInit = deepClone(this.saleDataInit);
-      const salInputData = deepClone(saleDataInit)
-        .filter(item => item.type === "3" || item.type === "4")
-        .map(item => {
-          return {
-            key: item.code,
-            value: item.values
-          };
-        });
       let formData = new FormData();
-      formData.append("ccode", this.cateForm.cateData);
-      formData.append("cversion", this.cversion);
-      formData.append("produname", this.titleForm.produname);
-      formData.append("title", this.titleForm.title);
+      formData.append("producode", this.$route.params.code);
+      formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append("isAgent", this.titleForm.isAgent);
       formData.append("pmercode", this.titleForm.pmercode);
-
-      formData.append(
-        "naturepro",
-        JSON.stringify({ naturepro: deInitFormData(naturalDataInit) })
-      );
       formData.append(
         "salepro",
         JSON.stringify({ salepro: deInitFormData(saleDataInit) })
@@ -844,27 +697,22 @@ export default {
           setTableSubData(this.saleData, this.saleDataInit, this.itemIdArr)
         )
       );
-      formData.append("tags", JSON.stringify(tags));
       formData.append("isdiscount", this.valuationForm.isdiscount);
       formData.append("pricetype", this.valuationForm.pricetype);
       formData.append("requiredWeigh", this.valuationForm.requiredWeigh);
       formData.append("grossweight", this.valuationForm.grossweight);
       formData.append("netweight", this.valuationForm.netweight);
-      formData.append("weightunit", this.valuationForm.weightunit);
       formData.append(
         "cmdtspecifications",
         this.valuationForm.cmdtspecifications
       );
-      formData.append("homepageclass", this.titleForm.homepageclass);
       formData.append("webDesc", this.uploadForm.webDesc);
       formData.append("phoneDesc", this.uploadForm.phoneDesc);
-
       formData.append("img_one", this.$refs.imgItemFir.fileList[0]);
       formData.append("img_two", this.$refs.imgItemSec.fileList[0]);
       formData.append("img_three", this.$refs.imgItemThree.fileList[0]);
       formData.append("img_four", this.$refs.imgItemFour.fileList[0]);
       formData.append("img_five", this.$refs.imgItemFive.fileList[0]);
-
       formData.append("proportion", this.uploadForm.proportion);
       formData.append("master_video", this.uploadForm.master_video);
       formData.append("baby_video", this.uploadForm.baby_video);
@@ -885,58 +733,7 @@ export default {
       if (this.postSaleForm.state === "4") {
         formData.append("publishtime", this.postSaleForm.publishtime);
       }
-      salInputData.forEach(item => {
-        formData.append(item.key, item.value);
-      });
       return formData;
-    },
-
-    /* 递归查找标签项赋值便签表单，做验证使用 */
-    _selectCode(arr, val) {
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].value === val && arr[i].tagArr) {
-          return (this.cateForm.cateInputArr = deepClone(arr[i].tagArr));
-        } else {
-          if (arr[i].children) {
-            this._selectCode(arr[i].children, val);
-          }
-        }
-      }
-    },
-
-    /* 递归查找类目中的标签项添加标签数组 */
-    _initDataArr(arr) {
-      return arr.map(item => {
-        const idx =
-          item.children &&
-          item.children.findIndex(v => {
-            return v.istag === "Y";
-          });
-        if (idx === null) {
-          return item;
-        }
-        if (idx !== -1) {
-          const tagArr = item.children.map(j => {
-            return Object.assign(j, { inputVal: "" });
-          });
-          return Object.assign(item, { tagArr, children: null });
-        } else {
-          this._initDataArr(item.children);
-          return item;
-        }
-      });
-    },
-
-    /* children数组为空赋值null*/
-    _delEmptyVal(arr) {
-      return arr.map(item => {
-        if (item.children && item.children.length === 0) {
-          return Object.assign(item, { children: null });
-        } else {
-          this._delEmptyVal(item.children);
-          return item;
-        }
-      });
     }
   }
 };

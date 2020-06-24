@@ -4,7 +4,7 @@
       <table border="1" cellpadding="0" cellspacing="0">
         <thead>
           <tr>
-            <th v-for="(item,index) in tableArr" :key="index">{{item.name}}</th>
+            <th v-for="item in tableArr" :key="item.code">{{item.name}}</th>
             <th v-for="(item,index) in thInputData" :key="index" :width="item.width">{{item.name}}</th>
           </tr>
         </thead>
@@ -12,11 +12,11 @@
           <tr v-for="(item,index) in itemIdArr" :key="index">
             <td
               v-for="(v,i) in item.rangeArr"
-              :key="i"
+              :key="v"
               v-if="item.rowSpanArr[i]!==0"
               :rowspan="item.rowSpanArr[i]"
             >{{getItemName(i,item.rangeArr)}}</td>
-            <td v-for="(j,k) in item.input" :key="k">
+            <td v-for="j in item.input" :key="j.key" v-if="!j.hidden">
               <el-input
                 v-model="j.values"
                 :keyId="item.rangeArr"
@@ -31,7 +31,9 @@
       </table>
       <p class="tip-info-table">1.表格中的内容均为必填项，现价、原价必须大于0，最多两位小数，库存必须为整数。</p>
       <p class="tip-info-table">2.当计价方式为按数量时现价、原价指每件商品的总价格。</p>
-      <p class="tip-info-table">3.当计价方式为按重量时现价、原价指每件商品的单位重量价格，例如芒果：按重量销售，每件毛重31公斤，净重30公斤，每公斤4元，选择计价方式为按重量，输入相应的毛重和净重，这里的现价、原价输入每公斤的价格。</p>
+      <p
+        class="tip-info-table"
+      >3.当计价方式为按重量时现价、原价指每件商品的单位重量价格，例如芒果：按重量销售，每件毛重31公斤，净重30公斤，每公斤4元，选择计价方式为按重量，输入相应的毛重和净重，这里的现价、原价输入每公斤的价格。</p>
     </div>
   </div>
 </template>
@@ -72,9 +74,13 @@ export default {
     validatInit(fn) {
       this.allRight = true;
       this.itemIdArr.forEach(item => {
-        item.input.forEach(v => {
-          this._validat(v.validateType, v, v.values);
-        });
+        item.input
+          .filter(k => {
+            return k.hidden !== true;
+          })
+          .forEach(v => {
+            this._validat(v.validateType, v, v.values);
+          });
       });
       fn.call(this, this.allRight);
     },

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container add-order">
-    <div v-if="isShow" v-loading="loading">
+    <div v-loading="loading">
       <div class="base-info block">
         <h4>基本信息</h4>
         <el-form
@@ -40,7 +40,14 @@
       </div>
       <div class="pro-info block">
         <h4>商品信息</h4>
-        <edit-table ref="editTable" :modelTableData="modelTableData" :thData="thData"></edit-table>
+        <edit-table
+          ref="editTable"
+          v-if="editTableShow"
+          :modelTableData="modelTableData"
+          :thData="thData"
+          :gradeList="gradeList"
+          :placeList="placeList"
+        ></edit-table>
       </div>
       <div class="remark-info block">
         <h4>备注信息</h4>
@@ -131,8 +138,8 @@ export default {
       }
     };
     return {
-      isShow: false,
       loading: false,
+      editTableShow: false,
       cateList: [],
       puruserList: [],
       placeList: [],
@@ -146,7 +153,11 @@ export default {
         {
           value: "1002",
           label: "泰铢"
-        }
+        },
+        {
+          value: "1003",
+          label: "元"
+        },
       ],
       weightUnitList: [
         {
@@ -473,19 +484,15 @@ export default {
           getDictList({ typeCode: 2 })
         ]);
         this.loading = false;
-        if (code1 === 200) {
+        if (code1 === 200 && code2 === 200 && code3 === 200 && code4 === 200) {
+          this.editTableShow = false;
           this.cateList = this._initDataArr(this._delEmptyVal(children));
-        }
-        if (code2 === 200) {
           this.puruserList = data2;
-        }
-        if (code3 === 200) {
           this.placeList = data3;
-        }
-        if (code4 === 200) {
           this.gradeList = data4;
+          await this.$nextTick();
+          this.editTableShow = true;
         }
-        this.isShow = true;
       } catch (err) {
         this.loading = false;
         console.log(err);
@@ -525,6 +532,8 @@ export default {
         const p4 = new Promise((resolve, reject) => {
           this.$refs["editTable"].validateRate(valid => {
             if (valid) {
+              console.log(2,54546);
+
               resolve();
             } else {
               reject("err");
@@ -541,7 +550,7 @@ export default {
           this.$confirm(
             `必填项为空或格式不正确或商品信息数量等于零，${
               this.typeCode === "2"
-                ? "（添加采购单时，请核对商品汇率和总价金额！）"
+                ? "（添加采购单时，汇率不为空，请核对商品汇率和总价金额！）"
                 : ""
             } 请检查。`,
             `${this.typeCode === "2" ? "添加采购单" : "保存采购单"}`,

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container add-order">
-    <div v-if="isShow" v-loading="loading">
+    <div v-loading="loading">
       <div class="base-info block" style="min-height:400px">
         <h4>
           基本信息
@@ -17,7 +17,7 @@
           :model="baseForm"
           ref="baseForm"
           :rules="baseFormRules"
-          label-width="110px"
+          label-width="100px"
           :inline="true"
         >
           <el-form-item label="采购进度：">
@@ -60,6 +60,9 @@
           :modelTableData="modelTableData"
           :thData="thData"
           :noEdit="purState !=='0'"
+          :minWidth="purState!=='0'?'2600px':'2180px'"
+          :gradeList="gradeList"
+          :placeList="placeList"
         ></edit-table>
       </div>
       <div class="remark-info block" style="min-height:392px">
@@ -77,7 +80,7 @@
           :model="remarkForm"
           ref="remarkForm"
           :rules="remarkFormRules"
-          label-width="110px"
+          label-width="100px"
           :inline="true"
         >
           <el-form-item label="采购实付：" prop="realprice">
@@ -127,37 +130,54 @@
           </el-form-item>
         </el-form>
       </div>
-      <div class="cost-info block" style="min-height:392px">
+      <div class="cost-info block" style="min-height:392px" v-if="purState!=='0'">
         <h4>
           数量/重量所占比例
-          <el-button type="primary" size="mini" class="f-r">修改备注与图片信息</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            class="f-r"
+            v-if="purState!=='3'"
+            :loading="loadingCost"
+            @click="editCoseInfo"
+          >修改费用信息</el-button>
         </h4>
-        <el-form :model="costForm" ref="costForm" :rules="costFormRules" label-width="110px">
-          <el-form-item label="计算方式：" prop="type">
-            <el-radio-group v-model="costForm.type">
-              <el-radio :label="3">按数量所占比例</el-radio>
-              <el-radio :label="6">按重量所占比例</el-radio>
+        <el-form :model="costForm" ref="costForm" :rules="costFormRules" label-width="100px">
+          <el-form-item label="计算方式：" prop="costSharingType">
+            <el-radio-group v-model="costForm.costSharingType" :disabled="purState ==='3'">
+              <el-radio label="1">按数量所占比例</el-radio>
+              <el-radio label="2">按重量所占比例</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-form>
         <h4>添加运费</h4>
         <edit-table-item
           ref="editTableFreight"
+          v-if="editTableShow"
           :modelTableData="modelTableDataFreight"
           :thData="thDataFreight"
+          :needCompute="true"
+          :tableInit="freightsData"
+          :noEdit="purState==='3'"
         />
         <h4>添加打税费用</h4>
         <edit-table-item
           ref="editTableTax"
+          v-if="editTableShow"
           :modelTableData="modelTableDataTax"
           :thData="thDataTax"
           :maxLen="1"
+          :tableInit="taxsData"
+          :noEdit="purState==='3'"
         />
-        <h4>添加费用费用</h4>
+        <h4>添加其他费用</h4>
         <edit-table-item
           ref="editTableExtra"
+          v-if="editTableShow"
           :modelTableData="modelTableDataExtra"
           :thData="thDataExtra"
+          :tableInit="otherCostsData"
+          :noEdit="purState==='3'"
         />
       </div>
       <div class="btns">
@@ -167,6 +187,12 @@
           :loading="loadingAdd"
           v-if="purState ==='0'"
         >添加采购单</el-button>
+        <el-button
+          type="primary"
+          @click="purOrderSent"
+          :loading="loadingSent"
+          v-if="purState ==='2'"
+        >采购单入库</el-button>
       </div>
     </div>
   </div>
@@ -208,11 +234,12 @@ export default {
       }
     };
     return {
-      isShow: false,
       loading: false,
       loadingBase: false,
+      loadingCost: false,
       loadingImg: false,
       loadingAdd: false,
+      loadingSent: false,
       editTableShow: true,
       imgShow: true,
       purStateStr: "",
@@ -230,6 +257,10 @@ export default {
         {
           value: "1002",
           label: "泰铢"
+        },
+        {
+          value: "1003",
+          label: "元"
         }
       ],
       weightUnitList: [
@@ -264,15 +295,20 @@ export default {
         realprice: { validator: validatePay, trigger: "blur" }
       },
       costForm: {
-        type: 3
+        costSharingType: "2"
       },
       costFormRules: {
-        type: [{ required: true, message: "请选择计算方式", trigger: "change" }]
+        costSharingType: [
+          { required: true, message: "请选择计算方式", trigger: "change" }
+        ]
       },
       imgForm: {},
       imgFormRules: {},
       modifyImages: [],
-      tableData: []
+      tableData: [],
+      taxsData: [],
+      freightsData: [],
+      otherCostsData: []
     };
   },
   computed: {
@@ -512,6 +548,52 @@ export default {
             noValidate: true, //不做验证
             width: 90, //占用宽度
             noSubmit: true
+          },
+
+          {
+            key: "freightAmount",
+            hidden: this.purState === "0",
+            value: "",
+            inputType: 1,
+            noValidate: true, //不做验证
+            canEdit: false,
+            noSubmit: true
+          },
+          {
+            key: "taxAmount",
+            hidden: this.purState === "0",
+            value: "",
+            inputType: 1,
+            noValidate: true, //不做验证
+            canEdit: false,
+            noSubmit: true
+          },
+          {
+            key: "otherAmount",
+            hidden: this.purState === "0",
+            value: "",
+            inputType: 1,
+            noValidate: true, //不做验证
+            canEdit: false,
+            noSubmit: true
+          },
+          {
+            key: "totalCost",
+            hidden: this.purState === "0",
+            value: "",
+            inputType: 1,
+            noValidate: true, //不做验证
+            canEdit: false,
+            noSubmit: true
+          },
+          {
+            key: "unitCost",
+            hidden: this.purState === "0",
+            value: "",
+            inputType: 1,
+            noValidate: true, //不做验证
+            canEdit: false,
+            noSubmit: true
           }
         ]
       };
@@ -536,7 +618,35 @@ export default {
         { name: "单价", isEdit: true, isRequire: true, width: 160 },
         { name: "总价/外汇", width: 90, key: "purPrice", value: "" },
         { name: "当天汇率", isEdit: true },
-        { name: "总价/元", width: 90, key: "purPriceYuan", value: "" }
+        { name: "总价/元", width: 90, key: "purPriceYuan", value: "" },
+        {
+          name: "运费金额/元",
+          key: "freightAmount",
+          value: "",
+          hidden: this.purState === "0"
+        },
+        {
+          name: "打税金额/元",
+          key: "taxAmount",
+          value: "",
+          hidden: this.purState === "0"
+        },
+        {
+          name: "其他金额/元",
+          key: "otherAmount",
+          value: "",
+          hidden: this.purState === "0"
+        },
+        {
+          name: "总成本/元",
+          key: "totalCost",
+          value: "",
+          hidden: this.purState === "0"
+        },
+        {
+          name: "均摊后单价/元",
+          hidden: this.purState === "0"
+        }
       ];
     },
     modelTableDataFreight() {
@@ -554,14 +664,14 @@ export default {
             noSubmit: true
           },
           {
-            key: "prePay",
-            selectKey: "preUnitCode",
-            selectLabelKey: "preUnit",
+            key: "preWhAmount",
+            selectKey: "preCurrencyCode",
+            selectLabelKey: "preCurrency",
             value: "",
             placeholder: "预付金额",
             canEdit: true,
             validate: false,
-            validateType: 2,
+            validateType: 3,
             pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
             inputType: 5,
             selectValue: "1001",
@@ -586,20 +696,21 @@ export default {
             key: "prePayYuan",
             value: "",
             inputType: 7,
+            noValidate: true,
             labelValue: "",
             canEdit: false,
-            noValidate: true, //不做验证
-            noSubmit: true
+            noSubmit: true,
+            errMsg: "* 预付或实付运费计算错误。"
           },
           {
-            key: "actualPay",
-            selectKey: "actualUnitCode",
-            selectLabelKey: "actualUnit",
+            key: "whAmount",
+            selectKey: "currencyCode",
+            selectLabelKey: "currency",
             value: "",
             placeholder: "实付金额",
             canEdit: true,
             validate: false,
-            validateType: 2,
+            validateType: 3,
             pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
             inputType: 5,
             selectValue: "1001",
@@ -609,7 +720,7 @@ export default {
             errMsg: "* 金额为大于0且至多两位小数"
           },
           {
-            key: "actualRate",
+            key: "rate",
             value: "",
             placeholder: "当天汇率",
             canEdit: true,
@@ -624,36 +735,25 @@ export default {
             key: "actualPayYuan",
             value: "",
             inputType: 7,
+            noValidate: true,
             labelValue: "",
             canEdit: false,
-            noValidate: true, //不做验证
-            noSubmit: true
+            noSubmit: true,
+            errMsg: "* 预付或实付运费计算错误。"
           }
         ]
       };
     },
     thDataFreight() {
       return [
-        { name: "", width: 110 },
+        { name: "", width: 110, hidden: this.purState === "3" },
         { name: "序号", width: 80, value: "合计" },
-        { name: "预付运费", isEdit: true, isRequire: true },
-        { name: "当天汇率（预付）", isEdit: true, isRequire: true },
-        {
-          name: "预付运费（元）",
-          isEdit: true,
-          isRequire: true,
-          key: "actualPay",
-          value: ""
-        },
-        { name: "实付运费", isEdit: true, isRequire: true },
-        { name: "当天汇率（实付）", isEdit: true, isRequire: true },
-        {
-          name: "实付运费（元）",
-          isEdit: true,
-          isRequire: true,
-          key: "actualPay",
-          value: ""
-        }
+        { name: "预付运费", isEdit: true },
+        { name: "当天汇率（预付）", isEdit: true },
+        { name: "预付运费（元）", key: "prePayYuan", value: "" },
+        { name: "实付运费", isEdit: true },
+        { name: "当天汇率（实付）", isEdit: true },
+        { name: "实付运费（元）", key: "actualPayYuan", value: "" }
       ];
     },
     modelTableDataTax() {
@@ -671,8 +771,8 @@ export default {
             noSubmit: true
           },
           {
-            key: "companyCode",
-            labelKey: "company",
+            key: "taxCode",
+            labelKey: "taxName",
             value: "",
             labelValue: "",
             placeholder: "打税公司",
@@ -684,7 +784,7 @@ export default {
             errMsg: "* 必填项不能为空。"
           },
           {
-            key: "shouldPay",
+            key: "needAmount",
             value: "",
             placeholder: "应付金额",
             canEdit: true,
@@ -696,7 +796,7 @@ export default {
             errMsg: "* 应付金额大于0且至多两位小数。"
           },
           {
-            key: "alreadyPay",
+            key: "realAmount",
             value: "",
             placeholder: "已付金额",
             canEdit: true,
@@ -708,7 +808,7 @@ export default {
             errMsg: "* 已付金额大于0且至多两位小数。"
           },
           {
-            key: "isDone",
+            key: "iscomplete",
             value: "",
             labelValue: "",
             canEdit: true,
@@ -720,17 +820,17 @@ export default {
     },
     thDataTax() {
       return [
-        { name: "", width: 110 },
+        { name: "", width: 110, hidden: this.purState === "3" },
         { name: "序号", width: 80, value: "合计" },
         { name: "打税公司", isEdit: true, isRequire: true },
         {
           name: "应付（元）",
           isEdit: true,
           isRequire: true,
-          key: "shouldPay",
+          key: "needAmount",
           value: ""
         },
-        { name: "已付（元）", isEdit: true, key: "alreadyPay", value: "" },
+        { name: "已付（元）", isEdit: true, key: "realAmount", value: "" },
         { name: "打税是否已结算", isEdit: true }
       ];
     },
@@ -760,7 +860,7 @@ export default {
             errMsg: "* 必填项不能为空。"
           },
           {
-            key: "cost",
+            key: "amount",
             value: "",
             placeholder: "费用金额",
             canEdit: true,
@@ -772,7 +872,7 @@ export default {
             errMsg: "* 已付金额大于0且至多两位小数。"
           },
           {
-            key: "remark",
+            key: "remarks",
             value: "",
             placeholder: "备注",
             canEdit: true,
@@ -788,28 +888,29 @@ export default {
     },
     thDataExtra() {
       return [
-        { name: "", width: 110 },
+        { name: "", width: 110, hidden: this.purState === "3" },
         { name: "序号", width: 80, value: "合计" },
         { name: "费用名称", isEdit: true, isRequire: true },
         {
           name: "费用金额（元）",
           isEdit: true,
           isRequire: true,
-          key: "cost",
+          key: "amount",
           value: ""
         },
         { name: "备注", width: 700, isEdit: true, isRequire: true }
       ];
     }
   },
-  created() {
+  async created() {
     this.getPremiseList();
-    this.getDeatil();
   },
   methods: {
     async getPremiseList() {
-      this.loading = true;
       try {
+        this.loading = true;
+        this.editTableShow = false;
+        this.imgShow = false;
         const [
           {
             data: {
@@ -820,63 +921,52 @@ export default {
           { data: data2, code: code2 },
           { data: data3, code: code3 },
           { data: data4, code: code4 },
-          { data: data5, code: code5 }
+          { data: data5, code: code5 },
+          {
+            data: {
+              cmdtDetailsInitResps,
+              purdate,
+              purUsercode,
+              realprice,
+              collUsername,
+              remarks,
+              purchaseImages,
+              purState,
+              voPurState,
+              taxs,
+              otherCosts,
+              freights,
+              typecode
+            },
+            code: code6
+          }
         ] = await Promise.all([
           getProCate({}),
           getPuruserList(),
           getDictList({ typeCode: 1 }),
           getDictList({ typeCode: 2 }),
-          getTaxfactoryList({ typeCode: 2 })
+          getTaxfactoryList({ typeCode: 2 }),
+          getPurDetail({ purcode: this.$route.params.code })
         ]);
-        if (code1 === 200) {
+        this.loading = false;
+        if (
+          code1 === 200 &&
+          code2 === 200 &&
+          code3 === 200 &&
+          code4 === 200 &&
+          code5 === 200 &&
+          code6 === 200
+        ) {
           this.cateList = this._initDataArr(this._delEmptyVal(children));
-        }
-        if (code2 === 200) {
           this.puruserList = data2;
-        }
-        if (code3 === 200) {
           this.placeList = data3;
-        }
-        if (code4 === 200) {
           this.gradeList = data4;
-        }
-        if (code5 === 200) {
           this.taxfactoryList = data5;
-        }
-      } catch (err) {
-        this.loading = false;
-        console.log(err);
-      }
-    },
 
-    async getDeatil() {
-      try {
-        this.loading = true;
-        this.editTableShow = false;
-        this.imgShow = false;
-
-        const {
-          data: {
-            cmdtDetailsInitResps,
-            purdate,
-            purUsercode,
-            realprice,
-            collUsername,
-            remarks,
-            purchaseImages,
-            purState,
-            voPurState
-          },
-          code
-        } = await getPurDetail({ purcode: this.$route.params.code });
-        this.loading = false;
-
-        if (code === 200) {
           this.purStateStr = voPurState;
           this.purState = purState;
           this.baseForm.purdate = purdate;
           this.baseForm.purUsercode = purUsercode;
-
           this.remarkForm.realprice = realprice || "";
           this.remarkForm.collUsername = collUsername;
           this.remarkForm.remarks = remarks;
@@ -897,10 +987,13 @@ export default {
             img_four: img_four ? img_four : null
           });
           this.tableData = cmdtDetailsInitResps;
+          this.costForm.costSharingType = typecode || "2";
+          this.taxsData = taxs;
+          this.otherCostsData = otherCosts;
+          this.freightsData = freights;
           await this.$nextTick();
           this.editTableShow = true;
           this.imgShow = true;
-          this.isShow = true;
         }
       } catch (err) {
         this.loading = false;
@@ -962,15 +1055,15 @@ export default {
         JSON.stringify(this.$refs.editTable.creatOrder())
       );
       try {
-        this.loadingBase = true;
+        this.loadingCost = true;
         const { code, msg } = await handelEditPur(formData);
-        this.loadingBase = false;
+        this.loadingCost = false;
         if (code === 200) {
           this.msgSuccess("修改成功");
-          this.getDeatil();
+          this.getPremiseList();
         }
       } catch (err) {
-        this.loadingBase = false;
+        this.loadingCost = false;
         console.log(err);
       }
     },
@@ -1029,7 +1122,7 @@ export default {
         this.loadingImg = false;
         if (code === 200) {
           this.msgSuccess("修改成功");
-          this.getDeatil();
+          this.getPremiseList();
         }
       } catch (err) {
         this.loadingImg = false;
@@ -1081,6 +1174,63 @@ export default {
             .then(() => {})
             .catch(() => {});
         });
+    },
+
+    async editCoseInfo() {
+      let formData = new FormData();
+      formData.append("typeCode", 3);
+      formData.append("purcode", this.$route.params.code);
+      formData.append("costSharingType", this.costForm.costSharingType);
+      if (this.$refs.editTableFreight.creatOrder().length !== 0) {
+        formData.append(
+          "freights",
+          JSON.stringify(this.$refs.editTableFreight.creatOrder())
+        );
+      }
+      if (this.$refs.editTableTax.creatOrder().length !== 0) {
+        formData.append(
+          "taxs",
+          JSON.stringify(this.$refs.editTableTax.creatOrder())
+        );
+      }
+      if (this.$refs.editTableExtra.creatOrder().length !== 0) {
+        formData.append(
+          "otherCosts",
+          JSON.stringify(this.$refs.editTableExtra.creatOrder())
+        );
+      }
+      try {
+        this.loadingBase = true;
+        const { code, msg } = await handelEditPur(formData);
+        this.loadingBase = false;
+        if (code === 200) {
+          this.msgSuccess("修改成功");
+          this.getPremiseList();
+        }
+      } catch (err) {
+        this.loadingBase = false;
+        console.log(err);
+      }
+    },
+
+    async purOrderSent() {
+      let formData = new FormData();
+      formData.append("typeCode", 4);
+      formData.append("purcode", this.$route.params.code);
+      try {
+        this.loadingSent = true;
+        const { code, msg } = await handelEditPur(formData);
+        this.loadingSent = false;
+        if (code === 200) {
+          this.msgSuccess("入库成功");
+          setTimeout(() => {
+            this.$router.push({ path: "/purchase/list" });
+          }, 1000);
+        }
+      } catch (err) {
+        this.loadingSent = false;
+        console.log(err);
+      }
     },
 
     /* 删除图片匹配去掉modifyImages中uid */

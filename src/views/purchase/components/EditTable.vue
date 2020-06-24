@@ -9,7 +9,7 @@
     >仓库中选择</el-button>
     <div class="edit-table">
       <div :class="{'table-box':true, 'action-table':!noEdit}" v-loading="loading">
-        <table cellpadding="0" cellspacing="0">
+        <table cellpadding="0" cellspacing="0" :style="{'min-width':minWidth}">
           <thead>
             <th v-for="(item,index) in thData" v-if="!item.hidden" :key="index" :width="item.width">
               <span class="require-icon" v-if="item.isRequire === true">*</span>
@@ -37,7 +37,7 @@
                 v-for="(v,i) in item.content"
                 v-if="!v.hidden"
                 :key="i"
-                :style="`width:${v.width}px;background-color: rgb(242, 242, 242);`"
+                :style="`width:${v.width}px;background-color: #F5F7FA;`"
               >
                 <div v-if="item.editAction">
                   <span v-if="v.canEdit === false">
@@ -139,40 +139,49 @@
       </div>
     </div>
 
-    <!-- <el-dialog title="选择商品" :visible.sync="open" width="980px" custom-class="edit-table-dialog">
+    <el-dialog title="选择商品" :visible.sync="open" width="1020px" custom-class="edit-table-dialog">
       <div style="min-height:400px">
         <div class="form-p">
-          <el-form :model="form" ref="form" label-width="40px" :inline="true">
-            <el-form-item label="名称" prop="proName">
+          <el-form :model="queryForm" ref="queryForm" label-width="40px" :inline="true">
+            <el-form-item label="名称" prop="cmdtname">
               <el-input
-                v-model="form.proName"
+                v-model="queryForm.cmdtname"
                 placeholder="请输入商品名称"
                 clearable
+                size="small"
                 style="width: 180px"
               />
             </el-form-item>
-            <el-form-item label="产地" prop="address">
+            <el-form-item label="产地" prop="producerCode">
               <el-select
-                v-model="form.address"
+                v-model="queryForm.producerCode"
                 placeholder="请选择"
                 clearable
                 size="small"
-                style="width: 120px"
+                style="width: 180px"
               >
-                <el-option label="老挝" value="0" />
-                <el-option label="越南" value="1" />
+                <el-option
+                  v-for="(item,index) in placeList"
+                  :key="index"
+                  :label="item.dictName"
+                  :value="item.dictCode"
+                />
               </el-select>
             </el-form-item>
-            <el-form-item label="品级" prop="pinji">
+            <el-form-item label="品级" prop="gradeCode">
               <el-select
-                v-model="form.pinji"
+                v-model="queryForm.gradeCode"
                 placeholder="请选择"
                 clearable
                 size="small"
-                style="width: 120px"
+                style="width: 200px"
               >
-                <el-option label="特级" value="0" />
-                <el-option label="一级" value="1" />
+                <el-option
+                  v-for="(item,index) in gradeList"
+                  :key="index"
+                  :label="item.dictName"
+                  :value="item.dictCode"
+                />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -181,8 +190,7 @@
             </el-form-item>
           </el-form>
         </div>
-
-        <div class="table-p" style="padding:0;min-height:490px;">
+        <div class="table-p" style="padding:0;min-height:490px;" v-loading="loadingPro">
           <el-table
             ref="multipleTable"
             :data="proList"
@@ -192,27 +200,29 @@
             @selection-change="handleSelectionChange"
           >
             <el-table-column type="selection" width="40"></el-table-column>
-            <el-table-column label="序号" prop="orderBy" width="40" />
-            <el-table-column label="商品编号" prop="procode" />
-            <el-table-column label="分类" prop="cateName" />
-            <el-table-column label="名称" prop="name" />
-            <el-table-column label="产地" prop="voAddress" />
-            <el-table-column label="品级" prop="voPinji" />
-            <el-table-column label="件重" prop="weight" />
-            <el-table-column label="单位" prop="weightUnit" />
+            <el-table-column label="序号" prop="order" width="50" />
+            <el-table-column label="商品编码" prop="ccode" />
+            <el-table-column label="商品分类" prop="cname" width="180" show-overflow-tooltip />
+            <el-table-column label="商品名称" prop="cmdtname" width="180" show-overflow-tooltip />
+            <el-table-column label="商品产地" prop="producerName" />
+            <el-table-column label="商品品级" prop="gradeName" />
+            <el-table-column label="件重" prop="num">
+              <template slot-scope="scope">{{scope.row.unitWeight}}/{{scope.row.typeCode}}</template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="open = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('form')">确 定</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { accAdd, subtr, accMull, accDiv, deepClone } from "@/utils";
+import { getStoreCmdtList } from "@/api/purchase";
 export default {
   name: "edit-table",
   props: {
@@ -239,6 +249,24 @@ export default {
       default() {
         return false;
       }
+    },
+    minWidth: {
+      type: String,
+      default() {
+        return "2180px";
+      }
+    },
+    placeList: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    gradeList: {
+      type: Array,
+      default() {
+        return [];
+      }
     }
   },
 
@@ -258,7 +286,16 @@ export default {
     return {
       loading: false,
       errMsgArr: [],
-      tableData: []
+      tableData: [],
+      loadingPro: false,
+      open: false,
+      proList: [],
+      selectSent: [],
+      queryForm: {
+        cmdtname: undefined,
+        producerCode: undefined,
+        gradeCode: undefined
+      }
     };
   },
 
@@ -374,74 +411,47 @@ export default {
       return this._deinitData(this.tableData);
     },
 
-    sentSelect() {
-      this.selectSent = [];
-      const procodeArr = this.tableData.map(v => {
-        return v.content[1].value;
-      });
-      this.proList = [
-        {
-          orderBy: 1,
-          procode: "115541999",
-          cate: "02000020",
-          cateName: "橙橘柚柑 / 柑",
-          name: "越南精品芒果",
-          address: "2",
-          voAddress: "老挝",
-          pinji: "1",
-          voPinji: "特级",
-          weight: "121",
-          weightUnit: "公斤"
-        },
-        {
-          orderBy: 2,
-          procode: "115541922",
-          cate: "02000020",
-          cateName: "橙橘柚柑 / 柑",
-          name: "越南精品芒果22",
-          address: "1",
-          voAddress: "越南",
-          pinji: "2",
-          voPinji: "一级",
-          weight: "86",
-          weightUnit: "斤"
-        },
-        {
-          orderBy: 3,
-          procode: "115541582",
-          cate: "02000020",
-          cateName: "橙橘柚柑 / 柑",
-          name: "越南精品芒果33",
-          address: "1",
-          voAddress: "越南",
-          pinji: "2",
-          voPinji: "一级",
-          weight: "89",
-          weightUnit: "斤"
-        },
-        {
-          orderBy: 4,
-          procode: "115541989",
-          cate: "02000020",
-          cateName: "橙橘柚柑 / 柑",
-          name: "越南精品芒果44",
-          address: "1",
-          voAddress: "越南",
-          pinji: "2",
-          voPinji: "一级",
-          weight: "88",
-          weightUnit: "斤"
+    async getSentList() {
+      try {
+        this.loadingPro = true;
+        const { code, data } = await getStoreCmdtList(this.queryForm);
+        this.loadingPro = false;
+        if (code === 200) {
+          const tableData = this.tableData
+            .map(v => {
+              return v.content[1].value;
+            })
+            .filter(k => {
+              return Boolean(k);
+            });
+          this.proList = data
+            .map((item, index) => {
+              return Object.assign(item, { order: index + 1 });
+            })
+            .filter(j => {
+              return !tableData.includes(j.cmdtcode);
+            });
         }
-      ].filter(item => {
-        return !procodeArr.includes(item.procode);
-      });
-
-      this.open = true;
+      } catch (err) {
+        this.loadingPro = false;
+        console.log(err);
+      }
     },
 
-    handleQuery() {},
+    sentSelect() {
+      this.selectSent = [];
+      this.open = true;
+      this.getSentList();
+    },
 
-    resetQuery() {},
+    handleQuery() {
+      this.getSentList();
+    },
+
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
 
     handleSelectionChange(val) {
       this.selectSent = val;
@@ -469,8 +479,8 @@ export default {
       fn.call(
         this,
         rateArr.filter(k => {
-          return k !== "" && k !== undefined;
-        }).length > 0
+          return k === "" || k === undefined;
+        }).length === 0
       );
     },
 
@@ -484,17 +494,11 @@ export default {
         modelData.content[0].idStr = this._generateStr(15);
         modelData.content.forEach(k => {
           k.value = v[k.key] || "";
-          if (k.inputType === 5) {
-            if (v[`${k.key}Unit`]) {
-              k.selectVal = v[`${k.key}Unit`];
-            }
-          } else if (k.inputType === 2) {
-            const selectItem = k.inputOptions.find(j => {
-              return j.value === v[k.key];
-            });
-            k.labelValue = selectItem ? selectItem.label : "";
-          } else if (k.inputType === 6) {
-            k.labelValue = v[`${k.key}Name`];
+          if (k.inputType === 5 && k.key === "unitWeight") {
+            k.selectValue = v[k.selectKey] || v[k.selectLabelKey];
+            k.selectLabelValue = v[k.selectLabelKey];
+          } else if (k.inputType === 2 || k.inputType === 6) {
+            k.labelValue = v[k.labelKey];
           }
         });
         this.tableData.unshift(modelData);
@@ -624,14 +628,13 @@ export default {
     /* 初始后端返回数据 */
     _initTableData() {
       if (this.tableInit.length === 0) {
-        for (let i = 0; i < 3; i++) {
-          this.addItem();
-        }
+        this.addItem();
       } else {
         this.tableInit.forEach((v, i) => {
           const modelData = deepClone(this.modelTableData);
           modelData.editAction = false;
           modelData.isSelected = true;
+          modelData.isSent = Boolean(v.cmdtcode);
           modelData.content[0].idStr = this._generateStr(15);
           modelData.content.forEach(k => {
             k.value = v[k.key] || "";

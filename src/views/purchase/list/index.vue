@@ -139,17 +139,17 @@
         :summary-method="getSummaries"
         show-summary
       >
-        <el-table-column label="序号" prop="order" width="60" />
-        <el-table-column label="采购单号" prop="treePurcode" width="100" />
+        <el-table-column label="序号" prop="order" width="60" fixed="left"/>
+        <el-table-column label="采购单号" prop="treePurcode" width="120" fixed="left"/>
         <el-table-column label="采购日期" prop="treeVoPurdate" />
         <el-table-column label="采购员" prop="treePurUsername" />
         <el-table-column label="到货日期" prop="treeVoStorageDate" />
         <el-table-column label="车牌号" prop="carNum" />
         <el-table-column label="商品编号" prop="cmdtcode" width="100" />
-        <el-table-column label="商品名称" prop="cmdtname" width="100" />
-        <el-table-column label="工厂" prop="factoryName" width="100" />
-        <el-table-column label="卖场" prop="storeName" width="100" />
-        <el-table-column label="车次" prop="trainNumber" width="100" />
+        <el-table-column label="商品名称" prop="cmdtname" width="100" show-overflow-tooltip/>
+        <el-table-column label="工厂" prop="factoryName" width="100" show-overflow-tooltip/>
+        <el-table-column label="卖场" prop="storeName" width="100" show-overflow-tooltip/>
+        <el-table-column label="车次" prop="trainNumber" width="100" show-overflow-tooltip/>
         <el-table-column label="产地" prop="producerName" />
         <el-table-column label="品级" prop="gradeName" />
         <el-table-column label="件数" prop="num" />
@@ -163,7 +163,7 @@
         <el-table-column label="打税费用/元" prop="taxAmount" />
         <el-table-column label="其他费用/元" prop="otherAmount" />
         <el-table-column label="总成本/元" prop="totalCost" />
-        <el-table-column label="打税公司" prop="treeTaxName" />
+        <el-table-column label="打税公司" prop="treeTaxName" width="100" show-overflow-tooltip />
         <el-table-column label="采购进度" prop="treeVoPurState" />
         <el-table-column label="实际付款" prop="treeRealprice" />
         <el-table-column label="回款人" prop="treeCollUsername" />
@@ -182,7 +182,7 @@
               type="text"
               icon="el-icon-s-finance"
               v-if="scope.row.order && scope.row.purState ==='3'"
-              @click="handleTaxation(scope.row)"
+              @click="handleTax(scope.row)"
             >税费补充</el-button>
           </template>
         </el-table-column>
@@ -196,13 +196,20 @@
       />
     </div>
 
-    <el-dialog :title="title" :visible.sync="open" @close="clearValidate" width="900px">
-      <div v-loading="loadingTaxation" style="min-height:300px">
-        <edit-table-item />
+    <el-dialog :title="title" :visible.sync="open" width="950px">
+      <div v-loading="loadingTax" style="min-height:300px">
+        <edit-table-item
+          ref="editTableTax"
+          :modelTableData="modelTableDataTax"
+          :thData="thDataTax"
+          :maxLen="1"
+          :tableInit="taxsData"
+          v-if="editTableShow"
+        />
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="open = false">取 消</el-button>
-        <el-button type="primary" :loading="loadingTaxationAction">税费补充</el-button>
+        <el-button type="primary" :loading="loadingTaxAction" @click="handleTaxAction">税费补充</el-button>
       </div>
     </el-dialog>
   </div>
@@ -212,7 +219,9 @@ import {
   getPurchaseList,
   getTaxfactoryList,
   getPuruserList,
-  handelPurListExport
+  handelPurListExport,
+  handelTaxInit,
+  handelTax
 } from "@/api/purchase";
 import { accAdd, deepClone } from "@/utils";
 import EditTableItem from "../components/EditTableItem";
@@ -223,17 +232,19 @@ export default {
     return {
       loading: false,
       exportLoading: false,
-      loadingTaxation: false,
-      loadingTaxationAction: false,
+      loadingTax: false,
+      loadingTaxAction: false,
       open: false,
       title: "税费补充",
       formShow: true,
+      editTableShow: true,
       activeName: "-1",
       orderList: [],
       phrDateRange: [],
       sentDateRange: [],
       taxfactoryList: [],
       puruserList: [],
+      taxsData: [],
       total: 0,
       queryForm: {
         pageNum: 1,
@@ -248,6 +259,96 @@ export default {
   },
   components: {
     EditTableItem
+  },
+  computed: {
+    modelTableDataTax() {
+      return {
+        editAction: true,
+        isSelected: false,
+        content: [
+          {
+            idStr: "", //对应唯一标识（删除）
+            key: "order",
+            value: "",
+            canEdit: false,
+            noValidate: true, //不做验证
+            width: 80, //占用宽度
+            noSubmit: true
+          },
+          {
+            key: "taxName",
+            value: "",
+            inputType: 1,
+            canEdit: false,
+            noValidate: true,
+            noSubmit: true
+          },
+           {
+            key: "purcode",
+            value: "",
+            inputType: 1,
+            canEdit: false,
+            noValidate: true,
+            hidden: true
+          },
+          {
+            key: "uid",
+            value: "",
+            inputType: 1,
+            canEdit: false,
+            noValidate: true,
+            hidden: true
+          },
+          {
+            key: "needAmount",
+            value: "",
+            inputType: 1,
+            width: 120,
+            canEdit: false,
+            noValidate: true,
+            noSubmit: true
+          },
+          {
+            key: "realAmount",
+            value: "",
+            placeholder: "已付金额",
+            canEdit: true,
+            validate: false,
+            validateType: 3,
+            pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
+            inputType: 1,
+            maxLen: 10,
+            width: 120,
+            errMsg: "* 已付金额大于0且至多两位小数。"
+          },
+          {
+            key: "iscomplete",
+            value: "",
+            labelValue: "",
+            canEdit: true,
+            inputType: 3,
+            width: 130,
+            noValidate: true //不做验证
+          }
+        ]
+      };
+    },
+    thDataTax() {
+      return [
+        { name: "", width: 110 },
+        { name: "序号", width: 80, value: "合计" },
+        { name: "打税公司" },
+        { name: "应付（元）", width: 120, key: "needAmount", value: "" },
+        {
+          name: "已付（元）",
+          isEdit: true,
+          width: 120,
+          key: "realAmount",
+          value: ""
+        },
+        { name: "是否已结算", isEdit: true, width: 130 }
+      ];
+    }
   },
   created() {
     this.getPremiseList();
@@ -304,9 +405,57 @@ export default {
         path: `/purchase/edit-order/${item.purcode}`
       });
     },
-    handleTaxation(item) {
-      this.title = `税费补充 -- ${item.orderno}`;
+    async handleTax(item) {
       this.open = true;
+      this.editTableShow = false;
+      this.title = `税费补充 -- ${item.purcode}`;
+      try {
+        this.loadingTax = true;
+        const {
+          code,
+          data: { iscomplete, needAmount, realAmount, taxName, uid }
+        } = await handelTaxInit({
+          purcode: item.purcode
+        });
+        this.loadingTax = false;
+        if (code === 200) {
+          this.taxsData = [
+            {
+              iscomplete,
+              needAmount,
+              realAmount,
+              taxName,
+              uid,
+              purcode: item.purcode
+            }
+          ];
+          this.editTableShow = true;
+        }
+      } catch (err) {
+        this.loadingTax = false;
+        console.log(err);
+      }
+    },
+    async handleTaxAction() {
+      const tableData = this.$refs.editTableTax.creatOrder()[0];
+      try {
+        this.loadingTaxAction = true;
+        const { code } = await handelTax({
+          purcode: tableData.purcode,
+          uid: tableData.uid,
+          realAmount: tableData.realAmount,
+          iscomplete: tableData.iscomplete
+        });
+        this.loadingTaxAction = false;
+        if (code === 200) {
+          this.msgSuccess("导出成功");
+          this.getList();
+          this.open = false;
+        }
+      } catch (err) {
+        this.loadingTaxAction = false;
+        console.log(err);
+      }
     },
     handleClick() {
       this.queryForm.pageNum = 1;
@@ -335,7 +484,6 @@ export default {
         })
         .catch(function() {});
     },
-    clearValidate() {},
     _initParams(obj) {
       const activeName = this.activeName;
       const phrDateRange = this.phrDateRange || [];

@@ -395,6 +395,7 @@ export default {
       cmdtclassname: "", //页面显示的商品类目
       producode: "", //商品编码（修改需要提交）
       uid: "", //商品uid（修改需要提交）
+      isRt: "",
       pmercodeList: [], //大供应商列表
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
@@ -544,6 +545,7 @@ export default {
         const codeArr = window.atob(this.$route.params.code).split("-");
         this.producode = codeArr[0];
         this.uid = codeArr[1];
+        this.isRt = codeArr[2];
       } catch (err) {
         console.log(err);
       }
@@ -961,6 +963,7 @@ export default {
       try {
         formData.append("producode", this.producode);
         formData.append("uid", this.uid);
+        formData.append("isRt", this.isRt);
         const { code, msg } = await proPublishSubEdit(formData);
         if (code === 200) {
           await this.getDetailData();

@@ -33,7 +33,8 @@
               <td
                 v-for="(v,i) in item.content"
                 :key="i"
-                :style="`width:${v.width}px;background-color: rgb(242, 242, 242);`"
+                v-if="!v.hidden"
+                :style="`width:${v.width}px;background-color: #F5F7FA;`"
               >
                 <div v-if="item.editAction">
                   <span v-if="v.canEdit === false">
@@ -47,7 +48,7 @@
                   <el-input
                     v-if="v.canEdit && v.inputType === 1"
                     v-model="v.value"
-                    :disabled="v.disabled"
+                    :disabled="v.disabled || noEdit"
                     :placeholder="v.placeholder"
                     :maxlength="v.maxLen"
                     :class="{'err-validate':v.validate}"
@@ -72,12 +73,14 @@
                   <el-checkbox
                     v-if="v.canEdit && v.inputType === 3"
                     v-model="v.value"
+                    true-label="Y"
+                    false-label="N"
                     @change="radioChange($event,index,i)"
                   >已结算</el-checkbox>
                   <el-input
                     v-if="v.canEdit && v.inputType === 5"
                     v-model="v.value"
-                    :disabled="item.isSent && v.sentAttr"
+                    :disabled="v.disabled || noEdit"
                     :placeholder="v.placeholder"
                     :maxlength="v.maxLen"
                     :class="{'input-with-select':true,'err-validate':v.validate}"
@@ -88,6 +91,7 @@
                       v-model="v.selectValue"
                       slot="append"
                       placeholder="请选择"
+                      :disabled="v.disabled || noEdit"
                       @change="innerSelectChange(index,i)"
                     >
                       <el-option
@@ -128,7 +132,7 @@
 </template>
 
 <script>
-import { accAdd, deepClone } from "@/utils";
+import { accAdd, accDiv, deepClone } from "@/utils";
 export default {
   name: "edit-table-item",
   props: {
@@ -161,6 +165,12 @@ export default {
       default() {
         return 20;
       }
+    },
+    needCompute: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     }
   },
 
@@ -174,7 +184,11 @@ export default {
       ) {
         return val.labelValue;
       } else if (val.inputType === 5) {
-        return `${val.value}${val.selectLabelValue}`;
+        if (val.value) {
+          return `${val.value}${val.selectLabelValue}`;
+        } else {
+          return "";
+        }
       } else {
         return val.value;
       }
@@ -205,16 +219,12 @@ export default {
     /* 表格删除某项操作 */
     delItem(index) {
       if (this.tableData[index].isSelected === true) {
-        this.$confirm(
-          `确定要删除 ${this.tableData[index].content[3].value} 吗？`,
-          "系统提示",
-          {
-            confirmButtonText: "确认",
-            cancelButtonText: "取消",
-            type: "warning",
-            customClass: "el-message-box-wran"
-          }
-        )
+        this.$confirm(`确定要删除吗？`, "系统提示", {
+          confirmButtonText: "确认",
+          cancelButtonText: "取消",
+          type: "warning",
+          customClass: "el-message-box-wran"
+        })
           .then(() => {
             this._delItem(this.tableData[index]);
           })
@@ -235,9 +245,37 @@ export default {
         content.forEach(item => {
           this._validate(item);
         });
+        if (this.needCompute) {
+          const idxPrePay = content.findIndex(item => {
+            return item.key === "preWhAmount";
+          });
+          const idxPreRate = content.findIndex(item => {
+            return item.key === "preRate";
+          });
+          const idxActualPay = content.findIndex(item => {
+            return item.key === "whAmount";
+          });
+          const idxActualRate = content.findIndex(item => {
+            return item.key === "rate";
+          });
+          const computeArr = [
+            Number(content[idxPrePay].value) /
+              Number(content[idxPreRate].value),
+            Number(content[idxActualPay].value) /
+              Number(content[idxActualRate].value)
+          ].filter(k => {
+            return Boolean(k) && k !== Infinity;
+          });
+          if (computeArr.length === 0) {
+            this.errMsgArr.push("* 预付或实付至少填写一个。");
+          }
+        }
         if (this.errMsgArr.length === 0) {
           this.tableData[index].editAction = false;
           this.tableData[index].isSelected = true;
+          if (this.needCompute) {
+            this._handelPrice(this.tableData[index]);
+          }
           this._handelTotolNum();
         } else {
           const h = this.$createElement;
@@ -270,12 +308,12 @@ export default {
 
     /* 模拟提交展示提交数据*/
     creatOrder() {
-      this.subData = this._deinitData(this.tableData);
+      return this._deinitData(this.tableData);
     },
 
     radioChange(val, index, i) {
       const item = this.tableData[index].content;
-      item[i].labelValue = val === true ? "已结算" : "未结算";
+      item[i].labelValue = val === "Y" ? "已结算" : "未结算";
     },
 
     selectChange(index, i) {
@@ -305,6 +343,42 @@ export default {
         this._reSort(this.tableData);
         this._handelTotolNum();
       }
+    },
+
+    /* 每次保存计算 */
+    _handelPrice(operateItem) {
+      const idxPrePay = operateItem.content.findIndex(item => {
+        return item.key === "preWhAmount";
+      });
+      const idxPreRate = operateItem.content.findIndex(item => {
+        return item.key === "preRate";
+      });
+      const idxActualPay = operateItem.content.findIndex(item => {
+        return item.key === "whAmount";
+      });
+      const idxActualRate = operateItem.content.findIndex(item => {
+        return item.key === "rate";
+      });
+      const idxPrePayYuan = operateItem.content.findIndex(item => {
+        return item.key === "prePayYuan";
+      });
+      const idxActualPayYuan = operateItem.content.findIndex(item => {
+        return item.key === "actualPayYuan";
+      });
+      operateItem.content[idxPrePayYuan].value =
+        accDiv(
+          Number(operateItem.content[idxPrePay].value),
+          Number(operateItem.content[idxPreRate].value)
+        ) || "";
+      operateItem.content[idxPrePayYuan].labelValue =
+        operateItem.content[idxPrePayYuan].value || "";
+      operateItem.content[idxActualPayYuan].value =
+        accDiv(
+          Number(operateItem.content[idxActualPay].value),
+          Number(operateItem.content[idxActualRate].value)
+        ) || "";
+      operateItem.content[idxActualPayYuan].labelValue =
+        operateItem.content[idxActualPayYuan].value || "";
     },
 
     /* 每次保存计算总计 */
@@ -353,11 +427,14 @@ export default {
             } else if (k.inputType === 2) {
               k.labelValue = v[k.labelKey];
             } else if (k.inputType === 3) {
-              k.labelValue = v[k.key] === true ? "已结算" : "未结算";
+              k.labelValue = v[k.key] === "Y" ? "已结算" : "未结算";
             }
           });
           modelData.content[0].value = i + 1;
           this.tableData.push(modelData);
+          if (this.needCompute) {
+            this._handelPrice(modelData);
+          }
           this._reSort(this.tableData);
         });
         this._handelTotolNum();
@@ -377,6 +454,17 @@ export default {
             })
             .reduce((pre, j) => {
               Object.assign(pre, { [j.key]: j.value });
+              if (j.inputType === 2) {
+                Object.assign(pre, {
+                  [`${j.labelKey}`]: j.labelValue
+                });
+              }
+              if (j.inputType === 5) {
+                Object.assign(pre, {
+                  [`${j.selectKey}`]: j.selectValue,
+                  [`${j.selectLabelKey}`]: j.selectLabelValue
+                });
+              }
               return pre;
             }, {});
         });
