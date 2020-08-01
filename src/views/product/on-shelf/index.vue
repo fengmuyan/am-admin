@@ -54,7 +54,7 @@
         </el-col>
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="productList">
-        <el-table-column label="商品编码" prop="ccode" width="90"/>
+        <el-table-column label="商品编码" prop="producode" width="100"/>
         <el-table-column label="商品类目" prop="cmdtclassname" show-overflow-tooltip/>
         <el-table-column label="供货商" prop="thearchyname" show-overflow-tooltip />
         <el-table-column label="商品标题" prop="title" show-overflow-tooltip/>

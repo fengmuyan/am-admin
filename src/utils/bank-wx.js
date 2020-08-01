@@ -1,0 +1,3 @@
+const bankWxArr = '[{"bank":"工商银行","bankNum":"102100099996"},{"bank":"交通银行","bankNum":"301290000007"},{"bank":"招商银行","bankNum":"308584000013"},{"bank":"民生银行","bankNum":"305100000013"},{"bank":"中信银行","bankNum":"302100011000"},{"bank":"浦发银行","bankNum":"310290000013"},{"bank":"兴业银行","bankNum":"309391000011"},{"bank":"光大银行","bankNum":"303100000006"},{"bank":"广发银行","bankNum":"306581000003"},{"bank":"平安银行","bankNum":"307584007998"},{"bank":"北京银行","bankNum":"313100000013"},{"bank":"华夏银行","bankNum":"304100040000"},{"bank":"农业银行","bankNum":"103100000026"},{"bank":"建设银行","bankNum":"105100000017"},{"bank":"邮政储蓄银行","bankNum":"403100000004"},{"bank":"中国银行","bankNum":"104100000004"},{"bank":"宁波银行","bankNum":"313332082914"}]'
+
+export default JSON.parse(bankWxArr)

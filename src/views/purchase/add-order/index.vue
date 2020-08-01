@@ -157,7 +157,7 @@ export default {
         {
           value: "1003",
           label: "元"
-        },
+        }
       ],
       weightUnitList: [
         {
@@ -423,6 +423,7 @@ export default {
             pattern: "(^[1-9](\\d+)?(\\.\\d{1,2})?$)|(^\\d\\.\\d{1,2}$)",
             inputType: 1,
             maxLen: 10,
+            isDisabled: false,
             errMsg: "* 汇率为大于0且至多两位小数。"
           },
           {
@@ -532,7 +533,7 @@ export default {
         const p4 = new Promise((resolve, reject) => {
           this.$refs["editTable"].validateRate(valid => {
             if (valid) {
-              console.log(2,54546);
+              console.log(2, 54546);
 
               resolve();
             } else {

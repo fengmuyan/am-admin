@@ -121,6 +121,12 @@
                 class="w400"
               ></el-input>
             </el-form-item>
+            <el-form-item label="支付手续费：" prop="feemode">
+              <el-select v-model="baseForm.feemode" class="w400">
+                <el-option label="用户出手续费" value="0"></el-option>
+                <el-option label="商户出手续费" value="1"></el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="客服电话：" prop="servicephone">
               <el-input
                 v-model="baseForm.servicephone"
@@ -215,15 +221,14 @@ export default {
         address: "",
         zipCode: "",
         shopprofile: "",
-        servicephone: ""
+        servicephone: "",
+        feemode: "0"
       },
       baseFormRules: {
         shopname: [
           { required: true, message: "请输入店铺名称", trigger: "blur" }
         ],
-        province: [
-          { required: true, message: "请选择地区", trigger: "blur" }
-        ],
+        province: [{ required: true, message: "请选择地区", trigger: "blur" }],
         city: [{ required: true, message: "请选择城市", trigger: "blur" }],
         area: [{ required: true, message: "请选择区县", trigger: "blur" }],
         address: [
@@ -237,6 +242,9 @@ export default {
         ],
         servicephone: [
           { validator: validateTel, required: true, trigger: "blur" }
+        ],
+        feemode: [
+          { required: true, message: "请输入支付手续费模式", trigger: "select" }
         ],
         slogan: [
           { required: true, message: "请输入商铺slogan", trigger: "blur" }
@@ -287,7 +295,8 @@ export default {
               cityCode,
               areaCode,
               zipcode,
-              shoplocation
+              shoplocation,
+              feemode
             }
           },
           code
@@ -312,6 +321,7 @@ export default {
           this.baseForm.areaCode = areaCode;
           this.baseForm.zipCode = zipcode;
           this.baseForm.address = shoplocation;
+          this.baseForm.feemode = String(feemode);
           this.cityArr = City.getCity(province);
           this.areaArr = City.getCity(city);
           const imgData = storeImages.map(item => {
@@ -397,6 +407,7 @@ export default {
           formData.append("shopname", this.baseForm.shopname);
           formData.append("shoplogo", this.baseForm.shoplogo);
           formData.append("slogan", this.baseForm.slogan);
+          formData.append("feemode", this.baseForm.feemode);
 
           formData.append("province", this.baseForm.province);
           formData.append("city", this.baseForm.city);

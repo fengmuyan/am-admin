@@ -14,16 +14,22 @@ router.beforeEach((to, from, next) => {
       NProgress.done()
     } else {
       if (store.getters.roles.length === 0) {
-        store.dispatch('GetInfo').then((res) => {
-          const roles = res.roles
-          store.dispatch('GenerateRoutes', { roles }).then(accessRoutes => {
-            router.addRoutes([...accessRoutes, {
-              path: '*', component: () => import('@/views/error/404'),
-              hidden: true
-            }])
-            next({ ...to, replace: true })
+        store
+          .dispatch('GetInfo')
+          .then(res => {
+            const roles = res.roles
+            store.dispatch('GenerateRoutes', { roles }).then(accessRoutes => {
+              router.addRoutes([
+                ...accessRoutes,
+                {
+                  path: '*',
+                  component: () => import('@/views/error/404'),
+                  hidden: true
+                }
+              ])
+              next({ ...to, replace: true })
+            })
           })
-        })
           .catch(err => {
             store.dispatch('FedLogOut').then(() => {
               next({ path: '/' })

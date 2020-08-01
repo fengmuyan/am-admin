@@ -68,7 +68,7 @@
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="productList">
         <el-table-column label="序号" prop="order" width="60" />
-        <el-table-column label="商品编码" prop="ccode" />
+        <el-table-column label="商品编码" prop="cmdtcode" />
         <el-table-column label="商品分类" prop="cname" />
         <el-table-column label="商品名称" prop="cmdtname" />
         <el-table-column label="商品产地" prop="producerName" />
@@ -78,9 +78,15 @@
           <template slot-scope="scope">{{scope.row.unitWeight}}/{{scope.row.typeCode}}</template>
         </el-table-column>
         <el-table-column label=" 成本单价（元）" prop="unitCost" />
-        <el-table-column label="操作" align="center" width="100">
+        <el-table-column label="操作" align="center" width="160">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">修改</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-document"
+              @click="handleDetail(scope.row)"
+            >修改明细</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -93,7 +99,7 @@
       />
     </div>
 
-    <el-dialog title="修改库存" :visible.sync="open" width="500px">
+    <el-dialog title="修改库存" :visible.sync="open" width="500px" @close="clearValidate">
       <el-form ref="form" :model="form" :rules="formRules" label-width="90px">
         <el-form-item label="库存" prop="rtStoreNum">
           <el-input v-model="form.rtStoreNum" maxlength="6" placeholder="请输入修改库存" />
@@ -157,7 +163,9 @@ export default {
         remarks: undefined
       },
       formRules: {
-        rtStoreNum: [{ validator: validateNum, trigger: "blur" }],
+        rtStoreNum: [
+          { required: true, validator: validateNum, trigger: "blur" }
+        ],
         remarks: [{ required: true, message: "备注信息", trigger: "blur" }]
       }
     };
@@ -221,6 +229,11 @@ export default {
         cmdtcode: undefined,
         rtStoreNum: undefined,
         remarks: undefined
+      });
+    },
+    handleDetail(item) {
+      this.$router.push({
+        path: `/purchase/warehouse/${item.cmdtcode}`
       });
     },
     async handleEdit(item) {

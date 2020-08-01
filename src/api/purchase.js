@@ -192,3 +192,12 @@ export function handelEditStore(data) {
     data
   })
 }
+
+// 修改库存明细
+export function getStoreEditList(data) {
+  return request({
+    url: '/god/rt/storePageCmdtLogList',
+    method: 'post',
+    data
+  })
+}

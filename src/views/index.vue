@@ -32,6 +32,7 @@ import PieChart2 from "./dashboard/PieChart2";
 import RefererChart from "./dashboard/RefererChart";
 import { mapState } from "vuex";
 import { getHomePageData } from "@/api/index";
+
 export default {
   name: "Index",
   components: {
@@ -88,19 +89,23 @@ export default {
       ]
     };
   },
+
   computed: {
     ...mapState({
       isReal: state => state.user.isReal,
-      isOpenAccount: state => state.user.isOpenAccount
+      isOpenAccount: state => state.user.isOpenAccount,
+      isOpenAbcAccount: state => state.user.isOpenAbcAccount
     }),
     lineChartData() {
       return this.lineChartDataAll[this.activeItem];
     }
   },
+
   created() {
     const isReal = Number(this.isReal);
     const isOpenAccount = this.isOpenAccount;
-    if (isReal === 3 && isOpenAccount === true) {
+    const isOpenAbcAccount = this.isOpenAbcAccount;
+    if (isReal === 3 && isOpenAccount === true && isOpenAbcAccount === true) {
       this.getData();
     } else {
       this.isShow = true;
@@ -141,12 +146,14 @@ export default {
           }
           this._botCircleInit(botMidData[0].value, topLine, "creditprice");
           this._botCircleInit(botMidData[1].value, topLine, "currencyamount");
+
           this._topPanelInit(topPanelData, 0, topLine, "ordercount");
           this._topPanelInit(topPanelData, 1, topLine, "paycount");
           this._topPanelInit(topPanelData, 2, topLine, "creditprice");
           this._topPanelInit(topPanelData, 3, topLine, "totalmoney");
           this._topPanelInit(topPanelData, 4, topLine, "paymoney");
           this._topPanelInit(topPanelData, 5, topLine, "repaymoney");
+
           this._weekDataInit(topFir, topLine, "ordercount");
           this._weekDataInit(topSec, topLine, "paycount");
           this._weekDataInit(topThi, topLine, "creditprice");
@@ -157,19 +164,24 @@ export default {
         console.log(err);
       }
     },
+
     handleSetLineChartData(type) {
       this.activeItem = type;
     },
+
     _topPanelInit(operateData, index, httpData, httpItem) {
       operateData[index] = httpData[httpData.length - 1][httpItem];
     },
+
     _botCircleInit(operateData, httpData, httpItem) {
       operateData = httpData[httpData.length - 1][httpItem];
     },
+
     _weekDataInit(operateData, httpData, httpItem) {
       operateData.preWeek = httpData.slice(0, 7).map(item => item[httpItem]);
       operateData.curWeek = httpData.slice(7).map(item => item[httpItem]);
     },
+
     _tradestateInit(val) {
       const arr = [
         "待付款",
@@ -196,6 +208,7 @@ export default {
   padding-top: 15px;
   background-color: rgb(240, 242, 245);
   position: relative;
+
   .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
@@ -211,6 +224,7 @@ export default {
     box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
   }
 }
+
 @media (max-width: 1024px) {
   .chart-wrapper {
     padding: 8px;

@@ -48,7 +48,7 @@
                   <el-input
                     v-if="v.canEdit && v.inputType === 1"
                     v-model="v.value"
-                    :disabled="v.disabled || noEdit"
+                    :disabled="v.isDisabled || noEdit"
                     :placeholder="v.placeholder"
                     :maxlength="v.maxLen"
                     :class="{'err-validate':v.validate}"
@@ -80,7 +80,7 @@
                   <el-input
                     v-if="v.canEdit && v.inputType === 5"
                     v-model="v.value"
-                    :disabled="v.disabled || noEdit"
+                    :disabled="v.isDisabled || noEdit"
                     :placeholder="v.placeholder"
                     :maxlength="v.maxLen"
                     :class="{'input-with-select':true,'err-validate':v.validate}"
@@ -91,7 +91,7 @@
                       v-model="v.selectValue"
                       slot="append"
                       placeholder="请选择"
-                      :disabled="v.disabled || noEdit"
+                      :disabled="v.isDisabled || noEdit"
                       @change="innerSelectChange(index,i)"
                     >
                       <el-option

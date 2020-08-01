@@ -51,7 +51,7 @@
                   <el-input
                     v-if="v.canEdit && v.inputType === 1"
                     v-model="v.value"
-                    :disabled="item.isSent && v.sentAttr"
+                    :disabled="(item.isSent && v.sentAttr)|| v.isDisabled"
                     :placeholder="v.placeholder"
                     :maxlength="v.maxLen"
                     :class="{'err-validate':v.validate}"
@@ -395,6 +395,16 @@ export default {
       item[i].selectLabelValue = item[i].selectOptions.find(v => {
         return v.value === item[i].selectValue;
       }).label;
+      const idx = item.findIndex(v => {
+        return v.key === "rate";
+      });
+      if (item[i].key === "unitPrice" && item[i].selectLabelValue === "元") {
+        item[idx].isDisabled = true;
+        item[idx].value = "1";
+      } else {
+        item[idx].isDisabled = false;
+        item[idx].value = "";
+      }
     },
 
     /* 联动select赋值*/
@@ -641,6 +651,7 @@ export default {
             if (k.inputType === 5) {
               k.selectValue = v[k.selectKey] || v[k.selectLabelKey];
               k.selectLabelValue = v[k.selectLabelKey];
+
             } else if (k.inputType === 2 || k.inputType === 6) {
               k.labelValue = v[k.labelKey];
             }

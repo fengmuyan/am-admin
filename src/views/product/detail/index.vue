@@ -2,12 +2,14 @@
   <div class="pro-publish-edit app-container">
     <div v-if="cmdtclassname" v-loading="loading">
       <div class="block">
-        <h4>当前类目：{{cmdtclassname}}</h4>
+        <h4>当前类目：{{ cmdtclassname }}</h4>
       </div>
       <div class="block" v-loading="loadingNature">
         <h4>
           自然属性
-          <el-button size="mini" class="f-r" type="primary" @click="editNatureproV">修改自然属性</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editNatureproV"
+            >修改自然属性</el-button
+          >
         </h4>
         <el-form
           :model="titleForm"
@@ -36,11 +38,9 @@
           </el-form-item>
           <el-form-item label="展示分类：" prop="homepageclass">
             <el-radio-group v-model="titleForm.homepageclass">
-              <el-radio
-                v-for="(item,index) in homePageClasses"
-                :label="item.hcode"
-                :key="index"
-              >{{item.hname}}</el-radio>
+              <el-radio v-for="(item, index) in homePageClasses" :label="item.hcode" :key="index">{{
+                item.hname
+              }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="是否代卖：" prop="isAgent">
@@ -49,7 +49,7 @@
               <el-radio label="N">否</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="titleForm.isAgent==='Y'" label="供货商：" prop="pmercode">
+          <el-form-item v-if="titleForm.isAgent === 'Y'" label="供货商：" prop="pmercode">
             <el-select v-model="titleForm.pmercode" placeholder="请选择供货商" class="w-400">
               <el-option
                 v-for="item in pmercodeList"
@@ -65,7 +65,9 @@
       <div class="block" v-loading="loadingSale">
         <h4>
           销售属性
-          <el-button size="mini" class="f-r" type="primary" @click="editSaleproV">修改销售属性</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editSaleproV"
+            >修改销售属性</el-button
+          >
         </h4>
         <el-form
           :model="valuationForm"
@@ -153,7 +155,11 @@
                   ></upload-img>
                 </el-form-item>
                 <el-form-item label="商品图：" prop="img_two" class="imgs-item">
-                  <upload-img @del-item="delImgItem" :file="[uploadForm.img_two]" ref="imgItemSec"></upload-img>
+                  <upload-img
+                    @del-item="delImgItem"
+                    :file="[uploadForm.img_two]"
+                    ref="imgItemSec"
+                  ></upload-img>
                   <upload-img
                     @del-item="delImgItem"
                     :file="[uploadForm.img_three]"
@@ -171,7 +177,9 @@
                     :file="[uploadForm.img_five]"
                     ref="imgItemFive"
                   ></upload-img>
-                  <el-button size="mini" class="f-r" type="primary" @click="editProImgV">修改商品图片</el-button>
+                  <el-button size="mini" class="f-r" type="primary" @click="editProImgV"
+                    >修改商品图片</el-button
+                  >
                 </el-form-item>
               </div>
             </div>
@@ -197,7 +205,9 @@
                     :file="uploadForm.baby_video"
                     ref="baby_video"
                   ></upload-video>
-                  <el-button size="mini" class="f-r" type="primary" @click="editProVideo">修改商品视频</el-button>
+                  <el-button size="mini" class="f-r" type="primary" @click="editProVideo"
+                    >修改商品视频</el-button
+                  >
                 </el-form-item>
               </div>
             </div>
@@ -205,14 +215,16 @@
               <!-- <el-form-item label="电脑端描述：" prop="webDesc" class="editor-item">
                 <editor v-model="uploadForm.webDesc" :moduleNum="2"></editor>
               </el-form-item>-->
-              <el-form-item label="手机端描述：" prop="phoneDesc" class="editor-item" ref="phoneDesc">
+              <el-form-item
+                label="手机端描述："
+                prop="phoneDesc"
+                class="editor-item"
+                ref="phoneDesc"
+              >
                 <editor v-model="uploadForm.phoneDesc" @input="phoneEditor" :moduleNum="1"></editor>
-                <el-button
-                  size="mini"
-                  class="f-r edit-dec-btn"
-                  type="primary"
-                  @click="editProDecV"
-                >修改商品文本描述</el-button>
+                <el-button size="mini" class="f-r edit-dec-btn" type="primary" @click="editProDecV"
+                  >修改商品文本描述</el-button
+                >
               </el-form-item>
             </div>
           </el-form>
@@ -221,7 +233,9 @@
       <div class="block" v-loading="loadingPay">
         <h4>
           支付信息
-          <el-button size="mini" class="f-r" type="primary" @click="editPayInfo">修改支付信息</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editPayInfo"
+            >修改支付信息</el-button
+          >
         </h4>
         <el-form :model="payForm" ref="payForm" :rules="payFormRules" label-width="110px">
           <el-form-item label="付款方式：" prop="paymethod">
@@ -241,7 +255,9 @@
       <div class="block" v-loading="loadingLogistics">
         <h4>
           物流信息
-          <el-button size="mini" class="f-r" type="primary" @click="editLogistics">修改物流信息</el-button>
+          <el-button size="mini" class="f-r" type="primary" @click="editLogistics"
+            >修改物流信息</el-button
+          >
         </h4>
         <el-form
           :model="logisticsForm"
@@ -262,20 +278,24 @@
           <el-form-item>
             <el-checkbox
               v-model="logisticsForm.issupsubstitute"
-              :disabled="logisticsForm.deliverymode!=='1'"
-            >代发</el-checkbox>
-            <span class="logistics-adr">{{`代发地址：${storeInfo.province}${storeInfo.city}。`}}</span>
-            <p
-              class="tip-info"
-              style="line-height: 20px;padding-left: 0;"
-            >* 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。</p>
+              :disabled="logisticsForm.deliverymode !== '1'"
+              >代发</el-checkbox
+            >
+            <span class="logistics-adr">{{
+              `代发地址：${storeInfo.province}${storeInfo.city}。`
+            }}</span>
+            <p class="tip-info" style="line-height: 20px;padding-left: 0;">
+              * 如果客户不自提，可选择代发，即由商户代客户发物流，物流费用由客户承担。
+            </p>
           </el-form-item>
         </el-form>
       </div>
       <div class="block" v-loading="loadingServer">
         <h4>
           售后服务
-          <el-button size="mini" type="primary" class="f-r" @click="editPostSaleV">修改售后服务</el-button>
+          <el-button size="mini" type="primary" class="f-r" @click="editPostSaleV"
+            >修改售后服务</el-button
+          >
         </h4>
         <el-form
           :model="postSaleForm"
@@ -304,11 +324,15 @@
           <el-form-item label="上架状态：" prop="state">
             <el-radio-group v-model="postSaleForm.state">
               <el-radio label="1">上架</el-radio>
-              <el-radio label="2" v-if="Number(state)!==3">下架</el-radio>
-              <el-radio label="3" v-if="Number(state)!==2">放入仓库</el-radio>
+              <el-radio label="2" v-if="Number(state) !== 3">下架</el-radio>
+              <el-radio label="3" v-if="Number(state) !== 2">放入仓库</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-if="this.postSaleForm.state === '1'" label="上架时间：" prop="publishtime">
+          <el-form-item
+            v-if="this.postSaleForm.state === '1'"
+            label="上架时间："
+            prop="publishtime"
+          >
             <el-date-picker
               type="datetime"
               v-model="postSaleForm.publishtime"
@@ -323,11 +347,11 @@
   </div>
 </template>
 <script>
-import DynamicForm from "@/components/DynamicForm";
-import DynamicTable from "@/components/DynamicTable";
-import UploadImg from "@/components/UploadImg";
-import UploadVideo from "@/components/UploadVideo";
-import Editor from "@/components/Editor";
+import DynamicForm from '@/components/DynamicForm'
+import DynamicTable from '@/components/DynamicTable'
+import UploadImg from '@/components/UploadImg'
+import UploadVideo from '@/components/UploadVideo'
+import Editor from '@/components/Editor'
 import {
   getProCate,
   getProData,
@@ -335,7 +359,7 @@ import {
   getProDetail,
   proPublishSubEdit,
   getSupplierList
-} from "@/api/product";
+} from '@/api/product'
 import {
   initFormData,
   deInitFormData,
@@ -349,7 +373,7 @@ import {
   subTableInputData,
   initInvoice,
   initInvoiceSub
-} from "@/utils";
+} from '@/utils'
 
 export default {
   components: {
@@ -360,26 +384,26 @@ export default {
     Editor
   },
   data() {
-    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/; //数字价格类型验证
+    const patter = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/ //数字价格类型验证
     const validateNetWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
-        callback(new Error("必须非负整数或至多保留两位小数！"));
+        callback(new Error('必须非负整数或至多保留两位小数！'))
       } else {
-        if (this.valuationForm.grossweight !== "") {
-          this.$refs.valuationForm.validateField("grossweight");
+        if (this.valuationForm.grossweight !== '') {
+          this.$refs.valuationForm.validateField('grossweight')
         }
-        callback();
+        callback()
       }
-    }; //净重验证
+    } //净重验证
     const validateGrossWeight = (rule, value, callback) => {
       if (!patter.test(value)) {
-        callback(new Error("必须非负整数或至多保留两位小数！"));
+        callback(new Error('必须非负整数或至多保留两位小数！'))
       } else if (!(Number(value) > Number(this.valuationForm.netweight))) {
-        callback(new Error("毛重必须大于净重"));
+        callback(new Error('毛重必须大于净重'))
       } else {
-        callback();
+        callback()
       }
-    }; //毛重验证
+    } //毛重验证
     return {
       loading: false, //初始页面loading
       loadingNature: false, //自然属性模块loading
@@ -392,10 +416,10 @@ export default {
       loadingLogistics: false,
       imgBoxShow: true, //修改成功后初始化图片内容
       videoBoxShow: true, //修改成功后初始化视频内容
-      cmdtclassname: "", //页面显示的商品类目
-      producode: "", //商品编码（修改需要提交）
-      uid: "", //商品uid（修改需要提交）
-      isRt: "",
+      cmdtclassname: '', //页面显示的商品类目
+      producode: '', //商品编码（修改需要提交）
+      uid: '', //商品uid（修改需要提交）
+      isRt: '',
       pmercodeList: [], //大供应商列表
       naturalData: [], //自然属性原始数据
       naturalDataInit: [], //自然属性处理后的数据（供动态表单使用）
@@ -408,26 +432,26 @@ export default {
       homePageClasses: [], // 产品展示分类关联数组
       productImgs: [], //关联图片数组（用于图片提交）
       productVideos: [], //关联视频数组（用于视频提交）
-      state: "", //上架状态初始值（判断哪些状态显示）
+      state: '', //上架状态初始值（判断哪些状态显示）
       storeInfo: {}, //地址信息
       cateForm: {
-        cateData: "",
+        cateData: '',
         cateInputArr: []
       }, //商品类目表单
       valuationForm: {
-        isdiscount: "1",
-        pricetype: "2",
-        grossweight: "",
-        netweight: "",
-        cmdtspecifications: "",
-        weightunit: "公斤",
-        requiredWeigh: "Y"
+        isdiscount: '1',
+        pricetype: '2',
+        grossweight: '',
+        netweight: '',
+        cmdtspecifications: '',
+        weightunit: '公斤',
+        requiredWeigh: 'Y'
       }, //销售属性中计价表单
       postSaleForm: {
-        invoice: "0",
-        state: "3",
-        publishtime: "",
-        ticketType: ["1"]
+        invoice: '0',
+        state: '3',
+        publishtime: '',
+        ticketType: ['1']
       }, //物流信息模块
       uploadForm: {
         img_one: null,
@@ -437,178 +461,148 @@ export default {
         img_five: null,
         master_video: null,
         baby_video: null,
-        zduration: "0",
-        fduration: "0",
-        proportion: "",
-        webDesc: "",
-        phoneDesc: ""
+        zduration: '0',
+        fduration: '0',
+        proportion: '',
+        webDesc: '',
+        phoneDesc: ''
       }, //上传表单
       titleForm: {
-        isAgent: "",
-        pmercode: "",
-        produname: "",
-        title: "",
-        homepageclass: ""
+        isAgent: '',
+        pmercode: '',
+        produname: '',
+        title: '',
+        homepageclass: ''
       }, //自然属性中的标题表单
       payForm: {
-        paymethod: "1",
-        stockmethod: "1"
+        paymethod: '1',
+        stockmethod: '1'
       }, //支付信息表单
       logisticsForm: {
-        deliverymode: "1",
+        deliverymode: '1',
         issupsubstitute: false
       }, //物流信息表单
       valuationRules: {
-        isdiscount: [
-          { required: true, message: "请输入折扣方式", trigger: "blur" }
-        ],
-        pricetype: [
-          { required: true, message: "请输入计价方式", trigger: "blur" }
-        ],
+        isdiscount: [{ required: true, message: '请输入折扣方式', trigger: 'blur' }],
+        pricetype: [{ required: true, message: '请输入计价方式', trigger: 'blur' }],
         netweight: [
-          { required: true, message: "请输入净重", trigger: "blur" },
-          { validator: validateNetWeight, trigger: ["change", "blur"] }
+          { required: true, message: '请输入净重', trigger: 'blur' },
+          { validator: validateNetWeight, trigger: ['change', 'blur'] }
         ],
         grossweight: [
-          { required: true, message: "请输入毛重", trigger: "blur" },
-          { validator: validateGrossWeight, trigger: ["change", "blur"] }
+          { required: true, message: '请输入毛重', trigger: 'blur' },
+          { validator: validateGrossWeight, trigger: ['change', 'blur'] }
         ],
-        weightunit: [
-          { required: true, message: "请输入重量单位", trigger: "blur" }
-        ],
-        cmdtspecifications: [
-          { required: true, message: "请输入规格", trigger: "blur" }
-        ],
-        requiredWeigh: [
-          { required: true, message: "请输入是否必须称重", trigger: "blur" }
-        ]
+        weightunit: [{ required: true, message: '请输入重量单位', trigger: 'blur' }],
+        cmdtspecifications: [{ required: true, message: '请输入规格', trigger: 'blur' }],
+        requiredWeigh: [{ required: true, message: '请输入是否必须称重', trigger: 'blur' }]
       }, //销售属性中计价表单验证
       postSaleFormRules: {
-        state: [{ required: true, message: "请输入上架状态", trigger: "blur" }],
-        publishtime: [
-          { required: true, message: "请输入上架时间", trigger: "blur" }
-        ],
-        invoice: [
-          { required: true, message: "请输入是否填写发票", trigger: "blur" }
-        ],
-        ticketType: [
-          { required: true, message: "请至少选择一项", trigger: "change" }
-        ]
+        state: [{ required: true, message: '请输入上架状态', trigger: 'blur' }],
+        publishtime: [{ required: true, message: '请输入上架时间', trigger: 'blur' }],
+        invoice: [{ required: true, message: '请输入是否填写发票', trigger: 'blur' }],
+        ticketType: [{ required: true, message: '请至少选择一项', trigger: 'change' }]
       }, //物流表单验证
       uploadFormRules: {
-        img_one: [
-          { required: true, message: "请输入商品主图", trigger: "blur" }
-        ],
-        phoneDesc: [
-          { required: true, message: "请输入手机端描述", trigger: "blur" }
-        ]
+        img_one: [{ required: true, message: '请输入商品主图', trigger: 'blur' }],
+        phoneDesc: [{ required: true, message: '请输入手机端描述', trigger: 'blur' }]
       }, //上传表单验证
       titleFormRules: {
-        produname: [
-          { required: true, message: "请输入商品名称", trigger: "blur" }
-        ],
-        title: [{ required: true, message: "请输入商品标题", trigger: "blur" }],
-        homepageclass: [
-          { required: true, message: "请输入商品在主页中分类", trigger: "blur" }
-        ],
-        isAgent: [{ required: true, message: "请选择", trigger: "blur" }],
+        produname: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+        title: [{ required: true, message: '请输入商品标题', trigger: 'blur' }],
+        homepageclass: [{ required: true, message: '请输入商品在主页中分类', trigger: 'blur' }],
+        isAgent: [{ required: true, message: '请选择', trigger: 'blur' }],
         pmercode: [
           {
             required: true,
-            message: "请选择一个商户",
-            trigger: ["blur", "change"]
+            message: '请选择一个商户',
+            trigger: ['blur', 'change']
           }
         ]
       }, //自然属性中的标题表单验证
       payFormRules: {
-        paymethod: [
-          { required: true, message: "请输入付款方式", trigger: "blur" }
-        ],
-        stockmethod: [
-          { required: true, message: "请输入库存计数方式", trigger: "blur" }
-        ]
+        paymethod: [{ required: true, message: '请输入付款方式', trigger: 'blur' }],
+        stockmethod: [{ required: true, message: '请输入库存计数方式', trigger: 'blur' }]
       }, //支付信息表单验证
       logisticsFormRules: {
-        deliverymode: [
-          { required: true, message: "请输入发货方式", trigger: "blur" }
-        ]
+        deliverymode: [{ required: true, message: '请输入发货方式', trigger: 'blur' }]
       } //物流信息表单验证
-    };
+    }
   },
   async created() {
-    this.initParams();
-    await this.getDetailData();
+    this.initParams()
+    await this.getDetailData()
   },
   methods: {
     initParams() {
       try {
-        const codeArr = window.atob(this.$route.params.code).split("-");
-        this.producode = codeArr[0];
-        this.uid = codeArr[1];
-        this.isRt = codeArr[2];
+        const codeArr = window.atob(this.$route.params.code).split('-')
+        this.producode = codeArr[0]
+        this.uid = codeArr[1]
+        this.isRt = codeArr[2]
       } catch (err) {
-        console.log(err);
+        console.log(err)
       }
     },
 
     /* 添加商品主图 */
     addItemFir(val) {
-      this.uploadForm.img_one = val[0];
-      this.$refs["uploadElement"].clearValidate();
+      this.uploadForm.img_one = val[0]
+      this.$refs['uploadElement'].clearValidate()
     },
 
     delItemFir(val) {
-      this.uploadForm.img_one = null;
-      this.delImgItem(val);
+      this.uploadForm.img_one = null
+      this.delImgItem(val)
     },
 
     /* 删除图片匹配去掉productImgs中uid */
     delImgItem(uid) {
       const idx = this.productImgs.findIndex(item => {
-        return item.uid === uid;
-      });
+        return item.uid === uid
+      })
       if (idx !== -1) {
-        this.productImgs.splice(idx, 1);
+        this.productImgs.splice(idx, 1)
       }
     },
 
     /* 删除主视频匹配去掉productVideos中uid */
     addVideoItemFir(val) {
       const idx = this.productVideos.findIndex(item => {
-        return Number(item.serial) === 1;
-      });
+        return Number(item.serial) === 1
+      })
       if (idx !== -1) {
-        this.productVideos.splice(idx, 1);
+        this.productVideos.splice(idx, 1)
       }
-      this.uploadForm.zduration = val.duration ? val.duration : 0;
+      this.uploadForm.zduration = val.duration ? val.duration : 0
     },
 
     /* 删除详情视频匹配去掉productVideos中uid */
     addVideoItemSec(val) {
       const idx = this.productVideos.findIndex(item => {
-        return Number(item.serial) === 2;
-      });
+        return Number(item.serial) === 2
+      })
       if (idx !== -1) {
-        this.productVideos.splice(idx, 1);
+        this.productVideos.splice(idx, 1)
       }
-      this.uploadForm.fduration = val.duration ? val.duration : 0;
+      this.uploadForm.fduration = val.duration ? val.duration : 0
     },
 
     /* 手机端描述输入后清除验证  */
     phoneEditor() {
-      this.$refs["phoneDesc"].clearValidate();
+      this.$refs['phoneDesc'].clearValidate()
     },
 
     /* 获取本页详情信息数据 */
     async getDetailData() {
       try {
-        const { producode, uid } = this;
+        const { producode, uid } = this
         const {
           code: code3,
           data: { pmercodes }
-        } = await getSupplierList();
+        } = await getSupplierList()
         if (code3 === 200) {
-          this.pmercodeList = pmercodes;
+          this.pmercodeList = pmercodes
           const [
             {
               code: code1,
@@ -650,347 +644,327 @@ export default {
               data: { homePageClasses },
               code: code2
             }
-          ] = await Promise.all([
-            getProDetail({ producode, uid }),
-            getHomePageClass()
-          ]);
+          ] = await Promise.all([getProDetail({ producode, uid }), getHomePageClass()])
           if (code1 === 200) {
-            this.cmdtclassname = cmdtclassname;
-            this.titleForm.produname = produname;
-            this.titleForm.title = title;
-            this.titleForm.homepageclass = homepageclass;
-            this.titleForm.isAgent = isagent;
-            this.titleForm.pmercode = pmercode;
-            this.valuationForm.pricetype = String(pricetype);
-            this.valuationForm.weightunit = weightunit;
-            this.valuationForm.grossweight = grossweight;
-            this.valuationForm.netweight = netweight;
-            this.valuationForm.cmdtspecifications = cmdtspecifications;
-            this.valuationForm.isdiscount = String(isdiscount);
-            this.valuationForm.requiredWeigh = String(requiredWeigh);
-            this.naturalData = JSON.parse(naturepro).naturepro;
-            this.naturalDataInit = initFormData(deepClone(this.naturalData));
-            this.saleData = JSON.parse(salepro).salepro;
-            this.saleDataInit = initFormData(deepClone(this.saleData));
-            this.cmdtProductPrices = cmdtProductPrices;
-            this.tableShow(true);
-            this.postSaleForm.state = String(state);
-            this.postSaleForm.publishtime = publishtime;
-            Object.assign(this.postSaleForm, initInvoice(invoice));
-            this.payForm.paymethod = String(paymethod);
-            this.payForm.stockmethod = String(stockmethod);
-            this.logisticsForm.issupsubstitute =
-              issupsubstitute === "Y" ? true : false;
-            this.logisticsForm.deliverymode = String(deliverymode);
-            this.uploadForm.webDesc = cmdtProductDescriptions.find(
-              item => item.xtype === 2
-            ).xdesc;
-            this.uploadForm.phoneDesc = cmdtProductDescriptions.find(
-              item => item.xtype === 1
-            ).xdesc;
+            this.cmdtclassname = cmdtclassname
+            this.titleForm.produname = produname
+            this.titleForm.title = title
+            this.titleForm.homepageclass = homepageclass
+            this.titleForm.isAgent = isagent
+            this.titleForm.pmercode = pmercode
+            this.valuationForm.pricetype = String(pricetype)
+            this.valuationForm.weightunit = weightunit
+            this.valuationForm.grossweight = grossweight
+            this.valuationForm.netweight = netweight
+            this.valuationForm.cmdtspecifications = cmdtspecifications
+            this.valuationForm.isdiscount = String(isdiscount)
+            this.valuationForm.requiredWeigh = String(requiredWeigh)
+            this.naturalData = JSON.parse(naturepro).naturepro
+            this.naturalDataInit = initFormData(deepClone(this.naturalData))
+            this.saleData = JSON.parse(salepro).salepro
+            this.saleDataInit = initFormData(deepClone(this.saleData))
+            this.cmdtProductPrices = cmdtProductPrices
+            this.tableShow(true)
+            this.postSaleForm.state = String(state)
+            this.postSaleForm.publishtime = publishtime
+            Object.assign(this.postSaleForm, initInvoice(invoice))
+            this.payForm.paymethod = String(paymethod)
+            this.payForm.stockmethod = String(stockmethod)
+            this.logisticsForm.issupsubstitute = issupsubstitute === 'Y' ? true : false
+            this.logisticsForm.deliverymode = String(deliverymode)
+            this.uploadForm.webDesc = cmdtProductDescriptions.find(item => item.xtype === 2).xdesc
+            this.uploadForm.phoneDesc = cmdtProductDescriptions.find(item => item.xtype === 1).xdesc
             const imgData = cmdtProductImages.map(item => {
-              return Object.assign(item, { url: item.image });
-            });
-            const imgOne = imgData.find(item => item.serial === 1);
-            const imgTwo = imgData.find(item => item.serial === 2);
-            const imgThree = imgData.find(item => item.serial === 3);
-            const imgFour = imgData.find(item => item.serial === 4);
-            const imgFive = imgData.find(item => item.serial === 5);
-            this.uploadForm.img_one = imgOne ? imgOne : null;
-            this.uploadForm.img_two = imgTwo ? imgTwo : null;
-            this.uploadForm.img_three = imgThree ? imgThree : null;
-            this.uploadForm.img_four = imgFour ? imgFour : null;
-            this.uploadForm.img_five = imgFive ? imgFive : null;
-            const masterVideo = productVideos.find(item => item.serial === 1);
-            const babyVideo = productVideos.find(item => item.serial === 2);
-            this.uploadForm.master_video = masterVideo ? masterVideo : null;
-            this.uploadForm.baby_video = babyVideo ? babyVideo : null;
-            this.uploadForm.proportion = masterVideo
-              ? String(masterVideo.proportion)
-              : "";
+              return Object.assign(item, { url: item.image })
+            })
+            const imgOne = imgData.find(item => item.serial === 1)
+            const imgTwo = imgData.find(item => item.serial === 2)
+            const imgThree = imgData.find(item => item.serial === 3)
+            const imgFour = imgData.find(item => item.serial === 4)
+            const imgFive = imgData.find(item => item.serial === 5)
+            this.uploadForm.img_one = imgOne ? imgOne : null
+            this.uploadForm.img_two = imgTwo ? imgTwo : null
+            this.uploadForm.img_three = imgThree ? imgThree : null
+            this.uploadForm.img_four = imgFour ? imgFour : null
+            this.uploadForm.img_five = imgFive ? imgFive : null
+            const masterVideo = productVideos.find(item => item.serial === 1)
+            const babyVideo = productVideos.find(item => item.serial === 2)
+            this.uploadForm.master_video = masterVideo ? masterVideo : null
+            this.uploadForm.baby_video = babyVideo ? babyVideo : null
+            this.uploadForm.proportion = masterVideo ? String(masterVideo.proportion) : ''
             this.productImgs = cmdtProductImages.map(item => {
-              return { serial: item.serial, uid: item.uid };
-            });
+              return { serial: item.serial, uid: item.uid }
+            })
             this.productVideos = productVideos.map(item => {
-              return { serial: item.serial, uid: item.uid };
-            });
-            this.state = String(state);
+              return { serial: item.serial, uid: item.uid }
+            })
+            this.state = String(state)
             this.storeInfo = {
               province,
               city,
               address
-            };
-            this._loadingCancel();
+            }
+            this._loadingCancel()
           }
           if (code2 === 200) {
-            this.homePageClasses = homePageClasses;
+            this.homePageClasses = homePageClasses
           }
         }
       } catch (err) {
-        console.log(err);
+        console.log(err)
       }
     },
 
     /* 监听销售属性判断动态表格显示与否 */
     tableShow(val) {
       if (val === true) {
-        this.tableIsShow = false;
-        const data = deepClone(this.saleDataInit).filter(
-          item => item.type === "1"
-        );
-        this.tableArr = InitTableData(deInitFormData(data));
+        this.tableIsShow = false
+        const data = deepClone(this.saleDataInit).filter(item => item.type === '1')
+        this.tableArr = InitTableData(deInitFormData(data))
         this.itemIdArr = initTableInputData(
           this.cmdtProductPrices,
           setRowSpan(sortTableArr(toCombination(this.tableArr))),
           deepClone(this.saleData)
-        );
+        )
         this.$nextTick(() => {
-          this.tableIsShow = true;
-        });
+          this.tableIsShow = true
+        })
       } else {
-        this.tableData = [];
-        this.tableIsShow = false;
+        this.tableData = []
+        this.tableIsShow = false
       }
     },
 
     /* 自然属性提交验证 */
     editNatureproV() {
       const p1 = new Promise((resolve, reject) => {
-        this.$refs["titleForm"].validate(valid => {
-          if (valid) resolve();
-        });
-      });
+        this.$refs['titleForm'].validate(valid => {
+          if (valid) resolve()
+        })
+      })
       const p2 = new Promise((resolve, reject) => {
-        this.$refs.dynamicFormNatural.$refs["[object Object]"].validate(
-          valid => {
-            if (valid) resolve();
-          }
-        );
-      });
+        this.$refs.dynamicFormNatural.$refs['[object Object]'].validate(valid => {
+          if (valid) resolve()
+        })
+      })
       Promise.all([p1, p2]).then(() => {
-        this.editNaturepro();
-      });
+        this.editNaturepro()
+      })
     },
 
     /* 自然属性formData组装 */
     editNaturepro() {
-      this.loadingNature = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "1");
-      formData.append("produname", this.titleForm.produname);
-      formData.append("title", this.titleForm.title);
-      formData.append("homepageclass", this.titleForm.homepageclass);
-      formData.append("isAgent", this.titleForm.isAgent);
-      formData.append("pmercode", this.titleForm.pmercode);
+      this.loadingNature = true
+      let formData = new FormData()
+      formData.append('moduleNum', '1')
+      formData.append('produname', this.titleForm.produname)
+      formData.append('title', this.titleForm.title)
+      formData.append('homepageclass', this.titleForm.homepageclass)
+      formData.append('isAgent', this.titleForm.isAgent)
+      formData.append('pmercode', this.titleForm.pmercode)
       formData.append(
-        "naturepro",
+        'naturepro',
         JSON.stringify({ naturepro: deInitFormData(this.naturalDataInit) })
-      );
-      this.subTableData(formData);
+      )
+      this.subTableData(formData)
     },
 
     /* 销售属性提交验证 */
     editSaleproV() {
       const p1 = new Promise((resolve, reject) => {
         this.$refs.dynamicFormSale.validatInit(valid => {
-          if (valid) resolve();
-        });
+          if (valid) resolve()
+        })
       }).then(() => {
-        this.editSalepro();
-      });
+        this.editSalepro()
+      })
     },
 
     /* 销售属性formData组装 */
     editSalepro() {
-      this.loadingSale = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "7");
-      formData.append(
-        "productPrices",
-        JSON.stringify(subTableInputData(this.itemIdArr))
-      );
-      this.subTableData(formData);
+      this.loadingSale = true
+      let formData = new FormData()
+      formData.append('moduleNum', '7')
+      formData.append('productPrices', JSON.stringify(subTableInputData(this.itemIdArr)))
+      this.subTableData(formData)
     },
 
     /* 商品图片提交验证 */
     editProImgV() {
       new Promise((resolve, reject) => {
-        this.$refs["uploadForm"].validate(valid => {
-          if (valid) resolve();
-        });
+        this.$refs['uploadForm'].validate(valid => {
+          if (valid) resolve()
+        })
       }).then(() => {
-        this.editProImg();
-      });
+        this.editProImg()
+      })
     },
 
     /* 商品图片formData组装 */
     editProImg() {
-      this.loadingUploadImg = true;
-      this.imgBoxShow = false;
-      let formData = new FormData();
-      const cloneData = deepClone(this.productImgs);
-      formData.append("moduleNum", "4");
+      this.loadingUploadImg = true
+      this.imgBoxShow = false
+      let formData = new FormData()
+      const cloneData = deepClone(this.productImgs)
+      formData.append('moduleNum', '4')
       formData.append(
-        "productImgs",
+        'productImgs',
         JSON.stringify(
           cloneData.map(item => {
-            return item.uid;
+            return item.uid
           })
         )
-      );
-      formData.append("img_one", this.$refs.imgItemFir.fileList[0]);
-      formData.append("img_two", this.$refs.imgItemSec.fileList[0]);
-      formData.append("img_three", this.$refs.imgItemThree.fileList[0]);
-      formData.append("img_four", this.$refs.imgItemFour.fileList[0]);
-      formData.append("img_five", this.$refs.imgItemFive.fileList[0]);
+      )
+      formData.append('img_one', this.$refs.imgItemFir.fileList[0])
+      formData.append('img_two', this.$refs.imgItemSec.fileList[0])
+      formData.append('img_three', this.$refs.imgItemThree.fileList[0])
+      formData.append('img_four', this.$refs.imgItemFour.fileList[0])
+      formData.append('img_five', this.$refs.imgItemFive.fileList[0])
       this.productImgs.forEach(item => {
         if (Number(item.serial) === 1) {
-          formData.delete("img_one");
+          formData.delete('img_one')
         } else if (Number(item.serial) === 2) {
-          formData.delete("img_two");
+          formData.delete('img_two')
         } else if (Number(item.serial) === 3) {
-          formData.delete("img_three");
+          formData.delete('img_three')
         } else if (Number(item.serial) === 4) {
-          formData.delete("img_four");
+          formData.delete('img_four')
         } else if (Number(item.serial) === 5) {
-          formData.delete("img_five");
+          formData.delete('img_five')
         }
-      });
-      this.subTableData(formData);
+      })
+      this.subTableData(formData)
     },
 
     /* 商品视频formData组装 */
     editProVideo() {
-      this.loadingUploadVideo = true;
-      this.videoBoxShow = false;
-      let formData = new FormData();
-      formData.append("moduleNum", "5");
+      this.loadingUploadVideo = true
+      this.videoBoxShow = false
+      let formData = new FormData()
+      formData.append('moduleNum', '5')
       formData.append(
-        "productVideos",
+        'productVideos',
         JSON.stringify(
           this.productVideos.map(item => {
-            return item.uid;
+            return item.uid
           })
         )
-      );
-      formData.append("master_video", this.$refs.master_video.video);
-      formData.append("baby_video", this.$refs.baby_video.video);
-      formData.append("zduration", this.uploadForm.zduration);
-      formData.append("fduration", this.uploadForm.fduration);
+      )
+      formData.append('master_video', this.$refs.master_video.video)
+      formData.append('baby_video', this.$refs.baby_video.video)
+      formData.append('zduration', this.uploadForm.zduration)
+      formData.append('fduration', this.uploadForm.fduration)
       this.productVideos.forEach(item => {
         if (Number(item.serial) === 1) {
-          formData.delete("master_video");
-          formData.delete("zduration");
+          formData.delete('master_video')
+          formData.delete('zduration')
         } else if (Number(item.serial) === 2) {
-          formData.delete("baby_video");
-          formData.delete("fduration");
+          formData.delete('baby_video')
+          formData.delete('fduration')
         }
-      });
-      formData.append("proportion", this.uploadForm.proportion);
-      this.subTableData(formData);
+      })
+      formData.append('proportion', this.uploadForm.proportion)
+      this.subTableData(formData)
     },
 
     /* 商品文本描述验证提交 */
     editProDecV() {
       new Promise((resolve, reject) => {
-        this.$refs["uploadForm"].validate(valid => {
-          if (valid) resolve();
-        });
+        this.$refs['uploadForm'].validate(valid => {
+          if (valid) resolve()
+        })
       }).then(() => {
-        this.editProDec();
-      });
+        this.editProDec()
+      })
     },
 
     /* 商品文本描述formData组装 */
     editProDec() {
-      this.loadingUploadDec = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "6");
-      formData.append("webDesc", this.uploadForm.webDesc);
-      formData.append("phoneDesc", this.uploadForm.phoneDesc);
-      this.subTableData(formData);
+      this.loadingUploadDec = true
+      let formData = new FormData()
+      formData.append('moduleNum', '6')
+      formData.append('webDesc', this.uploadForm.webDesc)
+      formData.append('phoneDesc', this.uploadForm.phoneDesc)
+      this.subTableData(formData)
     },
 
     /* 支付信息formData组装 */
     editPayInfo() {
-      this.loadingPay = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "2");
-      formData.append("paymethod", this.payForm.paymethod);
-      formData.append("stockmethod", this.payForm.stockmethod);
-      this.subTableData(formData);
+      this.loadingPay = true
+      let formData = new FormData()
+      formData.append('moduleNum', '2')
+      formData.append('paymethod', this.payForm.paymethod)
+      formData.append('stockmethod', this.payForm.stockmethod)
+      this.subTableData(formData)
     },
 
     /* 售后服务验证提交 */
     editPostSaleV() {
       new Promise((resolve, reject) => {
-        this.$refs["postSaleForm"].validate(valid => {
-          if (valid) resolve();
-        });
+        this.$refs['postSaleForm'].validate(valid => {
+          if (valid) resolve()
+        })
       }).then(() => {
-        this.editPostSale();
-      });
+        this.editPostSale()
+      })
     },
 
     /* 售后服务formData组装 */
     editPostSale() {
-      this.loadingServer = true;
-      const { invoice, ticketType } = this.postSaleForm;
-      let formData = new FormData();
-      formData.append("moduleNum", "3");
-      formData.append("invoice", initInvoiceSub(invoice, ticketType));
-      formData.append("state", this.postSaleForm.state);
-      this.subTableData(formData);
+      this.loadingServer = true
+      const { invoice, ticketType } = this.postSaleForm
+      let formData = new FormData()
+      formData.append('moduleNum', '3')
+      formData.append('invoice', initInvoiceSub(invoice, ticketType))
+      formData.append('state', this.postSaleForm.state)
+      this.subTableData(formData)
     },
 
     /* 物流信息formData组装 */
     editLogistics() {
-      this.loadingLogistics = true;
-      let formData = new FormData();
-      formData.append("moduleNum", "8");
-      formData.append(
-        "issupsubstitute",
-        this.logisticsForm.issupsubstitute === true ? "Y" : "N"
-      );
-      formData.append("deliverymode", this.logisticsForm.deliverymode);
-      formData.append("province", this.storeInfo.province);
-      formData.append("city", this.storeInfo.city);
-      this.subTableData(formData);
+      this.loadingLogistics = true
+      let formData = new FormData()
+      formData.append('moduleNum', '8')
+      formData.append('issupsubstitute', this.logisticsForm.issupsubstitute === true ? 'Y' : 'N')
+      formData.append('deliverymode', this.logisticsForm.deliverymode)
+      formData.append('province', this.storeInfo.province)
+      formData.append('city', this.storeInfo.city)
+      this.subTableData(formData)
     },
 
     /* 提交数据接口 */
     async subTableData(formData) {
       try {
-        formData.append("producode", this.producode);
-        formData.append("uid", this.uid);
-        formData.append("isRt", this.isRt);
-        const { code, msg } = await proPublishSubEdit(formData);
+        formData.append('producode', this.producode)
+        formData.append('uid', this.uid)
+        formData.append('isRt', this.isRt)
+        const { code, msg } = await proPublishSubEdit(formData)
         if (code === 200) {
-          await this.getDetailData();
-          this._loadingCancel();
-          this.msgSuccess("修改成功");
+          await this.getDetailData()
+          this._loadingCancel()
+          this.msgSuccess('修改成功')
         } else {
-          this._loadingCancel();
+          this._loadingCancel()
         }
       } catch (err) {
-        this._loadingCancel();
-        console.log(err);
+        this._loadingCancel()
+        console.log(err)
       }
     },
 
     /*清楚loading  */
     _loadingCancel() {
-      this.loadingNature = false;
-      this.loadingSale = false;
-      this.loadingUploadImg = false;
-      this.loadingUploadVideo = false;
-      this.loadingUploadDec = false;
-      this.loadingPay = false;
-      this.loadingServer = false;
-      this.loadingLogistics = false;
-      this.imgBoxShow = true;
-      this.videoBoxShow = true;
+      this.loadingNature = false
+      this.loadingSale = false
+      this.loadingUploadImg = false
+      this.loadingUploadVideo = false
+      this.loadingUploadDec = false
+      this.loadingPay = false
+      this.loadingServer = false
+      this.loadingLogistics = false
+      this.imgBoxShow = true
+      this.videoBoxShow = true
     }
   }
-};
+}
 </script>

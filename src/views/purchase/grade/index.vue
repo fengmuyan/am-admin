@@ -25,7 +25,7 @@
       </el-table>
     </div>
 
-    <el-dialog title="新增品级" :visible.sync="open" width="500px">
+    <el-dialog title="新增品级" :visible.sync="open" width="500px" @close="clearValidate">
       <el-form ref="form" :model="form" :rules="formRules" label-width="90px">
         <el-form-item label="品级名称" prop="dictName">
           <el-input v-model="form.dictName" placeholder="请输入品级名称" />

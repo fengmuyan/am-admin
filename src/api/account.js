@@ -8,8 +8,18 @@ export function getAccountPass() {
   })
 }
 
+// 微信签约
+export function handelAccountSign(data = {}) {
+  return request({
+    url: '/god/account/accountSigning',
+    method: 'post',
+    data,
+  })
+}
+
 // 开通二级账户
-export function createAccount(data = {}) {
+export function createAccount(formData) {
+  const data = { formData, $_isFormData: true }
   return request({
     url: '/god/account/reg',
     method: 'post',

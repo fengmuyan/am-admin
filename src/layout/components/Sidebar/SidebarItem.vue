@@ -59,6 +59,7 @@ export default {
         "sent-self-list/:code",
         "edit-order/:code",
         "publish/:code",
+        "warehouse/:code"
       ]
     }
   },

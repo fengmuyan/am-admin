@@ -27,7 +27,7 @@
       </el-table>
     </div>
 
-    <el-dialog title="新增打税公司" :visible.sync="open" width="500px">
+    <el-dialog title="新增打税公司" :visible.sync="open" width="500px" @close="clearValidate">
       <el-form ref="form" :model="form" :rules="formRules" label-width="90px">
         <el-form-item label="公司名称" prop="cname">
           <el-input v-model="form.cname" maxlength="30" placeholder="请输入公司名称" />
@@ -137,9 +137,6 @@ export default {
       await this.$nextTick();
       this.open = true;
     },
-    clearValidate() {
-      this.$refs.form.resetFields();
-    },
     submitForm(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -179,7 +176,10 @@ export default {
           }
         })
         .catch(function() {});
-    }
+    },
+    clearValidate() {
+      this.$refs.form.resetFields();
+    },
   }
 };
 </script>

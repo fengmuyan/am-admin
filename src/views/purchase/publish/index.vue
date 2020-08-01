@@ -36,7 +36,7 @@
       </el-row>
       <el-table style="width: 100%" v-loading="loading" :data="productList">
         <el-table-column label="序号" prop="order" width="60" />
-        <el-table-column label="商品编码" prop="ccode" />
+        <el-table-column label="商品编码" prop="producode" />
         <el-table-column label="商品分类" prop="cname" />
         <el-table-column label="商品名称" prop="cmdtname" />
         <el-table-column label="商品产地" prop="producerName" />

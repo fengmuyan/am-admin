@@ -69,7 +69,7 @@ export default {
       if (value === "") {
         callback(new Error("请输入提现金额"));
       } else {
-        if (!patter.test(value) || value == 0 || value > this.usableamount) {
+        if (!patter.test(value) || Number(value) === 0 ) {
           callback(new Error("必须大于零小于账户余额且至多保留两位小数！"));
         } else {
           callback();
